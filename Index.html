@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bill Pay – Home Workbook</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body,#root{height:100%;background:#f0f0f5;}
+    body{font-family:'Nunito',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef } = React;
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const SW_VENDORS = [
+  // 1ST HALF
+  {id:"v_ugi",      name:"UGI",                               category:"1ST",         account:"WELLS · 0146", defaultAmount:71.33,   dueDate:"11th",  notes:"Plan expires Oct 2022. NRG Site Aug 2024. Check in Oct.",        url:"https://www.ugi.com",                       phone:""},
+  {id:"v_sw",       name:"Housing – Sir Walters",             category:"1ST",         account:"WELLS · 0146", defaultAmount:3950.00, dueDate:"15th",  notes:"$13.59 to principle each payment.",                              url:"https://www.bankofamerica.com",              phone:""},
+  {id:"v_snap",     name:"Housing – Snapdragon",              category:"1ST",         account:"BOA · 3319",   defaultAmount:1604.84, dueDate:"1st",   notes:"",                                                              url:"https://www.bankofamerica.com",              phone:""},
+  {id:"v_verizon",  name:"Verizon",                           category:"1ST",         account:"WELLS · 0146", defaultAmount:194.89,  dueDate:"15th",  notes:"iPad $11.62 · iPhone $109.58. Payment from Deb.",               url:"https://www.verizon.com/myverizon",          phone:"1-800-922-0204"},
+  // TITHES
+  {id:"v_tithes",   name:"Tithes / Offerings",                category:"Tithes",      account:"WELLS · 0146", defaultAmount:250.00,  dueDate:"—",     notes:"",                                                              url:"",                                           phone:""},
+  // 2ND HALF
+  {id:"v_amex",     name:"AMEX Credit Card",                  category:"2ND",         account:"AMEX · 2002",  defaultAmount:0,       dueDate:"5th",   notes:"",                                                              url:"https://www.americanexpress.com",            phone:"1-800-528-4800"},
+  {id:"v_apple",    name:"Apple Credit Card",                 category:"2ND",         account:"WELLS · 0146", defaultAmount:0,       dueDate:"28th",  notes:"",                                                              url:"https://card.apple.com",                     phone:"1-877-255-5923"},
+  {id:"v_chase_d",  name:"Chase (Danielle)",                  category:"2ND",         account:"WELLS · 0146", defaultAmount:25.00,   dueDate:"18th",  notes:"",                                                              url:"https://www.chase.com",                      phone:""},
+  {id:"v_elec",     name:"Electric – Rate Check Site",        category:"2ND",         account:"WELLS · 0146", defaultAmount:200.76,  dueDate:"18th",  notes:"Check rate agreement August. NRG Energy site.",                 url:"https://www.nrg.com",                        phone:""},
+  {id:"v_rcn",      name:"RCN Internet",                      category:"2ND",         account:"CHASE · 2675", defaultAmount:72.88,   dueDate:"18th",  notes:"2020 Sir Walters location.",                                    url:"https://www.astound.com",                    phone:"1-800-746-4726"},
+  {id:"v_other",    name:"Netflix & Peloton",                 category:"2ND",         account:"CHASE · 2675", defaultAmount:72.06,   dueDate:"22nd",  notes:"Netflix + Peloton subscription bundle.",                        url:"https://www.netflix.com",                    phone:""},
+  {id:"v_529",      name:"529 Account",                       category:"2ND",         account:"WELLS · 0146", defaultAmount:100.00,  dueDate:"25th",  notes:"",                                                              url:"https://www.wellsfargo.com",                 phone:""},
+  {id:"v_sf",       name:"State Farm",                        category:"2ND",         account:"CHASE · 2675", defaultAmount:226.42,  dueDate:"29th",  notes:"$152.23 + $74.19 split payments.",                              url:"https://www.statefarm.com",                  phone:"1-800-782-8332"},
+  {id:"v_tesla",    name:"Tesla",                             category:"2ND",         account:"WELLS · 0146", defaultAmount:750.00,  dueDate:"31st",  notes:"",                                                              url:"https://www.tesla.com/teslaaccount",         phone:"1-877-798-3752"},
+  {id:"v_stlukes",  name:"St. Lukes Medical",                 category:"2ND",         account:"WELLS · 0282", defaultAmount:126.00,  dueDate:"25th",  notes:"",                                                              url:"https://www.slhn.org/pay-my-bill",           phone:"1-866-785-8537"},
+  {id:"v_reiss",    name:"Reiss Hauling & Recycling",         category:"2ND",         account:"CHASE · 2675", defaultAmount:105.00,  dueDate:"1st",   notes:"$84 quarterly. Garbage pickup and recycling.",                  url:"",                                           phone:"(610) 346-7535"},
+  {id:"v_lawn",     name:"Lawn Care",                         category:"2ND",         account:"WELLS · 0146", defaultAmount:350.40,  dueDate:"1st",   notes:"Herb Landscaping. $90 per cut. Greenscapes: $109 every 6–8 weeks Apr–Nov.", url:"", phone:"Herb: (215) 538-5318 · Greenscapes: (610) 509-7114"},
+  {id:"v_reddoor",  name:"Red Door Payment",                  category:"2ND",         account:"WELLS · 0146", defaultAmount:654.17,  dueDate:"25th",  notes:"Last payment for miles is 7/10.",                               url:"",                                           phone:""},
+  {id:"v_paypal",   name:"PayPal",                            category:"2ND",         account:"WELLS · 0146", defaultAmount:0,       dueDate:"—",     notes:"",                                                              url:"https://www.paypal.com",                     phone:""},
+  {id:"v_adt",      name:"ADT",                               category:"2ND",         account:"CHASE · 2675", defaultAmount:62.41,   dueDate:"24th",  notes:"",                                                              url:"https://www.adt.com/myadt",                  phone:"1-800-238-2727"},
+  {id:"v_quest",    name:"Quest Pest Control",                category:"2ND",         account:"CHASE · 2675", defaultAmount:58.30,   dueDate:"24th",  notes:"",                                                              url:"",                                           phone:""},
+  // CREDIT CARDS
+  {id:"v_amazon_cc",name:"Amazon Credit Card",                category:"Amazon",      account:"CHASE · 6108", defaultAmount:0,       dueDate:"12th",  notes:"Chase Amazon card ending 6108.",                                url:"https://www.chase.com/personal/credit-cards/amazon", phone:"1-888-247-4080"},
+  {id:"v_chase_u",  name:"Chase United",                      category:"Chase United",account:"WELLS · 0146", defaultAmount:0,       dueDate:"28th",  notes:"Chase United card ending 7590.",                                url:"https://www.chase.com/personal/credit-cards/united", phone:"1-800-432-3117"},
+  // YEARLY
+  {id:"v_hoa_sr",   name:"HOA Saddle Ridge",                  category:"Yearly",      account:"WELLS · 0146", defaultAmount:250.00,  dueDate:"Jan",   notes:"Annual. Due in January.",                                       url:"",                                           phone:""},
+  {id:"v_chase_af", name:"Chase United AF",                   category:"Yearly",      account:"WELLS · 0146", defaultAmount:95.00,   dueDate:"11/1",  notes:"Annual fee due November 1.",                                    url:"https://www.chase.com",                      phone:"1-800-432-3117"},
+  {id:"v_sirius",   name:"Sirius XM",                         category:"Yearly",      account:"CHASE · 2675", defaultAmount:50.00,   dueDate:"3/1",   notes:"Call on 3/1 — billing date is 3/11.",                           url:"https://www.siriusxm.com/myaccount",         phone:"1-866-635-2349"},
+  {id:"v_prime",    name:"Amazon Prime AF",                   category:"Yearly",      account:"CHASE · 6108", defaultAmount:110.00,  dueDate:"3/15",  notes:"Annual fee due March 15.",                                      url:"https://www.amazon.com/mc",                  phone:""},
+  {id:"v_carreg",   name:"Car Registration",                  category:"Yearly",      account:"CHASE · 2675", defaultAmount:55.25,   dueDate:"5/31",  notes:"Annual PA registration due May 31.",                            url:"https://www.dmv.pa.gov",                     phone:""},
+  {id:"v_life",     name:"Life Insurance",                    category:"Yearly",      account:"WELLS · 0146", defaultAmount:477.99,  dueDate:"5/1",   notes:"Annual premium due May 1.",                                     url:"",                                           phone:""},
+  {id:"v_eco",      name:"ECO Annual Service",                category:"Yearly",      account:"CHASE · 2675", defaultAmount:300.19,  dueDate:"4/1",   notes:"Longs EcoWater Systems. Owner: Scott Warrick (neighbor, very helpful).", url:"", phone:"(610) 609-8665"},
+  {id:"v_amex_af",  name:"AMEX AF",                           category:"Yearly",      account:"WELLS · 0146", defaultAmount:550.00,  dueDate:"1/11",  notes:"Annual fee due January 11.",                                    url:"https://www.americanexpress.com",            phone:"1-800-528-4800"},
+  {id:"v_aaa",      name:"AAA Membership",                    category:"Yearly",      account:"CHASE · 2675", defaultAmount:13.00,   dueDate:"2/28",  notes:"Annual membership due February 28.",                            url:"https://www.aaa.com",                        phone:"1-800-222-4357"},
+  {id:"v_pareg",    name:"PA Registration (David & Danielle)",category:"Yearly",      account:"CHASE · 2675", defaultAmount:78.00,   dueDate:"5/31",  notes:"Both vehicles. Annual May 31.",                                 url:"https://www.dmv.pa.gov",                     phone:""},
+  {id:"v_serenite", name:"Serenite",                          category:"Yearly",      account:"",             defaultAmount:0,       dueDate:"",      notes:"",                                                              url:"",                                           phone:""},
+  {id:"v_jeff",     name:"Jeff Riddle",                       category:"Yearly",      account:"WELLS · 0146", defaultAmount:0,       dueDate:"8/31",  notes:"",                                                              url:"",                                           phone:""},
+  // HOME SERVICES (from Home Maintenance tab)
+  {id:"v_septic",   name:"River Valley Septic",               category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Last service 1/28/2025. Next due 1/28/2028. Every 3–5 years.",  url:"",                                           phone:"(610) 749-2001"},
+  {id:"v_hvac",     name:"Family Heating & Cooling",          category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"HVAC service. Yearly maintenance.",                             url:"",                                           phone:"(610) 421-9885"},
+  {id:"v_garner",   name:"Garner Bros Heating & Air",         category:"Home Services",account:"",            defaultAmount:180,     dueDate:"",      notes:"$180 per unit. Last service 8/29/2025. Yearly.",               url:"",                                           phone:"(215) 412-7613"},
+  {id:"v_longs",    name:"Longs ECO Water",                   category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Water service. Yearly maintenance.",                            url:"",                                           phone:"(610) 398-3737"},
+  {id:"v_gutters",  name:"Brothers Who Do Gutters",           category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Last service June 2022.",                                       url:"",                                           phone:""},
+  {id:"v_snow",     name:"Matthew Diehl Snow Plow",           category:"Home Services",account:"",            defaultAmount:50,      dueDate:"",      notes:"$50 per plow.",                                                 url:"",                                           phone:"(610) 295-8953"},
+  {id:"v_cleanhaus",name:"CleanHaus Cleaning Service",        category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Recommended by neighbors. Located in Hellertown.",              url:"",                                           phone:"(484) 893-0208"},
+  {id:"v_fireplace",name:"J.C. Fireplaces",                   category:"Home Services",account:"",            defaultAmount:65,      dueDate:"",      notes:"Last service 9/11/2025. Contact: Jay Chuchman — chuckjay@gmail.com", url:"", phone:"(215) 538-3422"},
+  {id:"v_putting",  name:"Paul Split – Artificial Greens",    category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Putting green. Sand-filled, no maintenance, no winter cover needed.", url:"", phone:"(267) 518-3200"},
+];
+const SNAP_VENDORS = [
+  {id:"r_refuse",    name:"Refuse",               category:"Quarterly", account:"WELLS · 0146", defaultAmount:80.00,  dueDate:"30th", notes:"Mar / Jun / Sep / Dec",   url:"",                                    phone:"(610) 346-7535"},
+  {id:"r_sewer",     name:"Sewer Rental",          category:"Quarterly", account:"WELLS · 0146", defaultAmount:89.00,  dueDate:"30th", notes:"Mar / Jun / Sep / Dec",   url:"",                                    phone:""},
+  {id:"r_water",     name:"Water Bill",            category:"Quarterly", account:"WELLS · 0146", defaultAmount:0,      dueDate:"",     notes:"Jan / Apr / Jul / Oct",   url:"",                                    phone:""},
+  {id:"r_lighthouse",name:"Lighthouse PMC",        category:"Monthly",   account:"",             defaultAmount:0,      dueDate:"",     notes:"Property management. Link on file.", url:"",                          phone:""},
+  {id:"r_hoa",       name:"HOA",                   category:"Yearly",    account:"WELLS · 0146", defaultAmount:360.00, dueDate:"3/31", notes:"Annual due March 31.",     url:"",                                    phone:""},
+  {id:"r_culligan",  name:"Culligan Annual",        category:"Yearly",    account:"CHASE · 2675", defaultAmount:480.00, dueDate:"4/1",  notes:"Annual service due April 1.", url:"https://www.culligan.com",        phone:""},
+];
+const SW_MONTHS = [
+  {id:"m_nov25",year:2025,month:10,label:"November 2025", status:"closed",startingBalance:8321.95, balance:7405.89,closedAt:new Date("2025-11-30").getTime(),
+    bills:[
+      {id:"b1", vendorId:"v_ugi",      vendorName:"UGI",                  amount:65.35,  status:"paid",   account:"WELLS · 0146",dueDate:"11th",note:""},
+      {id:"b2", vendorId:"v_sw",       vendorName:"Housing – Sir Walters",amount:0,      status:"paid",   account:"WELLS · 0146",dueDate:"15th",note:""},
+      {id:"b3", vendorId:"v_snap",     vendorName:"Housing – Snapdragon", amount:53.56,  status:"paid",   account:"BOA · 3319",  dueDate:"1st", note:""},
+      {id:"b4", vendorId:"v_verizon",  vendorName:"Verizon",              amount:0,      status:"paid",   account:"WELLS · 0146",dueDate:"15th",note:""},
+      {id:"b5", vendorId:"v_tithes",   vendorName:"Tithes / Offerings",   amount:250,    status:"skipped",account:"WELLS · 0146",dueDate:"—",   note:""},
+      {id:"b6", vendorId:"v_amex",     vendorName:"AMEX",                 amount:108.24, status:"paid",   account:"AMEX · 2002", dueDate:"5th", note:""},
+      {id:"b7", vendorId:"v_apple",    vendorName:"Apple Credit Card",    amount:607.76, status:"paid",   account:"WELLS · 0146",dueDate:"28th",note:""},
+      {id:"b8", vendorId:"v_elec",     vendorName:"Electric",             amount:236.89, status:"paid",   account:"WELLS · 0146",dueDate:"18th",note:""},
+      {id:"b9", vendorId:"v_rcn",      vendorName:"RCN Internet",         amount:60.97,  status:"paid",   account:"CHASE · 2675",dueDate:"18th",note:""},
+      {id:"b10",vendorId:"v_other",    vendorName:"Netflix & Peloton",    amount:81.07,  status:"paid",   account:"CHASE · 2675",dueDate:"22nd",note:""},
+      {id:"b11",vendorId:"v_529",      vendorName:"529 Account",          amount:100,    status:"paid",   account:"WELLS · 0146",dueDate:"25th",note:""},
+      {id:"b12",vendorId:"v_sf",       vendorName:"State Farm",           amount:229.63, status:"paid",   account:"CHASE · 2675",dueDate:"29th",note:""},
+      {id:"b13",vendorId:"v_tesla",    vendorName:"Tesla",                amount:750,    status:"paid",   account:"WELLS · 0146",dueDate:"31st",note:""},
+      {id:"b14",vendorId:"v_lawn",     vendorName:"Lawn Care",            amount:310.65, status:"paid",   account:"WELLS · 0146",dueDate:"1st", note:""},
+      {id:"b15",vendorId:"v_adt",      vendorName:"ADT",                  amount:62.41,  status:"paid",   account:"CHASE · 2675",dueDate:"24th",note:""},
+      {id:"b16",vendorId:"v_quest",    vendorName:"Quest Pest Control",   amount:58.30,  status:"paid",   account:"CHASE · 2675",dueDate:"24th",note:""},
+      {id:"b17",vendorId:"v_amazon_cc",vendorName:"Amazon Credit Card",   amount:500,    status:"paid",   account:"CHASE · 6108",dueDate:"12th",note:""},
+      {id:"b18",vendorId:"v_chase_u",  vendorName:"Chase United",         amount:500,    status:"paid",   account:"WELLS · 0146",dueDate:"28th",note:""},
+    ]},
+  {id:"m_dec25",year:2025,month:11,label:"December 2025",status:"closed",startingBalance:0,      balance:0,      closedAt:new Date("2025-12-31").getTime(),bills:[]},
+  {id:"m_jan26", year:2026,month:0, label:"January 2026", status:"closed",startingBalance:13628.76,balance:4162.06,closedAt:new Date("2026-01-31").getTime(),bills:[]},
+  {id:"m_feb26", year:2026,month:1, label:"February 2026",status:"closed",startingBalance:20.45,  balance:-129.55,closedAt:new Date("2026-02-28").getTime(),bills:[]},
+  {id:"m_mar26", year:2026,month:2, label:"March 2026",   status:"closed",startingBalance:2097.03, balance:204.96, closedAt:new Date("2026-03-31").getTime(),bills:[]},
+  {id:"m_apr26", year:2026,month:3, label:"April 2026",   status:"inprogress",startingBalance:5520.43,balance:926.47,closedAt:null,
+    bills:[
+      {id:"c1", vendorId:"v_ugi",     vendorName:"UGI",                  amount:259.26, status:"pending",account:"WELLS · 0146",dueDate:"11th", note:""},
+      {id:"c2", vendorId:"v_sw",      vendorName:"Housing – Sir Walters",amount:3893.37,status:"pending",account:"WELLS · 0146",dueDate:"15th", note:""},
+      {id:"c3", vendorId:"v_snap",    vendorName:"Housing – Snapdragon", amount:0,      status:"pending",account:"BOA · 3319",  dueDate:"1st",  note:""},
+      {id:"c4", vendorId:"v_verizon", vendorName:"Verizon",              amount:191.33, status:"pending",account:"WELLS · 0146",dueDate:"15th", note:""},
+      {id:"c5", vendorId:"v_tithes",  vendorName:"Tithes / Offerings",   amount:250,    status:"pending",account:"WELLS · 0146",dueDate:"—",    note:""},
+      {id:"c6", vendorId:"v_amex",    vendorName:"AMEX",                 amount:0,      status:"pending",account:"AMEX · 2002", dueDate:"5th",  note:""},
+      {id:"c7", vendorId:"v_apple",   vendorName:"Apple Credit Card",    amount:0,      status:"pending",account:"WELLS · 0146",dueDate:"28th", note:""},
+      {id:"c8", vendorId:"v_elec",    vendorName:"Electric",             amount:0,      status:"pending",account:"WELLS · 0146",dueDate:"18th", note:""},
+      {id:"c9", vendorId:"v_rcn",     vendorName:"RCN Internet",         amount:72.88,  status:"pending",account:"CHASE · 2675",dueDate:"18th", note:""},
+      {id:"c10",vendorId:"v_other",   vendorName:"Netflix & Peloton",    amount:72.06,  status:"pending",account:"CHASE · 2675",dueDate:"22nd", note:""},
+      {id:"c11",vendorId:"v_529",     vendorName:"529 Account",          amount:100,    status:"pending",account:"WELLS · 0146",dueDate:"25th", note:""},
+      {id:"c12",vendorId:"v_sf",      vendorName:"State Farm",           amount:226.42, status:"pending",account:"CHASE · 2675",dueDate:"29th", note:""},
+      {id:"c13",vendorId:"v_tesla",   vendorName:"Tesla",                amount:750,    status:"pending",account:"WELLS · 0146",dueDate:"31st", note:""},
+      {id:"c14",vendorId:"v_stlukes", vendorName:"St. Lukes Medical",    amount:126,    status:"pending",account:"WELLS · 0282",dueDate:"25th", note:""},
+      {id:"c15",vendorId:"v_reiss",   vendorName:"Reiss Hauling",        amount:105,    status:"pending",account:"CHASE · 2675",dueDate:"1st",  note:""},
+      {id:"c16",vendorId:"v_lawn",    vendorName:"Lawn Care",            amount:350.40, status:"pending",account:"WELLS · 0146",dueDate:"1st",  note:""},
+      {id:"c17",vendorId:"v_reddoor", vendorName:"Red Door Payment",     amount:654.17, status:"pending",account:"WELLS · 0146",dueDate:"25th", note:""},
+      {id:"c18",vendorId:"v_adt",     vendorName:"ADT",                  amount:62.41,  status:"pending",account:"CHASE · 2675",dueDate:"24th", note:""},
+      {id:"c19",vendorId:"v_quest",   vendorName:"Quest Pest Control",   amount:58.30,  status:"pending",account:"CHASE · 2675",dueDate:"24th", note:""},
+    ]},
+];
+const SNAP_MONTHS = [
+  {id:"r_nov25",year:2025,month:10,label:"November 2025",status:"closed",startingBalance:0,balance:0,closedAt:new Date("2025-11-30").getTime(),
+    bills:[
+      {id:"rn1",vendorId:"r_refuse",    vendorName:"Refuse",        amount:80,   status:"paid",   account:"WELLS · 0146",dueDate:"30th",note:""},
+      {id:"rn2",vendorId:"r_sewer",     vendorName:"Sewer Rental",  amount:89,   status:"paid",   account:"WELLS · 0146",dueDate:"30th",note:""},
+      {id:"rn3",vendorId:"r_lighthouse",vendorName:"Lighthouse PMC",amount:0,    status:"skipped",account:"",            dueDate:"",    note:""},
+    ]},
+  {id:"r_dec25",year:2025,month:11,label:"December 2025",status:"closed",startingBalance:0,balance:0,closedAt:new Date("2025-12-31").getTime(),
+    bills:[
+      {id:"rd1",vendorId:"r_refuse",vendorName:"Refuse",     amount:93.75,status:"paid",account:"WELLS · 0146",dueDate:"30th",note:""},
+      {id:"rd2",vendorId:"r_sewer", vendorName:"Sewer Rental",amount:89,  status:"paid",account:"WELLS · 0146",dueDate:"30th",note:""},
+    ]},
+  {id:"r_apr26",year:2026,month:3,label:"April 2026",status:"inprogress",startingBalance:0,balance:0,closedAt:null,
+    bills:[
+      {id:"ra1",vendorId:"r_water",     vendorName:"Water Bill",     amount:0,   status:"pending",account:"WELLS · 0146",dueDate:"",    note:""},
+      {id:"ra2",vendorId:"r_hoa",       vendorName:"HOA",            amount:360, status:"pending",account:"WELLS · 0146",dueDate:"3/31",note:""},
+      {id:"ra3",vendorId:"r_culligan",  vendorName:"Culligan Annual",amount:480, status:"pending",account:"CHASE · 2675",dueDate:"4/1", note:""},
+      {id:"ra4",vendorId:"r_lighthouse",vendorName:"Lighthouse PMC", amount:0,   status:"pending",account:"",            dueDate:"",    note:""},
+    ]},
+];
+
+const MO = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const SW_CATS   = ["1ST","2ND","Tithes","Amazon","Chase United","Yearly","Home Services"];
+const SNAP_CATS = ["Monthly","Quarterly","Yearly"];
+const PROPERTIES = {
+  sw:  {key:"sw",   label:"Sir Walters", sub:"Primary Residence", emoji:"house",  gradient:["#5a3d80","#7F58AF"], accent:"#7F58AF", vendors:SW_VENDORS,   cats:SW_CATS,   seed:SW_MONTHS},
+  snap:{key:"snap", label:"Snapdragon",  sub:"Rental Property",   emoji:"leaf",   gradient:["#2d8faf","#64C5EB"], accent:"#64C5EB", vendors:SNAP_VENDORS, cats:SNAP_CATS, seed:SNAP_MONTHS},
+};
+
+// ─── Supabase ─────────────────────────────────────────────────────────────────
+const SUPABASE_URL = "https://ooogbcxsqncxstytrasa.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Z39aD66kKWygUpHW8RbRIA_68a23w9F";
+
+// Tiny Supabase REST client — no SDK needed
+const sb = {
+  async select(table, filters={}) {
+    let url = `${SUPABASE_URL}/rest/v1/${table}?select=*`;
+    Object.entries(filters).forEach(([k,v]) => url += `&${k}=eq.${encodeURIComponent(v)}`);
+    const r = await fetch(url, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" } });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async upsert(table, data) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" },
+      body: JSON.stringify(Array.isArray(data) ? data : [data])
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async delete(table, id) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" }
+    });
+    if (!r.ok) throw new Error(await r.text());
+  },
+  // Real-time via Supabase Realtime WebSocket
+  subscribe(table, callback) {
+    const wsUrl = `${SUPABASE_URL.replace("https","wss")}/realtime/v1/websocket?apikey=${SUPABASE_KEY}&vsn=1.0.0`;
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ topic:`realtime:public:${table}`, event:"phx_join", payload:{config:{broadcast:{self:true},presence:{key:""}}}, ref:"1" }));
+    };
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.event === "INSERT" || msg.event === "UPDATE" || msg.event === "DELETE") callback(msg);
+    };
+    return () => ws.close();
+  }
+};
+
+// ─── Data helpers ─────────────────────────────────────────────────────────────
+// Convert flat DB row → app month object (with bills array)
+function rowsToMonths(monthRows, billRows) {
+  return monthRows.map(m => ({
+    id: m.id, year: m.year, month: m.month, label: m.label,
+    status: m.status, startingBalance: m.starting_balance,
+    balance: m.balance, closedAt: m.closed_at ? new Date(m.closed_at).getTime() : null,
+    bills: billRows.filter(b => b.month_id === m.id).map(b => ({
+      id: b.id, vendorId: b.vendor_id, vendorName: b.vendor_name,
+      amount: b.amount, status: b.status, account: b.account,
+      dueDate: b.due_date, note: b.note || "",
+      paidAt: b.paid_at ? new Date(b.paid_at).getTime() : null
+    }))
+  }));
+}
+
+function monthToRow(m, propKey) {
+  return { id:m.id, prop_key:propKey, year:m.year, month:m.month, label:m.label,
+           status:m.status, starting_balance:m.startingBalance||0, balance:m.balance||0,
+           closed_at: m.closedAt ? new Date(m.closedAt).toISOString() : null };
+}
+
+function billToRow(b, monthId) {
+  return { id:b.id, month_id:monthId, vendor_id:b.vendorId, vendor_name:b.vendorName,
+           amount:b.amount||0, status:b.status, account:b.account||"",
+           due_date:b.dueDate||"", note:b.note||"",
+           paid_at: b.paidAt ? new Date(b.paidAt).toISOString() : null };
+}
+
+function vendorToRow(v, propKey) {
+  return { id:v.id, prop_key:propKey, name:v.name, category:v.category||"",
+           account:v.account||"", default_amount:v.defaultAmount||0,
+           due_date:v.dueDate||"", notes:v.notes||"", url:v.url||"", phone:v.phone||"" };
+}
+
+function rowToVendor(r) {
+  return { id:r.id, name:r.name, category:r.category, account:r.account,
+           defaultAmount:r.default_amount, dueDate:r.due_date,
+           notes:r.notes, url:r.url, phone:r.phone };
+}
+
+// ─── useSupabaseData — loads + syncs months/bills/vendors from Supabase ───────
+function useSupabaseData(propKey, seedVendors, seedMonths) {
+  const [months,  setMonths]  = useState(seedMonths);
+  const [vendors, setVendors] = useState(seedVendors);
+  const [synced,  setSynced]  = useState(false);
+  const [error,   setError]   = useState(null);
+
+  // Initial load
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const [mRows, bRows, vRows] = await Promise.all([
+          sb.select("months",  { prop_key: propKey }),
+          sb.select("bills"),
+          sb.select("vendors", { prop_key: propKey }),
+        ]);
+        if (cancelled) return;
+
+        // If no months in DB yet, seed from local data
+        if (mRows.length === 0) {
+          await seedToSupabase(propKey, seedMonths, seedVendors);
+          const [mRows2, bRows2, vRows2] = await Promise.all([
+            sb.select("months",  { prop_key: propKey }),
+            sb.select("bills"),
+            sb.select("vendors", { prop_key: propKey }),
+          ]);
+          if (!cancelled) {
+            setMonths(rowsToMonths(mRows2, bRows2));
+            setVendors(vRows2.length > 0 ? vRows2.map(rowToVendor) : seedVendors);
+          }
+        } else {
+          setMonths(rowsToMonths(mRows, bRows));
+          setVendors(vRows.length > 0 ? vRows.map(rowToVendor) : seedVendors);
+        }
+        setSynced(true);
+      } catch(e) {
+        console.error("Supabase load error:", e);
+        setError(e.message);
+        setSynced(true); // fall through to local data
+      }
+    }
+    load();
+
+    // Real-time subscription
+    const unsub1 = sb.subscribe("months", () => load());
+    const unsub2 = sb.subscribe("bills",  () => load());
+
+    return () => { cancelled = true; unsub1(); unsub2(); };
+  }, [propKey]);
+
+  // Save a month + all its bills to Supabase
+  async function saveMonth(month) {
+    try {
+      await sb.upsert("months", monthToRow(month, propKey));
+      if (month.bills && month.bills.length > 0) {
+        await sb.upsert("bills", month.bills.map(b => billToRow(b, month.id)));
+      }
+    } catch(e) { console.error("Save month error:", e); }
+  }
+
+  // Update a month locally + sync to Supabase
+  function updateMonth(id, fn) {
+    setMonths(prev => {
+      const updated = prev.map(m => m.id === id ? {...m, ...fn(m)} : m);
+      const changed = updated.find(m => m.id === id);
+      if (changed) saveMonth(changed);
+      return updated;
+    });
+  }
+
+  // Add a new month
+  async function addMonth(nm) {
+    setMonths(prev => [...prev, nm]);
+    await saveMonth(nm);
+  }
+
+  // Delete a month
+  async function deleteMonth(id) {
+    setMonths(prev => prev.filter(m => m.id !== id));
+    try { await sb.delete("months", id); } catch(e) { console.error(e); }
+  }
+
+  // Save vendors
+  async function saveVendors(vList) {
+    setVendors(vList);
+    try {
+      await sb.upsert("vendors", vList.map(v => vendorToRow(v, propKey)));
+    } catch(e) { console.error("Save vendors error:", e); }
+  }
+
+  return { months, vendors, synced, error, updateMonth, addMonth, deleteMonth, saveVendors };
+}
+
+async function seedToSupabase(propKey, seedMonths, seedVendors) {
+  try {
+    await sb.upsert("vendors", seedVendors.map(v => vendorToRow(v, propKey)));
+    for (const m of seedMonths) {
+      await sb.upsert("months", monthToRow(m, propKey));
+      if (m.bills && m.bills.length > 0) {
+        await sb.upsert("bills", m.bills.map(b => billToRow(b, m.id)));
+      }
+    }
+  } catch(e) { console.error("Seed error:", e); }
+}
+
+// Keep useStorage for non-critical local state
+function useStorage(k,init){ const[v,sv]=useState(()=>{try{const s=localStorage.getItem(k);return s?JSON.parse(s):(typeof init==="function"?init():init)}catch{return typeof init==="function"?init():init}});useEffect(()=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},[k,v]);return[v,sv]; }
+const fmt=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n||0);
+const uid=()=>Math.random().toString(36).slice(2,9);
+function readStore(k,fb){try{const s=localStorage.getItem(k);return s?JSON.parse(s):fb}catch{return fb}}
+
+// ─── SVG Line Icons (matching uploaded icon style) ────────────────────────────
+const ic = (d, extra="") => ({size=20, color="#1C1C1E", strokeWidth=1.6}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{display:"block",flexShrink:0}}>
+    {d.map((p,i)=><path key={i} d={p}/>)}
+  </svg>
+);
+
+// Home icon
+const HomeIcon = ({size=22,color="#ffffff"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
+    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/>
+    <path d="M9 21V12h6v9"/>
+  </svg>
+);
+
+// Leaf / plant icon
+const LeafIcon = ({size=22,color="#ffffff"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
+    <path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/>
+    <path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/>
+    <path d="M12 21V9"/>
+  </svg>
+);
+
+// Briefcase icon
+const BriefcaseIcon = ({size=16,color="#ffffff"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
+    <rect x="2" y="8" width="20" height="13" rx="2"/>
+    <path d="M8 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/>
+    <line x1="2" y1="14" x2="22" y2="14"/>
+  </svg>
+);
+
+// Calendar icon
+const CalIcon = ({size=18,color="#FEB326"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+
+// Check circle icon
+const CheckCircleIcon = ({size=22,color="#64C5EB"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M7.5 12l3 3 6-6"/>
+  </svg>
+);
+
+// Plus icon
+const PlusIcon = ({size=18,color="#7F58AF"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" style={{display:"block"}}>
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
+
+// Gear / settings icon
+const GearIcon = ({size=18,color="#636366"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+  </svg>
+);
+
+// Folder icon
+const FolderIcon = ({size=18,color="#636366"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
+    <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+  </svg>
+);
+
+// Dollar / payment icon  
+const DollarIcon = ({size=16,color="#7F58AF"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 6v12M9 9.5A3 3 0 0112 8a3 3 0 010 6 3 3 0 000 6 3 3 0 003-1.5"/>
+  </svg>
+);
+
+// Link icon
+const LinkIcon = ({size=14,color="#7F58AF"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{display:"block",flexShrink:0}}>
+    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+    <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+  </svg>
+);
+
+// Trash icon
+const TrashIcon = ({size=16,color="#E84D8A"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{display:"block",flexShrink:0}}>
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+    <path d="M10 11v6M14 11v6"/>
+    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+  </svg>
+);
+
+// Phone icon
+const PhoneIcon = ({size=14,color="#7F58AF"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{display:"block",flexShrink:0}}>
+    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.86 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012.77 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.09 6.09l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+  </svg>
+);
+
+// ─── Root ─────────────────────────────────────────────────────────────────────
+function App(){
+  const[prop,setProp]=useState(null);
+  const[mobileView,setMobileView]=useState(null); // for mobile nav
+  const isMobile = typeof window!=="undefined" && window.innerWidth < 768;
+
+  return(
+    <div style={{fontFamily:"'Nunito','-apple-system','BlinkMacSystemFont','SF Pro Display',system-ui,sans-serif",background:"#f0f0f5",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+      <style>{CSS}</style>
+      <DesktopShell prop={prop} setProp={setProp}/>
+    </div>
+  );
+}
+
+// ─── Desktop Shell ────────────────────────────────────────────────────────────
+function DesktopShell({prop,setProp}){
+  const[panel,setPanel]=useState("dashboard"); // dashboard | sw | snap
+  const now = new Date();
+  const MO_S = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  const swM  = readStore("bp_months_sw",  SW_MONTHS);
+  const snM  = readStore("bp_months_snap",SNAP_MONTHS);
+  const swActive  = swM.filter(m=>m.status!=="closed");
+  const snActive  = snM.filter(m=>m.status!=="closed");
+  const swPending = swActive.reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
+  const snPending = snActive.reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
+
+  const navItems = [
+    { id:"dashboard", label:"Overview",     icon:"grid",   badge:null },
+    { id:"sw",        label:"Sir Walters",  icon:"home",   badge:swPending||null, accent:"#7F58AF" },
+    { id:"snap",      label:"Snapdragon",   icon:"leaf",   badge:snPending||null, accent:"#64C5EB" },
+  ];
+
+  return(
+    <div style={{display:"flex",height:"100vh",overflow:"hidden"}}>
+
+      {/* ── Sidebar ── */}
+      <div style={{width:220,background:"rgba(245,245,250,0.95)",borderRight:"1px solid rgba(0,0,0,0.08)",display:"flex",flexDirection:"column",flexShrink:0,backdropFilter:"blur(20px)"}}>
+        {/* Logo */}
+        <div style={{padding:"28px 18px 20px"}}>
+          <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:4}}>Home Workbook</div>
+          <div style={{fontSize:20,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.5px"}}>Bill Pay</div>
+        </div>
+
+        {/* Nav */}
+        <div style={{padding:"0 10px",flex:1}}>
+          {navItems.map(item=>(
+            <button key={item.id} onClick={()=>setPanel(item.id)}
+              style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:8,border:"none",background:panel===item.id?"rgba(127,88,175,0.12)":"transparent",cursor:"pointer",fontFamily:"inherit",marginBottom:2,textAlign:"left"}}>
+              <div style={{width:28,height:28,borderRadius:7,background:panel===item.id?(item.accent||"#7F58AF"):"rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                {item.icon==="grid" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>}
+                {item.icon==="home" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>}
+                {item.icon==="leaf" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>}
+              </div>
+              <span style={{fontSize:13,fontWeight:panel===item.id?700:500,color:panel===item.id?"#1C1C1E":"rgba(0,0,0,0.55)",flex:1}}>{item.label}</span>
+              {item.badge>0 && <span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:11,fontWeight:700}}>{item.badge}</span>}
+            </button>
+          ))}
+        </div>
+
+        {/* Date at bottom */}
+        <div style={{padding:"16px 18px 24px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+          <div style={{fontSize:12,color:"rgba(0,0,0,0.35)"}}>{MO_S[now.getMonth()]} {now.getDate()}, {now.getFullYear()}</div>
+          <div style={{fontSize:11,color:"rgba(0,0,0,0.25)",marginTop:2}}>Home Workbook v1.0</div>
+        </div>
+      </div>
+
+      {/* ── Main Content ── */}
+      <div style={{flex:1,overflow:"auto",background:"#f0f0f5"}}>
+        {panel==="dashboard" && <DashboardDesktop onNav={setPanel}/>}
+        {panel==="sw"        && <PropAppDesktop pk="sw"   onNav={setPanel}/>}
+        {panel==="snap"      && <PropAppDesktop pk="snap" onNav={setPanel}/>}
+      </div>
+
+    </div>
+  );
+}
+
+// ─── Desktop Dashboard wrapper ────────────────────────────────────────────────
+function DashboardDesktop({onNav}){
+  const swM = readStore("bp_months_sw",   SW_MONTHS);
+  const snM = readStore("bp_months_snap", SNAP_MONTHS);
+  const { ytd, thisMonthSpend, lastMonthSpend, spendDelta, pendingBills,
+          largest, totalBalance, totalPending, health, swStats, snStats, monthHistory } = calcDashStats(swM, snM);
+  const hc  = healthConfig(health);
+  const now = new Date();
+  const greeting = now.getHours()<12?"Good morning":now.getHours()<17?"Good afternoon":"Good evening";
+
+  const insights=[];
+  if(pendingBills.length>0) insights.push({icon:"📋",text:`You have ${pendingBills.length} bill${pendingBills.length>1?"s":""} still pending this month.`});
+  if(spendDelta!==null&&Math.abs(spendDelta)>=5) insights.push({icon:spendDelta>0?"📈":"📉",text:spendDelta>0?`Spending is up ${Math.abs(spendDelta).toFixed(0)}% vs last month.`:`Spending is down ${Math.abs(spendDelta).toFixed(0)}% vs last month.`});
+  if(largest) insights.push({icon:"💡",text:`Largest expense this month: ${largest.vendorName} at ${fmt(largest.amount)}.`});
+  if(health==="watch"||health==="low") insights.push({icon:"⚠️",text:`Balance (${fmt(totalBalance)}) is tight against ${fmt(totalPending)} pending.`});
+  if(insights.length===0) insights.push({icon:"✅",text:"All caught up. No pending bills and balance looks healthy."});
+
+  return(
+    <div style={{padding:"32px 32px 48px",maxWidth:1100}}>
+      {/* Header */}
+      <div style={{marginBottom:28}}>
+        <div style={{fontSize:13,color:"rgba(0,0,0,0.4)",marginBottom:4}}>{greeting}</div>
+        <div style={{fontSize:32,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.5px"}}>Financial Overview</div>
+        <div style={{fontSize:14,color:"rgba(0,0,0,0.4)",marginTop:4}}>{MO_SHORT[now.getMonth()]} {now.getFullYear()}</div>
+      </div>
+
+      {/* Top stat cards */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:24}}>
+        {[
+          {label:"This Month",val:fmt(thisMonthSpend),sub:spendDelta!==null?`${spendDelta>0?"↑":"↓"} ${Math.abs(spendDelta).toFixed(0)}% vs last mo`:null,subColor:spendDelta>0?"#E84D8A":"#64C5EB",accent:"#7F58AF"},
+          {label:"YTD Paid",val:fmt(ytd),sub:`Since Jan ${now.getFullYear()}`,subColor:"rgba(0,0,0,0.38)",accent:"#64C5EB"},
+          {label:"Pending Bills",val:pendingBills.length,sub:fmt(totalPending)+" due",subColor:"rgba(0,0,0,0.38)",accent:"#FEB326"},
+          {label:"Balance Health",val:hc.label,sub:fmt(totalBalance)+" remaining",subColor:"rgba(0,0,0,0.38)",accent:hc.color},
+        ].map((c,i)=>(
+          <div key={i} style={{background:"#fff",borderRadius:16,padding:"18px 20px",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>{c.label}</div>
+            <div style={{fontSize:26,fontWeight:800,color:c.accent,letterSpacing:"-0.5px",lineHeight:1}}>{c.val}</div>
+            {c.sub&&<div style={{fontSize:12,color:c.subColor,marginTop:6,fontWeight:600}}>{c.sub}</div>}
+          </div>
+        ))}
+      </div>
+
+      {/* Two-column: charts + insights */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 360px",gap:16,marginBottom:16}}>
+
+        {/* Charts */}
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div style={{background:"#fff",borderRadius:16,padding:"20px 22px",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:16}}>
+              <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Monthly Spending</div>
+              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)"}}>Last 6 months</div>
+            </div>
+            <SpendingBarChart data={monthHistory} currentMonth={now.getMonth()} currentYear={now.getFullYear()}/>
+          </div>
+          <div style={{background:"#fff",borderRadius:16,padding:"20px 22px",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
+              <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Spending Trend</div>
+              {spendDelta!==null&&<div style={{fontSize:12,fontWeight:700,color:spendDelta>0?"#E84D8A":"#64C5EB"}}>{spendDelta>0?"↑":"↓"} {Math.abs(spendDelta).toFixed(0)}% vs last month</div>}
+            </div>
+            <SpendingTrendLine data={monthHistory}/>
+          </div>
+        </div>
+
+        {/* Right column: insights + properties */}
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+
+          {/* Advisor insights */}
+          <div style={{background:"#fff",borderRadius:16,padding:"18px 20px",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+              <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>💼</div>
+              <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E"}}>Advisor Insights</div>
+            </div>
+            {insights.map((ins,i)=>(
+              <div key={i} style={{display:"flex",gap:8,padding:"8px 0",borderTop:i>0?"1px solid rgba(0,0,0,0.05)":"none",alignItems:"flex-start"}}>
+                <span style={{fontSize:14,flexShrink:0}}>{ins.icon}</span>
+                <span style={{fontSize:13,color:"rgba(0,0,0,0.6)",lineHeight:1.45}}>{ins.text}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Property mini-cards */}
+          {[{p:PROPERTIES.sw,st:swStats},{p:PROPERTIES.snap,st:snStats}].map(({p,st})=>(
+            <div key={p.key} style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",cursor:"pointer"}} onClick={()=>onNav(p.key)}>
+              <div style={{background:`linear-gradient(135deg,${p.gradient[0]},${p.gradient[1]})`,padding:"14px 16px",position:"relative"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div>
+                    <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.55)",textTransform:"uppercase",letterSpacing:"0.08em"}}>{p.sub}</div>
+                    <div style={{fontSize:16,fontWeight:700,color:"#fff"}}>{p.label}</div>
+                  </div>
+                  <div style={{textAlign:"right"}}>
+                    <div style={{fontSize:18,fontWeight:800,color:p.accent}}>{fmt(st.bal)}</div>
+                    <div style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>remaining</div>
+                  </div>
+                </div>
+                <div style={{marginTop:10,height:3,background:"rgba(255,255,255,0.2)",borderRadius:2,overflow:"hidden"}}>
+                  <div style={{height:"100%",width:`${st.pct}%`,background:p.accent,borderRadius:2}}/>
+                </div>
+              </div>
+              <div style={{display:"flex",padding:"10px 16px",justifyContent:"space-between"}}>
+                <span style={{fontSize:12,color:"rgba(0,0,0,0.45)"}}>{st.pending>0?`${st.pending} bills pending`:"All clear ✓"}</span>
+                <span style={{fontSize:12,fontWeight:700,color:p.accent}}>Open →</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Desktop Property App wrapper ─────────────────────────────────────────────
+function PropAppDesktop({pk,onNav}){
+  const p=PROPERTIES[pk];
+  const { months, vendors, synced, error, updateMonth, addMonth, deleteMonth, saveVendors } = useSupabaseData(pk, p.vendors, p.seed);
+  const [subScreen,setSubScreen]=useState("home");
+  const [activeId,setActiveId]=useState(null);
+  const [viewId,setViewId]=useState(null);
+
+  const active=months.filter(m=>m.status!=="closed");
+  const closed=months.filter(m=>m.status==="closed");
+  const cur=months.find(m=>m.id===activeId);
+  const view=months.find(m=>m.id===viewId);
+
+  function startNew(yr,mo){
+    const ex=months.find(m=>m.year===yr&&m.month===mo&&m.status!=="closed");
+    if(ex){setActiveId(ex.id);setSubScreen("bills");return;}
+    const nm={id:uid(),year:yr,month:mo,label:`${MO[mo]} ${yr}`,status:"inprogress",startingBalance:0,balance:0,bills:[],closedAt:null};
+    addMonth(nm);setActiveId(nm.id);setSubScreen("bills");
+  }
+
+  const goHome=()=>setSubScreen("home");
+
+  if(!synced) return(
+    <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",flexDirection:"column",gap:16}}>
+      <div style={{width:40,height:40,border:"3px solid #f0f0f5",borderTop:"3px solid #7F58AF",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
+      <div style={{fontSize:14,color:"rgba(0,0,0,0.4)"}}>Connecting to database…</div>
+      {error&&<div style={{fontSize:12,color:"#E84D8A",maxWidth:300,textAlign:"center"}}>{error}</div>}
+    </div>
+  );
+
+  return(
+    <div style={{padding:"0",minHeight:"100vh",background:"#f0f0f5"}}>
+      <div style={{padding:"20px 32px 0",display:"flex",alignItems:"center",gap:8}}>
+        <span style={{fontSize:13,color:"rgba(0,0,0,0.35)",cursor:"pointer"}} onClick={()=>onNav("dashboard")}>Overview</span>
+        <span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span>
+        <span style={{fontSize:13,fontWeight:600,color:"#1C1C1E"}}>{p.label}</span>
+        {subScreen!=="home"&&<><span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span><span style={{fontSize:13,fontWeight:600,color:p.accent,cursor:"pointer"}} onClick={goHome}>{subScreen==="bills"?"Pay Bills":subScreen==="manage"?"Vendors":subScreen==="history"?"History":subScreen==="new"?"New Month":"View"}</span></>}
+      </div>
+      <div style={{maxWidth:800,margin:"0 auto",padding:"16px 32px 48px"}}>
+        {subScreen==="home"    &&<PropHomeDesktop p={p} active={active} closed={closed} onOpen={id=>{setActiveId(id);setSubScreen("bills");}} onNew={()=>setSubScreen("new")} onManage={()=>setSubScreen("manage")} onHistory={()=>setSubScreen("history")} onDelete={deleteMonth}/>}
+        {subScreen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={goHome}/>}
+        {subScreen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));goHome();}} onBack={goHome}/>}
+        {subScreen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} onBack={goHome}/>}
+        {subScreen==="history" &&<History p={p} months={closed} onView={id=>{setViewId(id);setSubScreen("view");}} onBack={goHome}/>}
+        {subScreen==="view"    &&view&&<ViewMonth p={p} month={view} onBack={()=>setSubScreen("history")}/>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Desktop Property Home ────────────────────────────────────────────────────
+function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDelete}){
+  const [confirmId,setConfirmId]=useState(null);
+  const confirmMonth=active.find(m=>m.id===confirmId);
+  const allMonths=[...active,...closed];
+  const totalPaid=allMonths.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0),0);
+
+  return(
+    <div>
+      {/* Delete confirm */}
+      {confirmId&&confirmMonth&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.35)",backdropFilter:"blur(12px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:300}} onClick={()=>setConfirmId(null)}>
+          <div style={{background:"#fff",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,0.2)"}} onClick={e=>e.stopPropagation()}>
+            <div style={{fontSize:18,fontWeight:700,color:"#1C1C1E",marginBottom:8}}>Delete {confirmMonth.label}?</div>
+            <div style={{fontSize:14,color:"rgba(0,0,0,0.5)",marginBottom:24,lineHeight:1.5}}>This will permanently remove this month and all its bill data.</div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>setConfirmId(null)} style={{flex:1,background:"rgba(0,0,0,0.06)",border:"none",borderRadius:12,padding:"12px",fontSize:14,fontWeight:600,color:"rgba(0,0,0,0.6)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+              <button onClick={()=>{onDelete(confirmId);setConfirmId(null);}} style={{flex:1,background:"#E84D8A",border:"none",borderRadius:12,padding:"12px",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Delete Month</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Property header */}
+      <div style={{background:`linear-gradient(135deg,${p.gradient[0]},${p.gradient[1]})`,borderRadius:20,padding:"24px 28px",marginBottom:20,position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 80% 30%,${p.accent}25,transparent 70%)`,pointerEvents:"none"}}/>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",position:"relative"}}>
+          <div>
+            <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.55)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>{p.sub}</div>
+            <div style={{fontSize:32,fontWeight:800,color:"#fff",letterSpacing:"-0.5px"}}>{p.label}</div>
+          </div>
+          <div style={{display:"flex",gap:10}}>
+            <button onClick={onNew} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.25)",borderRadius:10,padding:"8px 16px",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>＋ New Month</button>
+            <button onClick={onManage} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>Vendors</button>
+            <button onClick={onHistory} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>History</button>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:24,marginTop:20,position:"relative"}}>
+          {[{l:"All-Time Paid",v:fmt(totalPaid)},{l:"Months Archived",v:closed.length},{l:"Active Sessions",v:active.length}].map((s,i)=>(
+            <div key={i}>
+              <div style={{fontSize:18,fontWeight:700,color:"#fff"}}>{s.v}</div>
+              <div style={{fontSize:11,color:"rgba(255,255,255,0.5)",marginTop:2}}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Active months */}
+      {active.length>0&&(
+        <div style={{marginBottom:20}}>
+          <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>In Progress</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(340px,1fr))",gap:12}}>
+            {active.map(m=>{
+              const paid=m.bills.filter(b=>b.status==="paid");
+              const pct=m.bills.length?Math.round(paid.length/m.bills.length*100):0;
+              const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+              const pending=m.bills.filter(b=>b.status==="pending");
+              return(
+                <div key={m.id} style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
+                  <div style={{padding:"16px 18px"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
+                      <div style={{cursor:"pointer"}} onClick={()=>onOpen(m.id)}>
+                        <div style={{fontSize:16,fontWeight:700,color:"#1C1C1E"}}>{m.label}</div>
+                        <div style={{fontSize:12,color:"rgba(0,0,0,0.4)",marginTop:2}}>{paid.length}/{m.bills.length} bills · {fmt(paidAmt)} paid</div>
+                      </div>
+                      <div style={{display:"flex",gap:8,alignItems:"flex-start"}}>
+                        <div style={{textAlign:"right",cursor:"pointer"}} onClick={()=>onOpen(m.id)}>
+                          <div style={{fontSize:20,fontWeight:800,color:p.accent}}>{fmt(m.balance)}</div>
+                          <div style={{fontSize:10,color:"rgba(0,0,0,0.35)"}}>remaining</div>
+                        </div>
+                        <button onClick={()=>setConfirmId(m.id)} style={{background:"rgba(232,77,138,0.08)",border:"none",borderRadius:7,width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",marginTop:2}}>
+                          <TrashIcon size={13} color="#E84D8A"/>
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{height:5,background:"rgba(0,0,0,0.06)",borderRadius:3,overflow:"hidden",marginBottom:6}}>
+                      <div style={{height:"100%",width:`${pct}%`,background:p.accent,borderRadius:3,transition:"width 0.5s"}}/>
+                    </div>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <span style={{fontSize:11,color:"rgba(0,0,0,0.35)"}}>{pct}% complete · {pending.length} pending</span>
+                      <button onClick={()=>onOpen(m.id)} style={{background:p.accent,border:"none",borderRadius:8,padding:"5px 14px",fontSize:12,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Pay Bills →</button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Quick history preview */}
+      {closed.length>0&&(
+        <div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em"}}>Recent History</div>
+            <button onClick={onHistory} style={{background:"none",border:"none",color:p.accent,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>View All →</button>
+          </div>
+          <div style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)"}}>
+            {[...closed].sort((a,b)=>(b.closedAt||0)-(a.closedAt||0)).slice(0,4).map((m,i,arr)=>{
+              const paid=m.bills.filter(b=>b.status==="paid");
+              const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+              return(
+                <div key={m.id} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.05)":"none"}}>
+                  <div style={{flex:1}}><div style={{fontSize:14,fontWeight:500,color:"#1C1C1E"}}>{m.label}</div><div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:1}}>{paid.length} bills · {fmt(paidAmt)} paid</div></div>
+                  <div style={{fontSize:14,fontWeight:700,color:p.accent}}>{fmt(m.balance)}</div>
+                  <span style={{color:"rgba(0,0,0,0.2)",fontSize:16,marginLeft:8}}>›</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── SVG Chart Components ─────────────────────────────────────────────────────
+function SpendingBarChart({ data, currentMonth, currentYear }) {
+  const W = 358, H = 120, PAD_L = 42, PAD_B = 24, PAD_R = 8, PAD_T = 8;
+  const chartW = W - PAD_L - PAD_R;
+  const chartH = H - PAD_T - PAD_B;
+  const max = Math.max(...data.map(d => d.spent), 1);
+  const barW = Math.floor(chartW / data.length) - 6;
+  const gap  = (chartW - barW * data.length) / (data.length + 1);
+
+  // Y axis grid lines at 0, 50%, 100%
+  const yTicks = [0, 0.5, 1].map(pct => ({
+    y: PAD_T + chartH * (1 - pct),
+    label: pct === 0 ? "$0" : pct === 0.5 ? fmt(max/2).replace(".00","") : fmt(max).replace(".00",""),
+  }));
+
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{overflow:"visible"}}>
+      {/* Grid lines */}
+      {yTicks.map((t,i) => (
+        <g key={i}>
+          <line x1={PAD_L} y1={t.y} x2={W - PAD_R} y2={t.y}
+            stroke="rgba(0,0,0,0.06)" strokeWidth="1" strokeDasharray={i>0?"4 4":""}/>
+          <text x={PAD_L - 5} y={t.y + 4} textAnchor="end"
+            style={{fontSize:9,fill:"rgba(0,0,0,0.3)",fontFamily:"inherit"}}>{t.label}</text>
+        </g>
+      ))}
+
+      {/* Bars */}
+      {data.map((d, i) => {
+        const isCurrent = d.mo === currentMonth && d.yr === currentYear;
+        const barH = d.spent > 0 ? Math.max(4, (d.spent / max) * chartH) : 0;
+        const x = PAD_L + gap + i * (barW + gap);
+        const y = PAD_T + chartH - barH;
+        return (
+          <g key={i}>
+            {/* Bar background */}
+            <rect x={x} y={PAD_T} width={barW} height={chartH}
+              rx="4" fill="rgba(0,0,0,0.03)"/>
+            {/* Bar fill */}
+            {d.spent > 0 && (
+              <rect x={x} y={y} width={barW} height={barH} rx="4"
+                fill={isCurrent ? "#7F58AF" : "rgba(127,88,175,0.25)"}
+                style={{transition:"height 0.5s ease, y 0.5s ease"}}/>
+            )}
+            {/* Amount label on current bar */}
+            {isCurrent && d.spent > 0 && (
+              <text x={x + barW/2} y={y - 5} textAnchor="middle"
+                style={{fontSize:9,fontWeight:"bold",fill:"#7F58AF",fontFamily:"inherit"}}>
+                {fmt(d.spent).replace(".00","")}
+              </text>
+            )}
+            {/* Month label */}
+            <text x={x + barW/2} y={H - 4} textAnchor="middle"
+              style={{fontSize:10,fill:isCurrent?"#7F58AF":"rgba(0,0,0,0.38)",fontWeight:isCurrent?"700":"400",fontFamily:"inherit"}}>
+              {d.label}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function SpendingTrendLine({ data }) {
+  const W = 358, H = 110, PAD_L = 42, PAD_B = 24, PAD_R = 8, PAD_T = 16;
+  const chartW = W - PAD_L - PAD_R;
+  const chartH = H - PAD_T - PAD_B;
+  const vals = data.map(d => d.spent);
+  const max = Math.max(...vals, 1);
+  const min = 0;
+
+  const pts = data.map((d, i) => ({
+    x: PAD_L + (i / (data.length - 1)) * chartW,
+    y: PAD_T + chartH - ((d.spent - min) / (max - min)) * chartH,
+    ...d,
+  }));
+
+  // Smooth bezier path
+  const pathD = pts.reduce((acc, pt, i) => {
+    if (i === 0) return `M ${pt.x} ${pt.y}`;
+    const prev = pts[i - 1];
+    const cpx = (prev.x + pt.x) / 2;
+    return `${acc} C ${cpx} ${prev.y} ${cpx} ${pt.y} ${pt.x} ${pt.y}`;
+  }, "");
+
+  // Area fill path
+  const areaD = `${pathD} L ${pts[pts.length-1].x} ${PAD_T + chartH} L ${pts[0].x} ${PAD_T + chartH} Z`;
+
+  // Y ticks
+  const yTicks = [0, 0.5, 1].map(pct => ({
+    y: PAD_T + chartH * (1 - pct),
+    label: fmt(min + (max - min) * pct).replace(".00",""),
+  }));
+
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{overflow:"visible"}}>
+      <defs>
+        <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#7F58AF" stopOpacity="0.18"/>
+          <stop offset="100%" stopColor="#7F58AF" stopOpacity="0.02"/>
+        </linearGradient>
+      </defs>
+
+      {/* Grid lines */}
+      {yTicks.map((t,i) => (
+        <g key={i}>
+          <line x1={PAD_L} y1={t.y} x2={W - PAD_R} y2={t.y}
+            stroke="rgba(0,0,0,0.06)" strokeWidth="1" strokeDasharray={i>0?"4 4":""}/>
+          <text x={PAD_L - 5} y={t.y + 4} textAnchor="end"
+            style={{fontSize:9,fill:"rgba(0,0,0,0.3)",fontFamily:"inherit"}}>{t.label}</text>
+        </g>
+      ))}
+
+      {/* Area fill */}
+      <path d={areaD} fill="url(#trendGrad)"/>
+
+      {/* Trend line */}
+      <path d={pathD} fill="none" stroke="#7F58AF" strokeWidth="2.5"
+        strokeLinecap="round" strokeLinejoin="round"/>
+
+      {/* Data points */}
+      {pts.map((pt, i) => {
+        const isLast = i === pts.length - 1;
+        const isHigh = pt.spent === Math.max(...vals);
+        return (
+          <g key={i}>
+            <circle cx={pt.x} cy={pt.y} r={isLast ? 5 : 3.5}
+              fill={isLast ? "#7F58AF" : "#ffffff"}
+              stroke="#7F58AF" strokeWidth={isLast ? 0 : 2}/>
+            {(isLast || isHigh) && pt.spent > 0 && (
+              <text x={pt.x} y={pt.y - 9} textAnchor="middle"
+                style={{fontSize:9,fontWeight:"bold",fill:"#7F58AF",fontFamily:"inherit"}}>
+                {fmt(pt.spent).replace(".00","")}
+              </text>
+            )}
+            <text x={pt.x} y={H - 4} textAnchor="middle"
+              style={{fontSize:10,fill:isLast?"#7F58AF":"rgba(0,0,0,0.35)",fontWeight:isLast?"700":"400",fontFamily:"inherit"}}>
+              {pt.label}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+const MO_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+// ─── Dashboard helpers ────────────────────────────────────────────────────────
+function calcDashStats(swM, snM) {
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear  = now.getFullYear();
+  const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+  const lastYear  = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+  const allMonths = [...swM, ...snM];
+
+  // YTD paid
+  const ytd = allMonths.reduce((s,m) => {
+    if (m.year !== thisYear) return s;
+    return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0);
+  }, 0);
+
+  // This month spending (both properties combined)
+  const thisMonthSpend = allMonths.reduce((s,m) => {
+    if (m.year !== thisYear || m.month !== thisMonth) return s;
+    return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0);
+  }, 0);
+
+  // Last month spending
+  const lastMonthSpend = allMonths.reduce((s,m) => {
+    if (m.year !== lastYear || m.month !== lastMonth) return s;
+    return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0);
+  }, 0);
+
+  const spendDelta = lastMonthSpend > 0 ? ((thisMonthSpend - lastMonthSpend) / lastMonthSpend) * 100 : null;
+
+  // Bills pending across all active months
+  const pendingBills = allMonths.flatMap(m =>
+    m.status !== "closed" ? m.bills.filter(b=>b.status==="pending") : []
+  );
+
+  // Largest expense this month
+  const thisMonthBills = allMonths.flatMap(m =>
+    (m.year===thisYear && m.month===thisMonth) ? m.bills.filter(b=>b.status==="paid") : []
+  );
+  const largest = thisMonthBills.reduce((max,b) => b.amount > (max?.amount||0) ? b : max, null);
+
+  // Combined remaining balance from active months
+  const totalBalance = allMonths.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.balance,0);
+
+  // Health score: compare balance to pending obligations
+  const totalPending = pendingBills.reduce((s,b)=>s+b.amount,0);
+  let health = "good"; // green
+  if (totalBalance <= 0) health = "low";
+  else if (totalBalance < totalPending * 0.5) health = "watch";
+  else if (totalBalance < totalPending) health = "fair";
+
+  // Per-property quick stats
+  const propStats = (months) => {
+    const active = months.filter(m=>m.status!=="closed");
+    const pending = active.reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
+    const paidAmt = active.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0),0);
+    const bal     = active.reduce((s,m)=>s+m.balance,0);
+    const totalBills = active.reduce((s,m)=>s+m.bills.length,0);
+    const paidCount  = active.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").length,0);
+    const pct = totalBills ? Math.round(paidCount/totalBills*100) : 0;
+    const cur = active[0] || null;
+    return { pending, paidAmt, bal, pct, cur };
+  };
+
+  // Per-month spending history (last 6 months, combined both properties)
+  const monthHistory = [];
+  for (let i = 5; i >= 0; i--) {
+    let mo = thisMonth - i;
+    let yr = thisYear;
+    if (mo < 0) { mo += 12; yr -= 1; }
+    const spent = allMonths.reduce((s,m) => {
+      if (m.year !== yr || m.month !== mo) return s;
+      return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0);
+    }, 0);
+    monthHistory.push({ label: MO_SHORT[mo], mo, yr, spent });
+  }
+
+  return { ytd, thisMonthSpend, lastMonthSpend, spendDelta, pendingBills, largest, totalBalance, totalPending, health,
+           swStats: propStats(swM), snStats: propStats(snM), monthHistory };
+}
+
+function healthConfig(h) {
+  if (h==="good")  return { color:"#64C5EB", bg:"rgba(100,197,235,0.12)",  label:"Healthy",    icon:"✓" };
+  if (h==="fair")  return { color:"#FEB326", bg:"rgba(254,179,38,0.12)",  label:"Fair",       icon:"~" };
+  if (h==="watch") return { color:"#FEB326", bg:"rgba(254,179,38,0.12)",  label:"Watch",      icon:"⚠" };
+  return                   { color:"#E84D8A", bg:"rgba(232,77,138,0.1)", label:"Low",        icon:"!" };
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+function Dashboard({onSelect}){
+  const swM = readStore("bp_months_sw",   SW_MONTHS);
+  const snM = readStore("bp_months_snap", SNAP_MONTHS);
+  const { ytd, thisMonthSpend, lastMonthSpend, spendDelta, pendingBills,
+          largest, totalBalance, totalPending, health, swStats, snStats, monthHistory } = calcDashStats(swM, snM);
+  const hc  = healthConfig(health);
+  const now = new Date();
+  const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
+
+  // Advisor insight message
+  const insights = [];
+  if (pendingBills.length > 0)
+    insights.push({ icon:"📋", text:`You have ${pendingBills.length} bill${pendingBills.length>1?"s":""} still pending this month.` });
+  if (spendDelta !== null && Math.abs(spendDelta) >= 5)
+    insights.push({ icon: spendDelta > 0 ? "📈" : "📉", text: spendDelta > 0
+      ? `Spending is up ${Math.abs(spendDelta).toFixed(0)}% vs last month — ${fmt(thisMonthSpend - lastMonthSpend)} more than ${MO_SHORT[lastMonthSpend < 0 ? 11 : (now.getMonth()===0?11:now.getMonth()-1)]} average.`
+      : `Nice — spending is down ${Math.abs(spendDelta).toFixed(0)}% compared to last month.` });
+  if (largest)
+    insights.push({ icon:"💡", text:`Largest expense this month: ${largest.vendorName} at ${fmt(largest.amount)}.` });
+  if (health === "watch" || health === "low")
+    insights.push({ icon:"⚠️", text:`Remaining balance (${fmt(totalBalance)}) is tight against ${fmt(totalPending)} in pending bills.` });
+  if (insights.length === 0)
+    insights.push({ icon:"✅", text:"All caught up. No pending bills and your balance looks healthy." });
+
+  return(
+    <div style={{minHeight:"100vh",background:"#f7f7f7",paddingBottom:48}}>
+
+      {/* ── Hero Header ── */}
+      <div style={{background:"linear-gradient(160deg,#5a3d80 0%,#7F58AF 100%)",padding:"52px 22px 28px",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 80% 20%,rgba(100,197,235,0.3),transparent 60%)",pointerEvents:"none"}}/>
+        <div style={{position:"relative"}}>
+          <div style={{fontSize:13,fontWeight:500,color:"rgba(255,255,255,0.5)",letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:6}}>{greeting}</div>
+          <div style={{fontSize:30,fontWeight:700,color:"#ffffff",letterSpacing:"-0.5px",lineHeight:1.15,marginBottom:2}}>Home Workbook</div>
+          <div style={{fontSize:14,color:"rgba(255,255,255,0.5)",marginBottom:24}}>{MO_SHORT[now.getMonth()]} {now.getFullYear()} · Financial Overview</div>
+
+          {/* ── Top 3 stat pills ── */}
+          <div style={{display:"flex",gap:10}}>
+            {/* Monthly spend */}
+            <div style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:14,padding:"12px 14px",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.1)"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>This Month</div>
+              <div style={{fontSize:19,fontWeight:700,color:"#ffffff",letterSpacing:"-0.3px"}}>{fmt(thisMonthSpend)}</div>
+              {spendDelta!==null&&(
+                <div style={{fontSize:11,marginTop:3,fontWeight:600,color:spendDelta>0?"#FEB326":"#64C5EB"}}>
+                  {spendDelta>0?"↑":"↓"} {Math.abs(spendDelta).toFixed(0)}% vs last mo
+                </div>
+              )}
+            </div>
+            {/* YTD */}
+            <div style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:14,padding:"12px 14px",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.1)"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>YTD Paid</div>
+              <div style={{fontSize:19,fontWeight:700,color:"#ffffff",letterSpacing:"-0.3px"}}>{fmt(ytd)}</div>
+              <div style={{fontSize:11,marginTop:3,color:"rgba(255,255,255,0.4)"}}>since Jan {now.getFullYear()}</div>
+            </div>
+            {/* Health */}
+            <div style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:14,padding:"12px 14px",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.1)"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Balance</div>
+              <div style={{fontSize:19,fontWeight:700,color:hc.color,letterSpacing:"-0.3px"}}>{hc.label}</div>
+              <div style={{fontSize:11,marginTop:3,color:"rgba(255,255,255,0.4)"}}>{fmt(totalBalance)} left</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{padding:"20px 16px 0"}}>
+
+        {/* ── Advisor Insight Card ── */}
+        <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+            <div style={{width:28,height:28,borderRadius:8,background:"linear-gradient(135deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center"}}><BriefcaseIcon/></div>
+            <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E",letterSpacing:"0.01em"}}>Advisor Insights</div>
+          </div>
+          {insights.map((ins,i)=>(
+            <div key={i} style={{display:"flex",gap:10,padding:"9px 0",borderTop:i>0?"1px solid rgba(0,0,0,0.05)":"none",alignItems:"flex-start"}}>
+              <span style={{fontSize:15,flexShrink:0,marginTop:1}}>{ins.icon}</span>
+              <span style={{fontSize:14,color:"rgba(0,0,0,0.65)",lineHeight:1.45}}>{ins.text}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Bar Chart: 6-month spending history ── */}
+        <div style={{background:"#ffffff",borderRadius:18,padding:"18px 18px 14px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:16}}>
+            <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Monthly Spending</div>
+            <div style={{fontSize:12,color:"rgba(0,0,0,0.38)"}}>Last 6 months</div>
+          </div>
+          <SpendingBarChart data={monthHistory} currentMonth={now.getMonth()} currentYear={now.getFullYear()}/>
+        </div>
+
+        {/* ── Trend Line: spending trajectory ── */}
+        <div style={{background:"#ffffff",borderRadius:18,padding:"18px 18px 14px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
+            <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Spending Trend</div>
+            {spendDelta!==null&&(
+              <div style={{fontSize:12,fontWeight:700,color:spendDelta>0?"#E84D8A":"#64C5EB"}}>
+                {spendDelta>0?"↑":"↓"} {Math.abs(spendDelta).toFixed(0)}% vs last month
+              </div>
+            )}
+          </div>
+          <SpendingTrendLine data={monthHistory}/>
+        </div>
+
+        {/* ── Pending bills callout ── */}
+        {pendingBills.length>0&&(
+          <div style={{background:pendingBills.length>5?"rgba(232,77,138,0.08)":"rgba(254,179,38,0.1)",borderRadius:18,padding:"14px 16px",marginBottom:16,border:`1px solid ${pendingBills.length>5?"rgba(232,77,138,0.2)":"rgba(254,179,38,0.25)"}`}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <div style={{width:36,height:36,borderRadius:10,background:pendingBills.length>5?"rgba(232,77,138,0.12)":"rgba(254,179,38,0.12)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><CalIcon color={pendingBills.length>5?"#E84D8A":"#FEB326"}/></div>
+              <div>
+                <div style={{fontSize:14,fontWeight:700,color:pendingBills.length>5?"#E84D8A":"#FEB326"}}>
+                  {pendingBills.length} bill{pendingBills.length>1?"s":""} pending
+                </div>
+                <div style={{fontSize:13,color:"rgba(0,0,0,0.5)",marginTop:2}}>
+                  {fmt(pendingBills.reduce((s,b)=>s+b.amount,0))} still to be paid this month
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Properties side-by-side ── */}
+        <div style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,padding:"0 2px"}}>Properties</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
+          {[{p:PROPERTIES.sw,st:swStats},{p:PROPERTIES.snap,st:snStats}].map(({p,st})=>(
+            <div key={p.key} className="prop-card" onClick={()=>onSelect(p.key)}
+              style={{background:"#ffffff",borderRadius:18,overflow:"hidden",cursor:"pointer",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+              {/* Gradient top */}
+              <div style={{background:`linear-gradient(140deg,${p.gradient[0]},${p.gradient[1]})`,padding:"16px 14px 14px",position:"relative",overflow:"hidden"}}>
+                <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 80% 30%,${p.accent}30,transparent 70%)`,pointerEvents:"none"}}/>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",position:"relative"}}>
+                  <div>
+                    <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.5)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3}}>{p.sub}</div>
+                    <div style={{fontSize:16,fontWeight:700,color:"#ffffff",letterSpacing:"-0.2px"}}>{p.label}</div>
+                  </div>
+                  <div style={{fontSize:20}}>{p.key==="sw"?<HomeIcon/>:<LeafIcon/>}</div>
+                </div>
+                {/* Mini progress */}
+                <div style={{marginTop:12}}>
+                  <div style={{height:3,background:"rgba(255,255,255,0.2)",borderRadius:2,overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${st.pct}%`,background:p.accent,borderRadius:2}}/>
+                  </div>
+                  <div style={{fontSize:10,color:"rgba(255,255,255,0.5)",marginTop:4}}>{st.pct}% this month</div>
+                </div>
+              </div>
+              {/* Stats */}
+              <div style={{padding:"12px 14px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                  <span style={{fontSize:11,color:"rgba(0,0,0,0.4)"}}>Remaining</span>
+                  <span style={{fontSize:13,fontWeight:700,color:st.bal<0?"#E84D8A":p.accent}}>{fmt(st.bal)}</span>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                  <span style={{fontSize:11,color:"rgba(0,0,0,0.4)"}}>Paid out</span>
+                  <span style={{fontSize:13,fontWeight:600,color:"#1C1C1E"}}>{fmt(st.paidAmt)}</span>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between"}}>
+                  <span style={{fontSize:11,color:"rgba(0,0,0,0.4)"}}>Pending</span>
+                  <span style={{fontSize:13,fontWeight:600,color:st.pending>0?"#FEB326":"#64C5EB"}}>{st.pending>0?`${st.pending} bills`:"Clear ✓"}</span>
+                </div>
+              </div>
+              <div style={{borderTop:"1px solid rgba(0,0,0,0.05)",padding:"10px 14px",display:"flex",justifyContent:"flex-end"}}>
+                <span style={{fontSize:12,fontWeight:600,color:p.accent}}>Open →</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// ─── Property App Shell ───────────────────────────────────────────────────────
+function PropApp({pk,onBack}){
+  const p=PROPERTIES[pk];
+  const { months, vendors, synced, updateMonth, addMonth, deleteMonth, saveVendors } = useSupabaseData(pk, p.vendors, p.seed);
+  const[screen,setScreen]=useState("home");
+  const[activeId,setActiveId]=useState(null);
+  const[viewId,setViewId]=useState(null);
+
+  const active=months.filter(m=>m.status!=="closed");
+  const closed=months.filter(m=>m.status==="closed");
+  const cur=months.find(m=>m.id===activeId);
+  const view=months.find(m=>m.id===viewId);
+
+  function startNew(yr,mo){
+    const ex=months.find(m=>m.year===yr&&m.month===mo&&m.status!=="closed");
+    if(ex){setActiveId(ex.id);setScreen("bills");return;}
+    const nm={id:uid(),year:yr,month:mo,label:`${MO[mo]} ${yr}`,status:"inprogress",startingBalance:0,balance:0,bills:[],closedAt:null};
+    addMonth(nm);setActiveId(nm.id);setScreen("bills");
+  }
+
+  if(!synced) return(
+    <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",flexDirection:"column",gap:16,background:"#f7f7f7"}}>
+      <div style={{width:36,height:36,border:"3px solid #f0f0f5",borderTop:"3px solid #7F58AF",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
+      <div style={{fontSize:14,color:"rgba(0,0,0,0.4)"}}>Syncing…</div>
+    </div>
+  );
+
+  const go=s=>setScreen(s);
+  return(
+    <div>
+      {screen==="home"    &&<PropHome p={p} active={active} closed={closed} onBack={onBack} onOpen={id=>{setActiveId(id);go("bills");}} onNew={()=>go("new")} onManage={()=>go("manage")} onHistory={()=>go("history")} onDelete={deleteMonth}/>}
+      {screen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={()=>go("home")}/>}
+      {screen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));go("home");}} onBack={()=>go("home")}/>}
+      {screen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} onBack={()=>go("home")}/>}
+      {screen==="history" &&<History p={p} months={closed} onView={id=>{setViewId(id);go("view");}} onBack={()=>go("home")}/>}
+      {screen==="view"    &&view&&<ViewMonth p={p} month={view} onBack={()=>go("history")}/>}
+    </div>
+  );
+}
+
+// ─── Property Home ────────────────────────────────────────────────────────────
+function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDelete}){
+  const [confirmId, setConfirmId] = useState(null);
+  const confirmMonth = active.find(m=>m.id===confirmId);
+  return(
+    <div style={{minHeight:"100vh",background:"#f7f7f7",paddingBottom:48}}>
+
+      {/* ── Delete Confirm Modal ── */}
+      {confirmId&&confirmMonth&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(12px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:300,padding:0}} onClick={()=>setConfirmId(null)}>
+          <div style={{background:"#ffffff",borderRadius:"20px 20px 0 0",padding:"20px 20px 44px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
+            <div style={{width:36,height:4,background:"rgba(0,0,0,0.12)",borderRadius:2,margin:"0 auto 20px"}}/>
+            <div style={{fontSize:18,fontWeight:700,color:"#1C1C1E",marginBottom:6}}>Delete {confirmMonth.label}?</div>
+            <div style={{fontSize:14,color:"rgba(0,0,0,0.5)",marginBottom:24,lineHeight:1.5}}>
+              This will permanently remove this month and all its bill data. This cannot be undone.
+            </div>
+            <button onClick={()=>{onDelete(confirmId);setConfirmId(null);}}
+              style={{width:"100%",background:"#E84D8A",border:"none",borderRadius:14,padding:"15px",fontSize:16,fontWeight:700,color:"#ffffff",cursor:"pointer",fontFamily:"inherit",marginBottom:10}}>
+              Delete Month
+            </button>
+            <button onClick={()=>setConfirmId(null)}
+              style={{width:"100%",background:"rgba(0,0,0,0.05)",border:"none",borderRadius:14,padding:"15px",fontSize:16,fontWeight:600,color:"rgba(0,0,0,0.6)",cursor:"pointer",fontFamily:"inherit"}}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Hero */}
+      <div style={{background:`linear-gradient(175deg,${p.gradient[0]} 0%,${p.gradient[1]} 100%)`,paddingBottom:32,position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",inset:0,background:`radial-gradient(ellipse at 70% 30%,${p.accent}22,transparent 60%)`,pointerEvents:"none"}}/>
+        <div style={{padding:"52px 24px 0",position:"relative"}}>
+          <button onClick={onBack} style={{background:"none",border:"none",color:p.accent,fontSize:16,cursor:"pointer",padding:"0 0 20px",display:"flex",alignItems:"center",gap:6,fontFamily:"inherit",fontWeight:500}}>
+            <span style={{fontSize:20,lineHeight:1}}>‹</span> Properties
+          </button>
+          <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.55)",letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:6}}>{p.sub}</div>
+          <div style={{fontSize:38,fontWeight:700,color:"#ffffff",letterSpacing:"-0.5px",lineHeight:1}}>{p.label}</div>
+          {active.length>0&&(
+            <div style={{marginTop:20,background:"rgba(255,255,255,0.12)",backdropFilter:"blur(20px)",borderRadius:16,padding:"16px 18px",border:"1px solid rgba(255,255,255,0.2)"}}>
+              {active.map((m,idx)=>{
+                const paid=m.bills.filter(b=>b.status==="paid");
+                const pct=m.bills.length?Math.round(paid.length/m.bills.length*100):0;
+                const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+                return(
+                  <div key={m.id} style={{paddingTop:idx>0?16:0,marginTop:idx>0?16:0,borderTop:idx>0?"1px solid rgba(255,255,255,0.15)":"none"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                      <div style={{cursor:"pointer",flex:1}} onClick={()=>onOpen(m.id)}>
+                        <div style={{fontSize:16,fontWeight:600,color:"#ffffff"}}>{m.label}</div>
+                        <div style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginTop:2}}>{paid.length}/{m.bills.length} bills · {fmt(paidAmt)} out</div>
+                      </div>
+                      <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
+                        <div style={{textAlign:"right",cursor:"pointer"}} onClick={()=>onOpen(m.id)}>
+                          <div style={{fontSize:22,fontWeight:700,color:p.accent}}>{fmt(m.balance)}</div>
+                          <div style={{fontSize:11,color:"rgba(255,255,255,0.45)"}}>remaining</div>
+                        </div>
+                        <button
+                          onClick={e=>{e.stopPropagation();setConfirmId(m.id);}}
+                          style={{background:"rgba(232,77,138,0.2)",border:"1px solid rgba(232,77,138,0.4)",borderRadius:8,width:30,height:30,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0,marginTop:2}}>
+                          <TrashIcon size={14} color="#ffb3cd"/>
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{cursor:"pointer"}} onClick={()=>onOpen(m.id)}>
+                      <div style={{height:6,background:"rgba(255,255,255,0.25)",borderRadius:3,overflow:"hidden"}}>
+                        <div style={{height:"100%",width:`${pct}%`,background:`linear-gradient(90deg,${p.accent},${p.accent}cc)`,borderRadius:3,transition:"width 0.5s"}}/>
+                      </div>
+                      <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+                        <span style={{fontSize:12,color:"rgba(255,255,255,0.4)"}}>0%</span>
+                        <span style={{fontSize:12,fontWeight:600,color:p.accent}}>{pct}%</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Action Cards */}
+      <div style={{padding:"24px 16px 0"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+          <ActionCard icon="plus" label="New Month" sub="Start billing" accent={p.accent} onClick={onNew}/>
+          <ActionCard icon="gear" label="Vendors" sub={`${p.vendors?p.vendors.length:0} payees`} accent="#636366" onClick={onManage}/>
+        </div>
+        <ActionCard icon="folder" label="Payment History" sub={`${closed.length} months archived`} accent="#636366" onClick={onHistory} wide/>
+      </div>
+    </div>
+  );
+}
+
+function ActionCard({icon,label,sub,accent,onClick,wide}){
+  const iconMap={plus:<PlusIcon color={accent}/>,gear:<GearIcon color={accent==="#636366"?"#636366":accent}/>,folder:<FolderIcon color={accent==="#636366"?"#636366":accent}/>};
+  return(
+    <div className="action-card" onClick={onClick}
+      style={{background:"#ffffff",borderRadius:18,padding:wide?"18px 20px":"20px 18px",cursor:"pointer",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",display:"flex",alignItems:wide?"center":"flex-start",gap:wide?14:0,flexDirection:wide?"row":"column"}}>
+      <div style={{width:40,height:40,borderRadius:10,background:accent==="#636366"?"#f0f0f5":`${accent}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,marginBottom:wide?0:12,flexShrink:0}}>
+        {iconMap[icon]}
+      </div>
+      <div>
+        <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{label}</div>
+        <div style={{fontSize:13,color:"rgba(0,0,0,0.45)",marginTop:2}}>{sub}</div>
+      </div>
+      {wide&&<span style={{marginLeft:"auto",color:"rgba(0,0,0,0.25)",fontSize:20}}>›</span>}
+    </div>
+  );
+}
+
+// ─── New Month ────────────────────────────────────────────────────────────────
+function NewMonth({p,months,onStart,onBack}){
+  const[yr,setYr]=useState(new Date().getFullYear());
+  const[mo,setMo]=useState(new Date().getMonth());
+  const conflict=months.find(m=>m.year===yr&&m.month===mo&&m.status!=="closed");
+  return(
+    <AppleScreen p={p} title="New Month" onBack={onBack}>
+      <div style={{padding:"0 16px"}}>
+        <AppleFormGroup>
+          <AppleRow label="Year">
+            <select style={sel} value={yr} onChange={e=>setYr(+e.target.value)}>{[2025,2026,2027].map(y=><option key={y}>{y}</option>)}</select>
+          </AppleRow>
+          <AppleRow label="Month" last>
+            <select style={sel} value={mo} onChange={e=>setMo(+e.target.value)}>{MO.map((m,i)=><option key={i} value={i}>{m}</option>)}</select>
+          </AppleRow>
+        </AppleFormGroup>
+        {conflict&&<div style={{background:"rgba(255,159,10,0.12)",border:"1px solid rgba(255,159,10,0.3)",borderRadius:12,padding:"12px 14px",marginBottom:16,fontSize:14,color:"#FEB326"}}>⚠ A session for {MO[mo]} {yr} is already in progress.</div>}
+        <AppleButton accent={p.accent} onClick={()=>onStart(yr,mo)}>{conflict?"Continue →":"Create Month"}</AppleButton>
+      </div>
+    </AppleScreen>
+  );
+}
+
+// ─── Bills ────────────────────────────────────────────────────────────────────
+function Bills({p,month,vendors,onUpdate,onClose,onBack}){
+  const[tab,setTab]=useState("pay");
+  const[editing,setEditing]=useState(null);
+  const[editAmt,setEditAmt]=useState("");
+  const[editNote,setEditNote]=useState("");
+  const[showBal,setShowBal]=useState(false);
+  const[newBal,setNewBal]=useState("");
+  const[addingBill,setAddingBill]=useState(false);
+  const[newVId,setNewVId]=useState("");
+
+  const bills=month.bills;
+  const pending=bills.filter(b=>b.status==="pending");
+  const paid=bills.filter(b=>b.status==="paid");
+  const skipped=bills.filter(b=>b.status==="skipped");
+  const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+  const pendAmt=pending.reduce((s,b)=>s+b.amount,0);
+  const allDone=bills.length>0&&pending.length===0;
+
+  function startEdit(b){setEditing(b.id);setEditAmt(b.amount||"");setEditNote(b.note||"");}
+  function confirmPay(){
+    const amt=parseFloat(editAmt)||0;
+    const old=bills.find(b=>b.id===editing);
+    const prev=old?.status==="paid"?(old?.amount||0):0;
+    onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===editing?{...b,status:"paid",amount:amt,note:editNote,paidAt:Date.now()}:b),balance:m.balance+prev-amt}));
+    setEditing(null);
+  }
+  function skipBill(id){onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===id?{...b,status:"skipped"}:b)}));}
+  function unpay(id){const b=bills.find(x=>x.id===id);onUpdate(month.id,m=>({bills:m.bills.map(x=>x.id===id?{...x,status:"pending"}:x),balance:m.balance+(b?.amount||0)}));}
+  function saveBalance(){const bal=parseFloat(newBal)||0;onUpdate(month.id,()=>({startingBalance:bal,balance:bal-paidAmt}));setShowBal(false);}
+  function addBill(){const v=vendors.find(x=>x.id===newVId);if(!v)return;onUpdate(month.id,m=>({bills:[...m.bills,{id:uid(),vendorId:v.id,vendorName:v.name,amount:v.defaultAmount||0,status:"pending",account:v.account,dueDate:v.dueDate,note:""}]}));setAddingBill(false);setNewVId("");}
+
+  const catGroups={};
+  p.cats.forEach(cat=>{const items=bills.filter(b=>{const v=vendors.find(x=>x.id===b.vendorId);return v?.category===cat;});if(items.length)catGroups[cat]=items;});
+  const uncat=bills.filter(b=>!vendors.find(x=>x.id===b.vendorId));
+  if(uncat.length)catGroups["Other"]=uncat;
+
+  return(
+    <div style={{minHeight:"100vh",background:"#f7f7f7",paddingBottom:48}}>
+      {/* Header */}
+      <div style={{background:"#f7f7f7",padding:"52px 20px 0",borderBottom:"1px solid rgba(0,0,0,0.07)"}}>
+        <button onClick={onBack} style={{background:"none",border:"none",color:p.accent,fontSize:16,cursor:"pointer",padding:"0 0 12px",display:"flex",alignItems:"center",gap:6,fontFamily:"inherit",fontWeight:500}}>
+          <span style={{fontSize:20,lineHeight:1}}>‹</span> {p.label}
+        </button>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",paddingBottom:16}}>
+          <div>
+            <div style={{fontSize:28,fontWeight:700,color:"#1C1C1E",letterSpacing:"-0.3px"}}>{month.label}</div>
+            <div style={{display:"flex",gap:8,marginTop:6,flexWrap:"wrap"}}>
+              <Chip color={p.accent} bg={`${p.accent}18`}>{fmt(month.balance)} left</Chip>
+              <Chip color="#E84D8A" bg="rgba(255,69,58,0.12)">{fmt(paidAmt)} paid</Chip>
+              {pendAmt>0&&<Chip color="#FEB326" bg="rgba(255,159,10,0.12)">{fmt(pendAmt)} due</Chip>}
+            </div>
+          </div>
+          <button onClick={()=>{setNewBal(month.startingBalance||"");setShowBal(true);}}
+            style={{background:`${p.accent}18`,border:`1px solid ${p.accent}55`,borderRadius:10,padding:"8px 14px",color:p.accent,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            {month.startingBalance?fmt(month.startingBalance):"Set Balance"}
+          </button>
+        </div>
+        {/* Segmented Control */}
+        <div style={{display:"flex",background:"rgba(0,0,0,0.04)",borderRadius:10,padding:3,marginBottom:0}}>
+          {[["pay","Pay Bills"],["all","All Bills"],["summary","Summary"]].map(([t,l])=>(
+            <button key={t} onClick={()=>setTab(t)}
+              style={{flex:1,padding:"7px 0",borderRadius:8,border:"none",background:tab===t?"#ffffff":"transparent",color:tab===t?"#7F58AF":"rgba(0,0,0,0.4)",fontWeight:tab===t?700:600,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all 0.2s"}}>
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Balance Modal */}
+      {showBal&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.35)",backdropFilter:"blur(20px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:200,padding:"0 0 0"}} onClick={()=>setShowBal(false)}>
+          <div style={{background:"#ffffff",borderRadius:"20px 20px 0 0",padding:"20px 20px 40px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
+            <div style={{width:36,height:4,background:"rgba(0,0,0,0.15)",borderRadius:2,margin:"0 auto 20px"}}/>
+            <div style={{fontSize:20,fontWeight:700,color:"#1C1C1E",marginBottom:20}}>Bank Balance</div>
+            <div style={{display:"flex",alignItems:"center",background:"rgba(0,0,0,0.04)",borderRadius:14,padding:"4px 16px",marginBottom:16,border:"1px solid rgba(0,0,0,0.09)"}}>
+              <span style={{fontSize:22,color:"rgba(0,0,0,0.28)",marginRight:8,fontWeight:300}}>$</span>
+              <input autoFocus type="number" value={newBal} onChange={e=>setNewBal(e.target.value)}
+                style={{flex:1,background:"none",border:"none",outline:"none",fontSize:28,fontWeight:700,color:"#1C1C1E",padding:"10px 0",fontFamily:"inherit"}}/>
+            </div>
+            <AppleButton accent={p.accent} onClick={saveBalance}>Save Balance</AppleButton>
+          </div>
+        </div>
+      )}
+
+      <div style={{padding:"20px 16px 0"}}>
+        {/* PAY TAB */}
+        {tab==="pay"&&(
+          <div>
+            {allDone&&(
+              <div style={{background:"rgba(48,209,88,0.1)",border:"1px solid rgba(48,209,88,0.3)",borderRadius:16,padding:"16px 18px",marginBottom:16,display:"flex",alignItems:"center",gap:12}}>
+                <span style={{fontSize:24}}>🎉</span>
+                <div><div style={{fontSize:15,fontWeight:600,color:"#64C5EB"}}>All bills addressed!</div><div style={{fontSize:13,color:"rgba(0,0,0,0.38)",marginTop:2}}>Head to Summary to close the month.</div></div>
+              </div>
+            )}
+            {pending.length>0&&(
+              <div style={{marginBottom:24}}>
+                <SectionLabel>Pending</SectionLabel>
+                <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden"}}>
+                  {pending.map((b,i)=>{
+                    const vendor=vendors.find(v=>v.id===b.vendorId);
+                    const hasUrl=vendor?.url;
+                    const hasPhone=vendor?.phone;
+                    return(
+                    <div key={b.id}>
+                      <div className="bill-row" onClick={()=>editing===b.id?setEditing(null):startEdit(b)}
+                        style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<pending.length-1||editing===b.id?"1px solid rgba(0,0,0,0.06)":"none",cursor:"pointer"}}>
+                        <div style={{width:8,height:8,borderRadius:4,background:"#FEB326",marginRight:12,flexShrink:0,marginTop:2}}/>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:15,fontWeight:500,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</div>
+                          <div style={{fontSize:12,color:"rgba(0,0,0,0.35)",marginTop:1}}>{b.account}{b.dueDate&&b.dueDate!=="—"?` · Due ${b.dueDate}`:""}</div>
+                          {(hasUrl||hasPhone)&&(
+                            <div style={{display:"flex",gap:12,marginTop:5}} onClick={e=>e.stopPropagation()}>
+                              {hasUrl&&<a href={vendor.url} target="_blank" rel="noopener noreferrer"
+                                style={{fontSize:12,fontWeight:700,color:p.accent,textDecoration:"none",display:"flex",alignItems:"center",gap:3}}>
+                                <LinkIcon size={12} color={p.accent}/> Pay Online
+                              </a>}
+                              {hasPhone&&<a href={`tel:${vendor.phone.replace(/[^0-9+]/g,"")}`}
+                                style={{fontSize:12,fontWeight:700,color:"#7F58AF",textDecoration:"none",display:"flex",alignItems:"center",gap:3}}>
+                                <PhoneIcon size={12} color="#7F58AF"/> {vendor.phone}
+                              </a>}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0,marginLeft:8}}>
+                          <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{b.amount?fmt(b.amount):"—"}</div>
+                          <button className="skip-btn" onClick={e=>{e.stopPropagation();skipBill(b.id);}}
+                            style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"rgba(0,0,0,0.45)",cursor:"pointer",fontFamily:"inherit"}}>Skip</button>
+                        </div>
+                      </div>
+                      {editing===b.id&&(
+                        <div style={{background:"rgba(127,88,175,0.03)",padding:"16px",borderBottom:i<pending.length-1?"1px solid rgba(0,0,0,0.06)":"none",borderTop:"1px solid rgba(127,88,175,0.1)"}} className="slide-in">
+                          {hasUrl&&(
+                            <a href={vendor.url} target="_blank" rel="noopener noreferrer"
+                              style={{display:"flex",alignItems:"center",gap:8,background:p.accent,borderRadius:12,padding:"11px 16px",marginBottom:12,textDecoration:"none",justifyContent:"center"}}>
+                              <LinkIcon size={15} color="#ffffff"/>
+                              <span style={{fontSize:14,fontWeight:700,color:"#ffffff"}}>Open {b.vendorName} Payment Portal</span>
+                            </a>
+                          )}
+                          <div style={{display:"flex",alignItems:"center",background:"rgba(0,0,0,0.04)",borderRadius:12,padding:"4px 14px",marginBottom:12,border:"1px solid rgba(0,0,0,0.09)"}}>
+                            <span style={{fontSize:18,color:"rgba(0,0,0,0.28)",marginRight:8,fontWeight:300}}>$</span>
+                            <input autoFocus type="number" value={editAmt} onChange={e=>setEditAmt(e.target.value)}
+                              style={{flex:1,background:"none",border:"none",outline:"none",fontSize:22,fontWeight:700,color:"#1C1C1E",padding:"8px 0",fontFamily:"inherit"}}/>
+                          </div>
+                          <input type="text" value={editNote} onChange={e=>setEditNote(e.target.value)} placeholder="Note or confirmation # (optional)"
+                            style={{width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:12,padding:"11px 14px",fontSize:14,color:"#1C1C1E",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:12}}/>
+                          <div style={{display:"flex",gap:8}}>
+                            <button onClick={confirmPay} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:"13px",fontSize:15,fontWeight:600,color:"#ffffff",cursor:"pointer",fontFamily:"inherit"}}>✓ Mark Paid</button>
+                            <button onClick={()=>setEditing(null)} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {paid.length>0&&(
+              <div style={{marginBottom:24}}>
+                <SectionLabel>Paid</SectionLabel>
+                <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden"}}>
+                  {paid.map((b,i)=>(
+                    <div key={b.id} style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<paid.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+                      <div style={{width:8,height:8,borderRadius:4,background:"#64C5EB",marginRight:12,flexShrink:0}}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:15,fontWeight:500,color:"rgba(0,0,0,0.5)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</div>
+                        {b.note&&<div style={{fontSize:12,color:"rgba(0,0,0,0.28)",marginTop:1}}>{b.note}</div>}
+                      </div>
+                      <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0}}>
+                        <div style={{fontSize:15,fontWeight:600,color:"#64C5EB"}}>{fmt(b.amount)}</div>
+                        <button onClick={()=>unpay(b.id)} style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:8,padding:"4px 10px",fontSize:12,color:"rgba(0,0,0,0.32)",cursor:"pointer",fontFamily:"inherit"}}>Undo</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {skipped.length>0&&(
+              <div style={{marginBottom:24}}>
+                <SectionLabel>Skipped</SectionLabel>
+                <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden",opacity:0.5}}>
+                  {skipped.map((b,i)=>(
+                    <div key={b.id} style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<skipped.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+                      <div style={{width:8,height:8,borderRadius:4,background:"rgba(255,255,255,0.2)",marginRight:12}}/>
+                      <div style={{fontSize:15,fontWeight:500,color:"rgba(0,0,0,0.38)"}}>{b.vendorName}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {allDone&&<AppleButton accent="#64C5EB" onClick={()=>setTab("summary")}>View Summary →</AppleButton>}
+          </div>
+        )}
+
+        {/* ALL BILLS TAB */}
+        {tab==="all"&&(
+          <div>
+            {Object.entries(catGroups).map(([cat,items])=>(
+              <div key={cat} style={{marginBottom:24}}>
+                <SectionLabel>{cat}</SectionLabel>
+                <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden"}}>
+                  {items.map((b,i)=>(
+                    <div key={b.id} style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<items.length-1?"1px solid rgba(0,0,0,0.06)":"none",opacity:b.status==="skipped"?0.4:1}}>
+                      <div style={{width:8,height:8,borderRadius:4,background:b.status==="paid"?"#64C5EB":b.status==="skipped"?"rgba(255,255,255,0.2)":"#FEB326",marginRight:12,flexShrink:0}}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:15,fontWeight:500,color:b.status==="paid"?"rgba(0,0,0,0.35)":"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</div>
+                        <div style={{fontSize:12,color:"rgba(0,0,0,0.28)",marginTop:1}}>{b.account}{b.dueDate&&b.dueDate!=="—"?` · Due ${b.dueDate}`:""}</div>
+                      </div>
+                      <div style={{fontSize:15,fontWeight:600,color:b.status==="paid"?"#64C5EB":"rgba(255,255,255,0.7)",flexShrink:0}}>{b.amount?fmt(b.amount):"—"}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {addingBill?(
+              <div style={{background:"#ffffff",borderRadius:16,padding:16,marginBottom:16}}>
+                <div style={{fontSize:13,fontWeight:600,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Add Vendor</div>
+                <select style={{...sel,marginBottom:12}} value={newVId} onChange={e=>setNewVId(e.target.value)}>
+                  <option value="">Select vendor…</option>
+                  {vendors.filter(v=>!bills.find(b=>b.vendorId===v.id)).map(v=><option key={v.id} value={v.id}>{v.name} ({v.category})</option>)}
+                </select>
+                <div style={{display:"flex",gap:8}}>
+                  <button onClick={addBill} disabled={!newVId} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:13,fontSize:15,fontWeight:600,color:"#ffffff",cursor:"pointer",fontFamily:"inherit",opacity:newVId?1:0.4}}>Add</button>
+                  <button onClick={()=>setAddingBill(false)} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+                </div>
+              </div>
+            ):(
+              <button onClick={()=>setAddingBill(true)} style={{width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:14,padding:14,fontSize:15,color:"rgba(0,0,0,0.45)",cursor:"pointer",fontFamily:"inherit",marginBottom:8}}>＋ Add Vendor to This Month</button>
+            )}
+          </div>
+        )}
+
+        {/* SUMMARY TAB */}
+        {tab==="summary"&&(
+          <div>
+            <div style={{background:"#ffffff",borderRadius:16,padding:"4px 0",marginBottom:24}}>
+              {[
+                {label:"Starting Balance",val:fmt(month.startingBalance),color:"rgba(0,0,0,0.85)"},
+                {label:"Total Paid Out",val:fmt(paidAmt),color:"#E84D8A"},
+                pendAmt>0?{label:"Still Pending",val:fmt(pendAmt),color:"#FEB326"}:null,
+              ].filter(Boolean).map((r,i,arr)=>(
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 16px",borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+                  <span style={{fontSize:15,color:"rgba(0,0,0,0.45)"}}>{r.label}</span>
+                  <span style={{fontSize:15,fontWeight:600,color:r.color}}>{r.val}</span>
+                </div>
+              ))}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px",borderTop:"1px solid rgba(0,0,0,0.09)",marginTop:4}}>
+                <span style={{fontSize:17,fontWeight:600,color:"#1C1C1E"}}>Remaining</span>
+                <span style={{fontSize:22,fontWeight:700,color:p.accent}}>{fmt(month.balance)}</span>
+              </div>
+            </div>
+            {Object.entries(catGroups).map(([cat,items])=>{
+              const pi=items.filter(b=>b.status==="paid");if(!pi.length)return null;
+              const tot=pi.reduce((s,b)=>s+b.amount,0);
+              return(
+                <div key={cat} style={{marginBottom:20}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,padding:"0 4px"}}>
+                    <SectionLabel inline>{cat}</SectionLabel>
+                    <span style={{fontSize:15,fontWeight:600,color:"rgba(0,0,0,0.5)"}}>{fmt(tot)}</span>
+                  </div>
+                  <div style={{background:"#ffffff",borderRadius:14,overflow:"hidden"}}>
+                    {pi.map((b,i)=>(
+                      <div key={b.id} style={{display:"flex",justifyContent:"space-between",padding:"12px 16px",borderBottom:i<pi.length-1?"1px solid rgba(0,0,0,0.05)":"none"}}>
+                        <span style={{fontSize:14,color:"rgba(0,0,0,0.45)"}}>{b.vendorName}</span>
+                        <span style={{fontSize:14,fontWeight:500,color:"rgba(0,0,0,0.5)"}}>{fmt(b.amount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {allDone
+              ?<AppleButton accent="#64C5EB" onClick={()=>onClose(month.id)}>Archive This Month</AppleButton>
+              :<div style={{background:"rgba(255,159,10,0.1)",border:"1px solid rgba(255,159,10,0.25)",borderRadius:14,padding:"14px 16px",fontSize:14,color:"#FEB326"}}>{pending.length} bill{pending.length>1?"s":""} still pending — pay or skip before archiving.</div>
+            }
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Manage Vendors ───────────────────────────────────────────────────────────
+function ManageVendors({p,vendors,setVendors,onBack}){
+  const[adding,setAdding]=useState(false);
+  const[cat,setCat]=useState("All");
+  const[form,setForm]=useState({name:"",category:p.cats[0],account:"",defaultAmount:"",dueDate:"",notes:"",url:"",phone:""});
+  const filtered=cat==="All"?vendors:vendors.filter(v=>v.category===cat);
+  function add(){if(!form.name.trim())return;setVendors(p=>[...p,{...form,id:uid(),defaultAmount:+form.defaultAmount}]);setForm({name:"",category:p.cats[0],account:"",defaultAmount:"",dueDate:"",notes:"",url:"",phone:""});setAdding(false);}
+  return(
+    <AppleScreen p={p} title="Vendors" onBack={onBack}>
+      <div style={{padding:"0 16px"}}>
+        {/* Filter pills */}
+        <div style={{display:"flex",gap:8,overflowX:"auto",marginBottom:20,paddingBottom:4}}>
+          {["All",...p.cats].map(c=>(
+            <button key={c} onClick={()=>setCat(c)}
+              style={{flexShrink:0,padding:"7px 16px",borderRadius:20,border:"none",background:cat===c?p.accent:"#e5e5ea",color:cat===c?"#fff":"rgba(0,0,0,0.45)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
+              {c}
+            </button>
+          ))}
+        </div>
+        <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden",marginBottom:20}}>
+          {filtered.map((v,i)=>(
+            <div key={v.id} style={{borderBottom:i<filtered.length-1?"1px solid rgba(0,0,0,0.06)":"none",padding:"14px 16px"}}>
+              <div style={{display:"flex",alignItems:"flex-start"}}>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{v.name}</div>
+                  <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:2}}>{v.category}{v.account?` · ${v.account}`:""}{v.dueDate?` · Due ${v.dueDate}`:""}</div>
+                  {v.notes&&<div style={{fontSize:12,color:"rgba(0,0,0,0.5)",marginTop:4,lineHeight:1.45}}>{v.notes}</div>}
+                  {(v.url||v.phone)&&(
+                    <div style={{display:"flex",gap:12,marginTop:6,flexWrap:"wrap"}}>
+                      {v.url&&<a href={v.url} target="_blank" rel="noopener noreferrer" style={{fontSize:12,fontWeight:700,color:p.accent,textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
+                        <LinkIcon size={13} color={p.accent}/> Pay Online
+                      </a>}
+                      {v.phone&&<a href={`tel:${v.phone.replace(/[^0-9+]/g,"")}`} style={{fontSize:12,fontWeight:700,color:"#7F58AF",textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
+                        <PhoneIcon size={13} color="#7F58AF"/> {v.phone}
+                      </a>}
+                    </div>
+                  )}
+                </div>
+                <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0,marginLeft:12}}>
+                  <span style={{fontSize:14,fontWeight:600,color:"rgba(0,0,0,0.5)"}}>{v.defaultAmount?fmt(v.defaultAmount):"—"}</span>
+                  <button onClick={()=>setVendors(pv=>pv.filter(x=>x.id!==v.id))} style={{background:"rgba(232,77,138,0.1)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"#E84D8A",cursor:"pointer",fontFamily:"inherit"}}>Remove</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {adding?(
+          <div style={{background:"#ffffff",borderRadius:16,padding:16,marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
+            <div style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:14}}>New Vendor</div>
+            {[
+              {label:"Name",       field:"name",    ph:"Vendor name",          type:"text"},
+              {label:"Account",    field:"account", ph:"e.g. WELLS · 0146",    type:"text"},
+              {label:"Due Date",   field:"dueDate", ph:"e.g. 15th",            type:"text"},
+              {label:"Website URL",field:"url",     ph:"https://vendor.com",   type:"url"},
+              {label:"Phone",      field:"phone",   ph:"(610) 555-1234",       type:"tel"},
+              {label:"Notes",      field:"notes",   ph:"Any extra details…",   type:"text"},
+            ].map(f=>(
+              <div key={f.field} style={{marginBottom:10}}>
+                <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>{f.label}</div>
+                <input type={f.type} value={form[f.field]} onChange={e=>setForm(pf=>({...pf,[f.field]:e.target.value}))} placeholder={f.ph} style={{...inp}}/>
+              </div>
+            ))}
+            <div style={{marginBottom:10}}>
+              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>Category</div>
+              <select style={sel} value={form.category} onChange={e=>setForm(pf=>({...pf,category:e.target.value}))}>{p.cats.map(c=><option key={c}>{c}</option>)}</select>
+            </div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>Default Amount</div>
+              <div style={{display:"flex",alignItems:"center",background:"rgba(0,0,0,0.04)",borderRadius:12,padding:"4px 14px",border:"1px solid rgba(0,0,0,0.09)"}}>
+                <span style={{fontSize:16,color:"rgba(0,0,0,0.28)",marginRight:8}}>$</span>
+                <input type="number" value={form.defaultAmount} onChange={e=>setForm(pf=>({...pf,defaultAmount:e.target.value}))} style={{flex:1,background:"none",border:"none",outline:"none",fontSize:18,fontWeight:600,color:"#1C1C1E",padding:"8px 0",fontFamily:"inherit"}}/>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={add} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:13,fontSize:15,fontWeight:600,color:"#ffffff",cursor:"pointer",fontFamily:"inherit"}}>Add Vendor</button>
+              <button onClick={()=>setAdding(false)} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+            </div>
+          </div>
+        ):(
+          <button onClick={()=>setAdding(true)} style={{width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:14,padding:14,fontSize:15,color:"rgba(0,0,0,0.45)",cursor:"pointer",fontFamily:"inherit"}}>＋ Add New Vendor</button>
+        )}
+      </div>
+    </AppleScreen>
+  );
+}
+
+// ─── History ─────────────────────────────────────────────────────────────────
+function History({p,months,onView,onBack}){
+  const sorted=[...months].sort((a,b)=>(b.closedAt||0)-(a.closedAt||0));
+  const totalPaid=months.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0),0);
+  return(
+    <AppleScreen p={p} title="History" onBack={onBack}>
+      <div style={{padding:"0 16px"}}>
+        <div style={{background:"#ffffff",borderRadius:16,padding:"4px 0",marginBottom:24}}>
+          <div style={{display:"flex",justifyContent:"space-between",padding:"14px 16px",borderBottom:"1px solid rgba(0,0,0,0.06)"}}>
+            <span style={{fontSize:15,color:"rgba(0,0,0,0.45)"}}>Months Archived</span>
+            <span style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{months.length}</span>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",padding:"14px 16px"}}>
+            <span style={{fontSize:15,color:"rgba(0,0,0,0.45)"}}>All-Time Paid Out</span>
+            <span style={{fontSize:15,fontWeight:600,color:"#E84D8A"}}>{fmt(totalPaid)}</span>
+          </div>
+        </div>
+        {sorted.length===0&&<div style={{textAlign:"center",color:"rgba(0,0,0,0.35)",padding:"40px 0",fontSize:15}}>No archived months yet</div>}
+        <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden"}}>
+          {sorted.map((m,i)=>{
+            const paid=m.bills.filter(b=>b.status==="paid");
+            const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+            return(
+              <div key={m.id} className="bill-row" onClick={()=>onView(m.id)}
+                style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<sorted.length-1?"1px solid rgba(0,0,0,0.06)":"none",cursor:"pointer"}}>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:15,fontWeight:500,color:"#1C1C1E"}}>{m.label}</div>
+                  <div style={{fontSize:13,color:"rgba(0,0,0,0.32)",marginTop:2}}>{paid.length} bills · {fmt(paidAmt)} paid</div>
+                </div>
+                <div style={{textAlign:"right",marginRight:8}}>
+                  <div style={{fontSize:15,fontWeight:600,color:p.accent}}>{fmt(m.balance)}</div>
+                  <div style={{fontSize:11,color:"rgba(0,0,0,0.28)"}}>remaining</div>
+                </div>
+                <span style={{color:"rgba(0,0,0,0.2)",fontSize:18}}>›</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </AppleScreen>
+  );
+}
+
+function ViewMonth({p,month,onBack}){
+  const paid=month.bills.filter(b=>b.status==="paid");
+  const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+  return(
+    <AppleScreen p={p} title={month.label} onBack={onBack}>
+      <div style={{padding:"0 16px"}}>
+        <div style={{background:"#ffffff",borderRadius:16,padding:"4px 0",marginBottom:20}}>
+          {[{l:"Starting Balance",v:fmt(month.startingBalance),c:"#1C1C1E"},{l:"Total Paid",v:fmt(paidAmt),c:"#E84D8A"},{l:"Remaining",v:fmt(month.balance),c:p.accent}].map((r,i,a)=>(
+            <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"14px 16px",borderBottom:i<a.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+              <span style={{fontSize:15,color:"rgba(0,0,0,0.45)"}}>{r.l}</span>
+              <span style={{fontSize:15,fontWeight:600,color:r.c}}>{r.v}</span>
+            </div>
+          ))}
+        </div>
+        <SectionLabel>Bills Paid</SectionLabel>
+        <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden"}}>
+          {paid.map((b,i)=>(
+            <div key={b.id} style={{display:"flex",padding:"14px 16px",borderBottom:i<paid.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+              <div style={{width:8,height:8,borderRadius:4,background:"#64C5EB",marginRight:12,marginTop:5,flexShrink:0}}/>
+              <div style={{flex:1}}><div style={{fontSize:15,color:"rgba(0,0,0,0.65)"}}>{b.vendorName}</div>{b.note&&<div style={{fontSize:12,color:"rgba(0,0,0,0.28)",marginTop:1}}>{b.note}</div>}</div>
+              <span style={{fontSize:15,fontWeight:500,color:"#64C5EB"}}>{fmt(b.amount)}</span>
+            </div>
+          ))}
+          {paid.length===0&&<div style={{padding:"20px 16px",fontSize:15,color:"rgba(0,0,0,0.3)"}}>No bills recorded</div>}
+        </div>
+      </div>
+    </AppleScreen>
+  );
+}
+
+// ─── Shared Components ────────────────────────────────────────────────────────
+function AppleScreen({p,title,onBack,children}){
+  return(
+    <div style={{minHeight:"100vh",background:"#f7f7f7",paddingBottom:48}}>
+      <div style={{padding:"52px 20px 0",borderBottom:"1px solid rgba(0,0,0,0.08)",paddingBottom:16}}>
+        <button onClick={onBack} style={{background:"none",border:"none",color:p.accent,fontSize:16,cursor:"pointer",padding:"0 0 12px",display:"flex",alignItems:"center",gap:6,fontFamily:"inherit",fontWeight:500}}>
+          <span style={{fontSize:20,lineHeight:1}}>‹</span> {p.label}
+        </button>
+        <div style={{fontSize:28,fontWeight:700,color:"#1C1C1E",letterSpacing:"-0.3px"}}>{title}</div>
+      </div>
+      <div style={{paddingTop:24}}>{children}</div>
+    </div>
+  );
+}
+
+function SectionLabel({children,inline}){
+  return <div style={{fontSize:12,fontWeight:600,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:inline?0:8,padding:"0 4px"}}>{children}</div>;
+}
+
+function Chip({children,color,bg}){
+  return <span style={{background:bg,color,borderRadius:20,padding:"3px 10px",fontSize:13,fontWeight:600,display:"inline-block"}}>{children}</span>;
+}
+
+function AppleButton({children,accent,onClick}){
+  return(
+    <button onClick={onClick} style={{width:"100%",background:accent,border:"none",borderRadius:14,padding:"15px",fontSize:16,fontWeight:600,color:"#ffffff",cursor:"pointer",fontFamily:"inherit",letterSpacing:"-0.1px"}}>
+      {children}
+    </button>
+  );
+}
+
+function AppleFormGroup({children}){
+  return <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden",marginBottom:20}}>{children}</div>;
+}
+
+function AppleRow({label,children,last}){
+  return(
+    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",borderBottom:last?"none":"1px solid rgba(0,0,0,0.06)"}}>
+      <span style={{fontSize:15,color:"#1C1C1E"}}>{label}</span>
+      <div style={{flex:1,textAlign:"right"}}>{children}</div>
+    </div>
+  );
+}
+
+const sel={width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:12,padding:"11px 14px",fontSize:15,color:"#1C1C1E",fontFamily:"inherit",outline:"none",appearance:"none"};
+const inp={width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:12,padding:"11px 14px",fontSize:15,color:"#1C1C1E",fontFamily:"inherit",outline:"none",boxSizing:"border-box"};
+
+const CSS=`
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;background:#f0f0f5;}
+  #root{height:100%;}
+  input::placeholder{color:rgba(0,0,0,0.25);}
+  input:focus,select:focus{border-color:rgba(127,88,175,0.5)!important;outline:none;}
+  select option{background:#ffffff;color:#1C1C1E;}
+  .prop-card{transition:transform 0.15s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.15s;}
+  .prop-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.1)!important;}
+  .prop-card:active{transform:scale(0.98);}
+  .action-card{transition:transform 0.12s,box-shadow 0.12s;}
+  .action-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.08)!important;}
+  .action-card:active{transform:scale(0.97);}
+  .bill-row{transition:background 0.1s;}
+  .bill-row:hover{background:rgba(0,0,0,0.02)!important;}
+  .bill-row:active{background:rgba(0,0,0,0.04)!important;}
+  .skip-btn{transition:opacity 0.1s;}
+  .skip-btn:hover{opacity:0.7;}
+  .slide-in{animation:slideIn 0.18s cubic-bezier(0.25,0.46,0.45,0.94);}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.25);}
+  @media(max-width:767px){
+    .desktop-sidebar{display:none!important;}
+    .desktop-content{padding:16px!important;}
+  }
+`;
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
+  </script>
+</body>
+</html>
