@@ -463,22 +463,170 @@ const PhoneIcon = ({size=14,color="#7F58AF"}={}) => (
   </svg>
 );
 
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+const GOOGLE_CLIENT_ID = "1003372732048-d29pha2o6s7e7mpma6jc0mstepsh351r.apps.googleusercontent.com";
+
+function useAuth() {
+  const [user,    setUser]    = useState(null);   // { email, name, picture }
+  const [status,  setStatus]  = useState("loading"); // loading | checking | allowed | denied | signedout
+
+  useEffect(() => {
+    // Load Google Identity Services script
+    if (!window.google) {
+      const s = document.createElement("script");
+      s.src = "https://accounts.google.com/gsi/client";
+      s.async = true;
+      s.onload = () => setStatus("signedout");
+      document.head.appendChild(s);
+    } else {
+      setStatus("signedout");
+    }
+  }, []);
+
+  async function signIn(credential) {
+    // Decode JWT to get user info
+    const payload = JSON.parse(atob(credential.split(".")[1]));
+    const email   = payload.email;
+    const name    = payload.name;
+    const picture = payload.picture;
+
+    setStatus("checking");
+    try {
+      // Check allowlist
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/allowed_users?email=eq.${encodeURIComponent(email)}&select=email`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+      );
+      const rows = await res.json();
+      if (rows && rows.length > 0) {
+        setUser({ email, name, picture });
+        setStatus("allowed");
+        localStorage.setItem("bp_user", JSON.stringify({ email, name, picture }));
+      } else {
+        setStatus("denied");
+      }
+    } catch(e) {
+      console.error(e);
+      setStatus("denied");
+    }
+  }
+
+  function signOut() {
+    setUser(null);
+    setStatus("signedout");
+    localStorage.removeItem("bp_user");
+    if (window.google) window.google.accounts.id.disableAutoSelect();
+  }
+
+  // Restore session from localStorage
+  useEffect(() => {
+    if (status === "signedout") {
+      const saved = localStorage.getItem("bp_user");
+      if (saved) {
+        try {
+          const u = JSON.parse(saved);
+          // Re-verify against allowlist
+          fetch(`${SUPABASE_URL}/rest/v1/allowed_users?email=eq.${encodeURIComponent(u.email)}&select=email`,
+            { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } })
+            .then(r => r.json())
+            .then(rows => {
+              if (rows && rows.length > 0) { setUser(u); setStatus("allowed"); }
+            }).catch(() => {});
+        } catch(e) {}
+      }
+    }
+  }, [status]);
+
+  return { user, status, signIn, signOut };
+}
+
+// ─── Sign In Screen ───────────────────────────────────────────────────────────
+function SignInScreen({ onSignIn, denied }) {
+  const btnRef = useRef(null);
+
+  useEffect(() => {
+    if (!window.google || !btnRef.current) return;
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: (res) => onSignIn(res.credential),
+      auto_select: false,
+    });
+    window.google.accounts.id.renderButton(btnRef.current, {
+      type: "standard",
+      theme: "outline",
+      size: "large",
+      text: "sign_in_with",
+      shape: "pill",
+      width: 280,
+    });
+  }, []);
+
+  return (
+    <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#5a3d80 0%,#7F58AF 100%)",display:"flex",alignItems:"center",justifyContent:"center",padding:24,position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 70% 20%,rgba(100,197,235,0.3),transparent 60%)",pointerEvents:"none"}}/>
+      <div style={{background:"#ffffff",borderRadius:24,padding:"44px 40px",maxWidth:400,width:"100%",textAlign:"center",boxShadow:"0 32px 80px rgba(0,0,0,0.25)",position:"relative"}}>
+        {/* Icon */}
+        <div style={{width:72,height:72,borderRadius:20,background:"linear-gradient(135deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:"0 8px 24px rgba(127,88,175,0.35)"}}>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="8" width="20" height="13" rx="2"/>
+            <path d="M8 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            <line x1="12" y1="13" x2="12" y2="16"/>
+            <circle cx="12" cy="13" r="1" fill="white" stroke="none"/>
+          </svg>
+        </div>
+        <div style={{fontSize:26,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.5px",marginBottom:6}}>Bill Pay</div>
+        <div style={{fontSize:14,color:"rgba(0,0,0,0.45)",marginBottom:32,lineHeight:1.5}}>Home Workbook · Family Finance<br/>Sign in to access your account</div>
+
+        {denied ? (
+          <div style={{background:"rgba(232,77,138,0.08)",border:"1px solid rgba(232,77,138,0.25)",borderRadius:14,padding:"14px 18px",marginBottom:20}}>
+            <div style={{fontSize:14,fontWeight:700,color:"#E84D8A",marginBottom:4}}>Access Denied</div>
+            <div style={{fontSize:13,color:"rgba(0,0,0,0.5)",lineHeight:1.45}}>Your Google account isn't on the approved list. Contact David to request access.</div>
+          </div>
+        ) : null}
+
+        {/* Google Sign-In button rendered by Google */}
+        <div ref={btnRef} style={{display:"flex",justifyContent:"center",marginBottom:20}}/>
+
+        <div style={{fontSize:12,color:"rgba(0,0,0,0.3)",lineHeight:1.6}}>
+          🔒 Private family app · Invite only<br/>
+          Powered by Google Sign-In
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Root ─────────────────────────────────────────────────────────────────────
 function App(){
-  const[prop,setProp]=useState(null);
-  const[mobileView,setMobileView]=useState(null); // for mobile nav
-  const isMobile = typeof window!=="undefined" && window.innerWidth < 768;
+  const { user, status, signIn, signOut } = useAuth();
 
+  // Loading state — checking session
+  if (status === "loading" || status === "checking") return (
+    <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
+      <div style={{width:40,height:40,border:"3px solid rgba(255,255,255,0.2)",borderTop:"3px solid white",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
+      <div style={{fontSize:14,color:"rgba(255,255,255,0.6)"}}>{status==="checking"?"Verifying access…":"Loading…"}</div>
+    </div>
+  );
+
+  // Not signed in or denied
+  if (status === "signedout" || status === "denied") return (
+    <div style={{fontFamily:"'Nunito','-apple-system',system-ui,sans-serif"}}>
+      <style>{CSS}</style>
+      <SignInScreen onSignIn={signIn} denied={status==="denied"}/>
+    </div>
+  );
+
+  // Signed in and allowed
   return(
     <div style={{fontFamily:"'Nunito','-apple-system','BlinkMacSystemFont','SF Pro Display',system-ui,sans-serif",background:"#f0f0f5",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
       <style>{CSS}</style>
-      <DesktopShell prop={prop} setProp={setProp}/>
+      <DesktopShell user={user} onSignOut={signOut}/>
     </div>
   );
 }
 
 // ─── Desktop Shell ────────────────────────────────────────────────────────────
-function DesktopShell({prop,setProp}){
+function DesktopShell({user, onSignOut}){
   const[panel,setPanel]=useState("dashboard"); // dashboard | sw | snap
   const now = new Date();
   const MO_S = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -523,10 +671,26 @@ function DesktopShell({prop,setProp}){
           ))}
         </div>
 
-        {/* Date at bottom */}
-        <div style={{padding:"16px 18px 24px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
-          <div style={{fontSize:12,color:"rgba(0,0,0,0.35)"}}>{MO_S[now.getMonth()]} {now.getDate()}, {now.getFullYear()}</div>
-          <div style={{fontSize:11,color:"rgba(0,0,0,0.25)",marginTop:2}}>Home Workbook v1.0</div>
+        {/* User + Sign Out */}
+        <div style={{padding:"14px 14px 24px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            {user?.picture
+              ? <img src={user.picture} style={{width:32,height:32,borderRadius:16,flexShrink:0}} alt=""/>
+              : <div style={{width:32,height:32,borderRadius:16,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:700,flexShrink:0}}>{user?.name?.[0]||"?"}</div>
+            }
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:12,fontWeight:700,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
+              <div style={{fontSize:10,color:"rgba(0,0,0,0.35)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.email||""}</div>
+            </div>
+            <button onClick={onSignOut} title="Sign out"
+              style={{background:"none",border:"none",cursor:"pointer",padding:4,borderRadius:6,color:"rgba(0,0,0,0.3)"}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
