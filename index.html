@@ -872,68 +872,6 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
   );
 }
 
-// ─── Shared Sidebar Content ───────────────────────────────────────────────────
-function SidebarContent({panel, setPanel, user, onSignOut, collapsed, navItems}){
-  return(
-    <>
-      {/* Logo */}
-      {!collapsed && (
-        <div style={{padding:"28px 18px 20px"}}>
-          <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:4}}>Home Workbook</div>
-          <div style={{fontSize:20,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.5px"}}>Bill Pay</div>
-        </div>
-      )}
-      {collapsed && <div style={{height:28}}/>}
-
-      {/* Nav */}
-      <div style={{padding:"0 10px",flex:1}}>
-        {navItems.map(item=>(
-          <button key={item.id} onClick={()=>setPanel(item.id)}
-            style={{width:"100%",display:"flex",alignItems:"center",gap:collapsed?0:10,padding:collapsed?"9px 6px":"9px 10px",borderRadius:8,border:"none",background:panel===item.id?"rgba(127,88,175,0.12)":"transparent",cursor:"pointer",fontFamily:"inherit",marginBottom:2,textAlign:"left",justifyContent:collapsed?"center":"flex-start"}}>
-            <div style={{width:28,height:28,borderRadius:7,background:panel===item.id?(item.accent||"#7F58AF"):"rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s",position:"relative"}}>
-              {item.icon==="grid" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>}
-              {item.icon==="home" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>}
-              {item.icon==="leaf" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>}
-              {item.badge>0 && collapsed && <span style={{position:"absolute",top:-3,right:-3,background:"#E84D8A",color:"#fff",borderRadius:8,padding:"0 4px",fontSize:9,fontWeight:700,minWidth:14,textAlign:"center"}}>{item.badge}</span>}
-            </div>
-            {!collapsed && <span style={{fontSize:13,fontWeight:panel===item.id?700:500,color:panel===item.id?"#1C1C1E":"rgba(0,0,0,0.55)",flex:1}}>{item.label}</span>}
-            {!collapsed && item.badge>0 && <span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:11,fontWeight:700}}>{item.badge}</span>}
-          </button>
-        ))}
-      </div>
-
-      {/* User + Sign Out */}
-      <div style={{padding:collapsed?"12px 10px 24px":"14px 14px 24px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
-        {collapsed ? (
-          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
-            {user?.picture
-              ? <img src={user.picture} style={{width:28,height:28,borderRadius:14}} alt=""/>
-              : <div style={{width:28,height:28,borderRadius:14,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:11,fontWeight:700}}>{user?.name?.[0]||"?"}</div>
-            }
-            <button onClick={onSignOut} title="Sign out" style={{background:"none",border:"none",cursor:"pointer",padding:4,color:"rgba(0,0,0,0.3)"}}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            </button>
-          </div>
-        ) : (
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
-            {user?.picture
-              ? <img src={user.picture} style={{width:32,height:32,borderRadius:16,flexShrink:0}} alt=""/>
-              : <div style={{width:32,height:32,borderRadius:16,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:700,flexShrink:0}}>{user?.name?.[0]||"?"}</div>
-            }
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:12,fontWeight:700,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
-              <div style={{fontSize:10,color:"rgba(0,0,0,0.35)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.email||""}</div>
-            </div>
-            <button onClick={onSignOut} title="Sign out" style={{background:"none",border:"none",cursor:"pointer",padding:4,borderRadius:6,color:"rgba(0,0,0,0.3)"}}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            </button>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
-
 // ─── Desktop Shell ────────────────────────────────────────────────────────────
 function DesktopShell({user, onSignOut}){
   const [panel,     setPanel]     = useState("dashboard");
@@ -950,30 +888,133 @@ function DesktopShell({user, onSignOut}){
     { id:"snap",      label:"Snapdragon",  icon:"leaf", badge:snPending||null, accent:"#64C5EB" },
   ];
 
-  const sidebarW = collapsed ? 52 : 220;
+  // Hamburger icon SVG
+  const MenuIcon = () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2.5" strokeLinecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  );
+
+  const NavIcon = ({icon, active}) => {
+    const stroke = active ? "#fff" : "rgba(0,0,0,0.45)";
+    if (icon==="grid") return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>;
+    if (icon==="home") return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>;
+    if (icon==="leaf") return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>;
+    return null;
+  };
 
   return(
     <div style={{display:"flex",height:"100vh",overflow:"hidden"}}>
 
       {/* ── Sidebar ── */}
-      <div style={{width:sidebarW,background:"rgba(245,245,250,0.95)",borderRight:"1px solid rgba(0,0,0,0.08)",display:"flex",flexDirection:"column",flexShrink:0,backdropFilter:"blur(20px)",transition:"width 0.25s cubic-bezier(0.4,0,0.2,1)",overflow:"hidden",position:"relative"}}>
+      <div style={{
+        width: collapsed ? 52 : 220,
+        background:"rgba(245,245,250,0.97)",
+        borderRight:"1px solid rgba(0,0,0,0.08)",
+        display:"flex", flexDirection:"column",
+        flexShrink:0,
+        transition:"width 0.22s cubic-bezier(0.4,0,0.2,1)",
+        overflow:"hidden"
+      }}>
 
-        {/* Collapse toggle button */}
-        <button onClick={()=>setCollapsed(c=>!c)}
-          style={{position:"absolute",top:20,right:collapsed?10:12,zIndex:10,width:26,height:26,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="2.5" strokeLinecap="round">
-            {collapsed
-              ? <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
-              : <><line x1="18" y1="6" x2="6" y2="6"/><line x1="18" y1="12" x2="6" y2="12"/><line x1="18" y1="18" x2="6" y2="18"/></>
-            }
-          </svg>
-        </button>
+        {/* Top bar — toggle button + logo */}
+        <div style={{
+          display:"flex", alignItems:"center",
+          padding: collapsed ? "18px 0 14px" : "18px 12px 14px",
+          justifyContent: collapsed ? "center" : "flex-start",
+          gap:10, flexShrink:0
+        }}>
+          <button onClick={()=>setCollapsed(c=>!c)}
+            style={{width:32,height:32,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            <MenuIcon/>
+          </button>
+          {!collapsed && (
+            <div style={{overflow:"hidden"}}>
+              <div style={{fontSize:10,fontWeight:700,color:"rgba(0,0,0,0.32)",letterSpacing:"0.08em",textTransform:"uppercase",whiteSpace:"nowrap"}}>Home Workbook</div>
+              <div style={{fontSize:17,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.3px",whiteSpace:"nowrap"}}>Bill Pay</div>
+            </div>
+          )}
+        </div>
 
-        <SidebarContent panel={panel} setPanel={p=>{setPanel(p);}} user={user} onSignOut={onSignOut} collapsed={collapsed} navItems={navItems}/>
+        {/* Nav items */}
+        <div style={{flex:1, padding: collapsed ? "4px 6px" : "4px 10px", overflowY:"auto"}}>
+          {navItems.map(item => {
+            const active = panel === item.id;
+            return (
+              <button key={item.id} onClick={()=>setPanel(item.id)}
+                style={{
+                  width:"100%", display:"flex", alignItems:"center",
+                  justifyContent: collapsed ? "center" : "flex-start",
+                  gap: collapsed ? 0 : 10,
+                  padding: collapsed ? "6px 0" : "8px 10px",
+                  borderRadius:8, border:"none",
+                  background: active ? "rgba(127,88,175,0.12)" : "transparent",
+                  cursor:"pointer", fontFamily:"inherit", marginBottom:2,
+                  position:"relative"
+                }}>
+                {/* Icon badge container */}
+                <div style={{
+                  width:32, height:32, borderRadius:8, flexShrink:0,
+                  background: active ? (item.accent||"#7F58AF") : "rgba(0,0,0,0.06)",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  position:"relative", transition:"background 0.15s"
+                }}>
+                  <NavIcon icon={item.icon} active={active}/>
+                  {/* Badge dot on icon when collapsed */}
+                  {collapsed && item.badge>0 && (
+                    <span style={{position:"absolute",top:-4,right:-4,background:"#E84D8A",color:"#fff",borderRadius:10,padding:"0 4px",fontSize:9,fontWeight:700,lineHeight:"15px",minWidth:15,textAlign:"center"}}>
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
+                {/* Label + badge when expanded */}
+                {!collapsed && (
+                  <>
+                    <span style={{fontSize:13,fontWeight:active?700:500,color:active?"#1C1C1E":"rgba(0,0,0,0.55)",flex:1,textAlign:"left",whiteSpace:"nowrap"}}>{item.label}</span>
+                    {item.badge>0 && <span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:11,fontWeight:700}}>{item.badge}</span>}
+                  </>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* User row */}
+        <div style={{
+          padding: collapsed ? "10px 0 24px" : "12px 12px 24px",
+          borderTop:"1px solid rgba(0,0,0,0.07)",
+          display:"flex", alignItems:"center",
+          justifyContent: collapsed ? "center" : "flex-start",
+          gap: collapsed ? 0 : 10, flexShrink:0,
+          flexDirection: collapsed ? "column" : "row"
+        }}>
+          {user?.picture
+            ? <img src={user.picture} style={{width:30,height:30,borderRadius:15,flexShrink:0}} alt=""/>
+            : <div style={{width:30,height:30,borderRadius:15,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:12,fontWeight:700,flexShrink:0}}>{user?.name?.[0]||"?"}</div>
+          }
+          {!collapsed && (
+            <>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
+                <div style={{fontSize:10,color:"rgba(0,0,0,0.35)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.email||""}</div>
+              </div>
+              <button onClick={onSignOut} title="Sign out"
+                style={{background:"none",border:"none",cursor:"pointer",padding:4,borderRadius:6,flexShrink:0}}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* ── Main Content ── */}
-      <div style={{flex:1,overflow:"auto",background:"#f0f0f5",transition:"all 0.25s"}}>
+      <div style={{flex:1,overflow:"auto",background:"#f0f0f5"}}>
         {panel==="dashboard" && <DashboardDesktop onNav={setPanel}/>}
         {panel==="sw"        && <PropAppDesktop pk="sw"   onNav={setPanel}/>}
         {panel==="snap"      && <PropAppDesktop pk="snap" onNav={setPanel}/>}
