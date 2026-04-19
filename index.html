@@ -23,63 +23,63 @@
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const SW_VENDORS = [
   // 1ST HALF
-  {id:"v_ugi",      name:"UGI",                               category:"1ST",         account:"WELLS · 0146", defaultAmount:71.33,   dueDate:"11th",  notes:"Plan expires Oct 2022. NRG Site Aug 2024. Check in Oct.",        url:"https://www.ugi.com",                       phone:""},
-  {id:"v_sw",       name:"Housing – Sir Walters",             category:"1ST",         account:"WELLS · 0146", defaultAmount:3950.00, dueDate:"15th",  notes:"$13.59 to principle each payment.",                              url:"https://www.bankofamerica.com",              phone:""},
-  {id:"v_snap",     name:"Housing – Snapdragon",              category:"1ST",         account:"BOA · 3319",   defaultAmount:1604.84, dueDate:"1st",   notes:"",                                                              url:"https://www.bankofamerica.com",              phone:""},
-  {id:"v_verizon",  name:"Verizon",                           category:"1ST",         account:"WELLS · 0146", defaultAmount:194.89,  dueDate:"15th",  notes:"iPad $11.62 · iPhone $109.58. Payment from Deb.",               url:"https://www.verizon.com/myverizon",          phone:"1-800-922-0204"},
+  {id:"v_ugi",      name:"UGI",                               category:"1ST",         account:"WELLS · 0146", defaultAmount:0,   dueDate:"11th",  notes:"Plan expires Oct 2022. NRG Site Aug 2024. Check in Oct.",        url:"https://www.ugi.com",                       phone:""},
+  {id:"v_sw",       name:"Housing – Sir Walters",             category:"1ST",         account:"WELLS · 0146", defaultAmount:0, dueDate:"15th",  notes:"$13.59 to principle each payment.",                              url:"https://www.bankofamerica.com",              phone:""},
+  {id:"v_snap",     name:"Housing – Snapdragon",              category:"1ST",         account:"BOA · 3319",   defaultAmount:0, dueDate:"1st",   notes:"",                                                              url:"https://www.bankofamerica.com",              phone:""},
+  {id:"v_verizon",  name:"Verizon",                           category:"1ST",         account:"WELLS · 0146", defaultAmount:0,  dueDate:"15th",  notes:"iPad $11.62 · iPhone $109.58. Payment from Deb.",               url:"https://www.verizon.com/myverizon",          phone:"1-800-922-0204"},
   // TITHES
-  {id:"v_tithes",   name:"Tithes / Offerings",                category:"Tithes",      account:"WELLS · 0146", defaultAmount:250.00,  dueDate:"—",     notes:"",                                                              url:"",                                           phone:""},
+  {id:"v_tithes",   name:"Tithes / Offerings",                category:"Tithes",      account:"WELLS · 0146", defaultAmount:0,  dueDate:"—",     notes:"",                                                              url:"",                                           phone:""},
   // 2ND HALF
   {id:"v_amex",     name:"AMEX Credit Card",                  category:"2ND",         account:"AMEX · 2002",  defaultAmount:0,       dueDate:"5th",   notes:"",                                                              url:"https://www.americanexpress.com",            phone:"1-800-528-4800"},
   {id:"v_apple",    name:"Apple Credit Card",                 category:"2ND",         account:"WELLS · 0146", defaultAmount:0,       dueDate:"28th",  notes:"",                                                              url:"https://card.apple.com",                     phone:"1-877-255-5923"},
-  {id:"v_chase_d",  name:"Chase (Danielle)",                  category:"2ND",         account:"WELLS · 0146", defaultAmount:25.00,   dueDate:"18th",  notes:"",                                                              url:"https://www.chase.com",                      phone:""},
-  {id:"v_elec",     name:"Electric – Rate Check Site",        category:"2ND",         account:"WELLS · 0146", defaultAmount:200.76,  dueDate:"18th",  notes:"Check rate agreement August. NRG Energy site.",                 url:"https://www.nrg.com",                        phone:""},
-  {id:"v_rcn",      name:"RCN Internet",                      category:"2ND",         account:"CHASE · 2675", defaultAmount:72.88,   dueDate:"18th",  notes:"2020 Sir Walters location.",                                    url:"https://www.astound.com",                    phone:"1-800-746-4726"},
-  {id:"v_other",    name:"Netflix & Peloton",                 category:"2ND",         account:"CHASE · 2675", defaultAmount:72.06,   dueDate:"22nd",  notes:"Netflix + Peloton subscription bundle.",                        url:"https://www.netflix.com",                    phone:""},
-  {id:"v_529",      name:"529 Account",                       category:"2ND",         account:"WELLS · 0146", defaultAmount:100.00,  dueDate:"25th",  notes:"",                                                              url:"https://www.wellsfargo.com",                 phone:""},
-  {id:"v_sf",       name:"State Farm",                        category:"2ND",         account:"CHASE · 2675", defaultAmount:226.42,  dueDate:"29th",  notes:"$152.23 + $74.19 split payments.",                              url:"https://www.statefarm.com",                  phone:"1-800-782-8332"},
-  {id:"v_tesla",    name:"Tesla",                             category:"2ND",         account:"WELLS · 0146", defaultAmount:750.00,  dueDate:"31st",  notes:"",                                                              url:"https://www.tesla.com/teslaaccount",         phone:"1-877-798-3752"},
-  {id:"v_stlukes",  name:"St. Lukes Medical",                 category:"2ND",         account:"WELLS · 0282", defaultAmount:126.00,  dueDate:"25th",  notes:"",                                                              url:"https://www.slhn.org/pay-my-bill",           phone:"1-866-785-8537"},
-  {id:"v_reiss",    name:"Reiss Hauling & Recycling",         category:"2ND",         account:"CHASE · 2675", defaultAmount:105.00,  dueDate:"1st",   notes:"$84 quarterly. Garbage pickup and recycling.",                  url:"",                                           phone:"(610) 346-7535"},
-  {id:"v_lawn",     name:"Lawn Care",                         category:"2ND",         account:"WELLS · 0146", defaultAmount:350.40,  dueDate:"1st",   notes:"Herb Landscaping. $90 per cut. Greenscapes: $109 every 6–8 weeks Apr–Nov.", url:"", phone:"Herb: (215) 538-5318 · Greenscapes: (610) 509-7114"},
-  {id:"v_reddoor",  name:"Red Door Payment",                  category:"2ND",         account:"WELLS · 0146", defaultAmount:654.17,  dueDate:"25th",  notes:"Last payment for miles is 7/10.",                               url:"",                                           phone:""},
+  {id:"v_chase_d",  name:"Chase (Danielle)",                  category:"2ND",         account:"WELLS · 0146", defaultAmount:0,   dueDate:"18th",  notes:"",                                                              url:"https://www.chase.com",                      phone:""},
+  {id:"v_elec",     name:"Electric – Rate Check Site",        category:"2ND",         account:"WELLS · 0146", defaultAmount:0,  dueDate:"18th",  notes:"Check rate agreement August. NRG Energy site.",                 url:"https://www.nrg.com",                        phone:""},
+  {id:"v_rcn",      name:"RCN Internet",                      category:"2ND",         account:"CHASE · 2675", defaultAmount:0,   dueDate:"18th",  notes:"2020 Sir Walters location.",                                    url:"https://www.astound.com",                    phone:"1-800-746-4726"},
+  {id:"v_other",    name:"Netflix & Peloton",                 category:"2ND",         account:"CHASE · 2675", defaultAmount:0,   dueDate:"22nd",  notes:"Netflix + Peloton subscription bundle.",                        url:"https://www.netflix.com",                    phone:""},
+  {id:"v_529",      name:"529 Account",                       category:"2ND",         account:"WELLS · 0146", defaultAmount:0,  dueDate:"25th",  notes:"",                                                              url:"https://www.wellsfargo.com",                 phone:""},
+  {id:"v_sf",       name:"State Farm",                        category:"2ND",         account:"CHASE · 2675", defaultAmount:0,  dueDate:"29th",  notes:"$152.23 + $74.19 split payments.",                              url:"https://www.statefarm.com",                  phone:"1-800-782-8332"},
+  {id:"v_tesla",    name:"Tesla",                             category:"2ND",         account:"WELLS · 0146", defaultAmount:0,  dueDate:"31st",  notes:"",                                                              url:"https://www.tesla.com/teslaaccount",         phone:"1-877-798-3752"},
+  {id:"v_stlukes",  name:"St. Lukes Medical",                 category:"2ND",         account:"WELLS · 0282", defaultAmount:0,  dueDate:"25th",  notes:"",                                                              url:"https://www.slhn.org/pay-my-bill",           phone:"1-866-785-8537"},
+  {id:"v_reiss",    name:"Reiss Hauling & Recycling",         category:"2ND",         account:"CHASE · 2675", defaultAmount:0,  dueDate:"1st",   notes:"$84 quarterly. Garbage pickup and recycling.",                  url:"",                                           phone:"(610) 346-7535"},
+  {id:"v_lawn",     name:"Lawn Care",                         category:"2ND",         account:"WELLS · 0146", defaultAmount:0,  dueDate:"1st",   notes:"Herb Landscaping. $90 per cut. Greenscapes: $109 every 6–8 weeks Apr–Nov.", url:"", phone:"Herb: (215) 538-5318 · Greenscapes: (610) 509-7114"},
+  {id:"v_reddoor",  name:"Red Door Payment",                  category:"2ND",         account:"WELLS · 0146", defaultAmount:0,  dueDate:"25th",  notes:"Last payment for miles is 7/10.",                               url:"",                                           phone:""},
   {id:"v_paypal",   name:"PayPal",                            category:"2ND",         account:"WELLS · 0146", defaultAmount:0,       dueDate:"—",     notes:"",                                                              url:"https://www.paypal.com",                     phone:""},
-  {id:"v_adt",      name:"ADT",                               category:"2ND",         account:"CHASE · 2675", defaultAmount:62.41,   dueDate:"24th",  notes:"",                                                              url:"https://www.adt.com/myadt",                  phone:"1-800-238-2727"},
-  {id:"v_quest",    name:"Quest Pest Control",                category:"2ND",         account:"CHASE · 2675", defaultAmount:58.30,   dueDate:"24th",  notes:"",                                                              url:"",                                           phone:""},
+  {id:"v_adt",      name:"ADT",                               category:"2ND",         account:"CHASE · 2675", defaultAmount:0,   dueDate:"24th",  notes:"",                                                              url:"https://www.adt.com/myadt",                  phone:"1-800-238-2727"},
+  {id:"v_quest",    name:"Quest Pest Control",                category:"2ND",         account:"CHASE · 2675", defaultAmount:0,   dueDate:"24th",  notes:"",                                                              url:"",                                           phone:""},
   // CREDIT CARDS
   {id:"v_amazon_cc",name:"Amazon Credit Card",                category:"Amazon",      account:"CHASE · 6108", defaultAmount:0,       dueDate:"12th",  notes:"Chase Amazon card ending 6108.",                                url:"https://www.chase.com/personal/credit-cards/amazon", phone:"1-888-247-4080"},
   {id:"v_chase_u",  name:"Chase United",                      category:"Chase United",account:"WELLS · 0146", defaultAmount:0,       dueDate:"28th",  notes:"Chase United card ending 7590.",                                url:"https://www.chase.com/personal/credit-cards/united", phone:"1-800-432-3117"},
   // YEARLY
-  {id:"v_hoa_sr",   name:"HOA Saddle Ridge",                  category:"Yearly",      account:"WELLS · 0146", defaultAmount:250.00,  dueDate:"Jan",   notes:"Annual. Due in January.",                                       url:"",                                           phone:""},
-  {id:"v_chase_af", name:"Chase United AF",                   category:"Yearly",      account:"WELLS · 0146", defaultAmount:95.00,   dueDate:"11/1",  notes:"Annual fee due November 1.",                                    url:"https://www.chase.com",                      phone:"1-800-432-3117"},
-  {id:"v_sirius",   name:"Sirius XM",                         category:"Yearly",      account:"CHASE · 2675", defaultAmount:50.00,   dueDate:"3/1",   notes:"Call on 3/1 — billing date is 3/11.",                           url:"https://www.siriusxm.com/myaccount",         phone:"1-866-635-2349"},
-  {id:"v_prime",    name:"Amazon Prime AF",                   category:"Yearly",      account:"CHASE · 6108", defaultAmount:110.00,  dueDate:"3/15",  notes:"Annual fee due March 15.",                                      url:"https://www.amazon.com/mc",                  phone:""},
-  {id:"v_carreg",   name:"Car Registration",                  category:"Yearly",      account:"CHASE · 2675", defaultAmount:55.25,   dueDate:"5/31",  notes:"Annual PA registration due May 31.",                            url:"https://www.dmv.pa.gov",                     phone:""},
-  {id:"v_life",     name:"Life Insurance",                    category:"Yearly",      account:"WELLS · 0146", defaultAmount:477.99,  dueDate:"5/1",   notes:"Annual premium due May 1.",                                     url:"",                                           phone:""},
-  {id:"v_eco",      name:"ECO Annual Service",                category:"Yearly",      account:"CHASE · 2675", defaultAmount:300.19,  dueDate:"4/1",   notes:"Longs EcoWater Systems. Owner: Scott Warrick (neighbor, very helpful).", url:"", phone:"(610) 609-8665"},
-  {id:"v_amex_af",  name:"AMEX AF",                           category:"Yearly",      account:"WELLS · 0146", defaultAmount:550.00,  dueDate:"1/11",  notes:"Annual fee due January 11.",                                    url:"https://www.americanexpress.com",            phone:"1-800-528-4800"},
-  {id:"v_aaa",      name:"AAA Membership",                    category:"Yearly",      account:"CHASE · 2675", defaultAmount:13.00,   dueDate:"2/28",  notes:"Annual membership due February 28.",                            url:"https://www.aaa.com",                        phone:"1-800-222-4357"},
-  {id:"v_pareg",    name:"PA Registration (David & Danielle)",category:"Yearly",      account:"CHASE · 2675", defaultAmount:78.00,   dueDate:"5/31",  notes:"Both vehicles. Annual May 31.",                                 url:"https://www.dmv.pa.gov",                     phone:""},
+  {id:"v_hoa_sr",   name:"HOA Saddle Ridge",                  category:"Yearly",      account:"WELLS · 0146", defaultAmount:0,  dueDate:"Jan",   notes:"Annual. Due in January.",                                       url:"",                                           phone:""},
+  {id:"v_chase_af", name:"Chase United AF",                   category:"Yearly",      account:"WELLS · 0146", defaultAmount:0,   dueDate:"11/1",  notes:"Annual fee due November 1.",                                    url:"https://www.chase.com",                      phone:"1-800-432-3117"},
+  {id:"v_sirius",   name:"Sirius XM",                         category:"Yearly",      account:"CHASE · 2675", defaultAmount:0,   dueDate:"3/1",   notes:"Call on 3/1 — billing date is 3/11.",                           url:"https://www.siriusxm.com/myaccount",         phone:"1-866-635-2349"},
+  {id:"v_prime",    name:"Amazon Prime AF",                   category:"Yearly",      account:"CHASE · 6108", defaultAmount:0,  dueDate:"3/15",  notes:"Annual fee due March 15.",                                      url:"https://www.amazon.com/mc",                  phone:""},
+  {id:"v_carreg",   name:"Car Registration",                  category:"Yearly",      account:"CHASE · 2675", defaultAmount:0,   dueDate:"5/31",  notes:"Annual PA registration due May 31.",                            url:"https://www.dmv.pa.gov",                     phone:""},
+  {id:"v_life",     name:"Life Insurance",                    category:"Yearly",      account:"WELLS · 0146", defaultAmount:0,  dueDate:"5/1",   notes:"Annual premium due May 1.",                                     url:"",                                           phone:""},
+  {id:"v_eco",      name:"ECO Annual Service",                category:"Yearly",      account:"CHASE · 2675", defaultAmount:0,  dueDate:"4/1",   notes:"Longs EcoWater Systems. Owner: Scott Warrick (neighbor, very helpful).", url:"", phone:"(610) 609-8665"},
+  {id:"v_amex_af",  name:"AMEX AF",                           category:"Yearly",      account:"WELLS · 0146", defaultAmount:0,  dueDate:"1/11",  notes:"Annual fee due January 11.",                                    url:"https://www.americanexpress.com",            phone:"1-800-528-4800"},
+  {id:"v_aaa",      name:"AAA Membership",                    category:"Yearly",      account:"CHASE · 2675", defaultAmount:0,   dueDate:"2/28",  notes:"Annual membership due February 28.",                            url:"https://www.aaa.com",                        phone:"1-800-222-4357"},
+  {id:"v_pareg",    name:"PA Registration (David & Danielle)",category:"Yearly",      account:"CHASE · 2675", defaultAmount:0,   dueDate:"5/31",  notes:"Both vehicles. Annual May 31.",                                 url:"https://www.dmv.pa.gov",                     phone:""},
   {id:"v_serenite", name:"Serenite",                          category:"Yearly",      account:"",             defaultAmount:0,       dueDate:"",      notes:"",                                                              url:"",                                           phone:""},
   {id:"v_jeff",     name:"Jeff Riddle",                       category:"Yearly",      account:"WELLS · 0146", defaultAmount:0,       dueDate:"8/31",  notes:"",                                                              url:"",                                           phone:""},
   // HOME SERVICES (from Home Maintenance tab)
   {id:"v_septic",   name:"River Valley Septic",               category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Last service 1/28/2025. Next due 1/28/2028. Every 3–5 years.",  url:"",                                           phone:"(610) 749-2001"},
   {id:"v_hvac",     name:"Family Heating & Cooling",          category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"HVAC service. Yearly maintenance.",                             url:"",                                           phone:"(610) 421-9885"},
-  {id:"v_garner",   name:"Garner Bros Heating & Air",         category:"Home Services",account:"",            defaultAmount:180,     dueDate:"",      notes:"$180 per unit. Last service 8/29/2025. Yearly.",               url:"",                                           phone:"(215) 412-7613"},
+  {id:"v_garner",   name:"Garner Bros Heating & Air",         category:"Home Services",account:"",            defaultAmount:0,     dueDate:"",      notes:"$180 per unit. Last service 8/29/2025. Yearly.",               url:"",                                           phone:"(215) 412-7613"},
   {id:"v_longs",    name:"Longs ECO Water",                   category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Water service. Yearly maintenance.",                            url:"",                                           phone:"(610) 398-3737"},
   {id:"v_gutters",  name:"Brothers Who Do Gutters",           category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Last service June 2022.",                                       url:"",                                           phone:""},
-  {id:"v_snow",     name:"Matthew Diehl Snow Plow",           category:"Home Services",account:"",            defaultAmount:50,      dueDate:"",      notes:"$50 per plow.",                                                 url:"",                                           phone:"(610) 295-8953"},
+  {id:"v_snow",     name:"Matthew Diehl Snow Plow",           category:"Home Services",account:"",            defaultAmount:0,      dueDate:"",      notes:"$50 per plow.",                                                 url:"",                                           phone:"(610) 295-8953"},
   {id:"v_cleanhaus",name:"CleanHaus Cleaning Service",        category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Recommended by neighbors. Located in Hellertown.",              url:"",                                           phone:"(484) 893-0208"},
-  {id:"v_fireplace",name:"J.C. Fireplaces",                   category:"Home Services",account:"",            defaultAmount:65,      dueDate:"",      notes:"Last service 9/11/2025. Contact: Jay Chuchman — chuckjay@gmail.com", url:"", phone:"(215) 538-3422"},
+  {id:"v_fireplace",name:"J.C. Fireplaces",                   category:"Home Services",account:"",            defaultAmount:0,      dueDate:"",      notes:"Last service 9/11/2025. Contact: Jay Chuchman — chuckjay@gmail.com", url:"", phone:"(215) 538-3422"},
   {id:"v_putting",  name:"Paul Split – Artificial Greens",    category:"Home Services",account:"",            defaultAmount:0,       dueDate:"",      notes:"Putting green. Sand-filled, no maintenance, no winter cover needed.", url:"", phone:"(267) 518-3200"},
 ];
 const SNAP_VENDORS = [
-  {id:"r_refuse",    name:"Refuse",               category:"Quarterly", account:"WELLS · 0146", defaultAmount:80.00,  dueDate:"30th", notes:"Mar / Jun / Sep / Dec",   url:"",                                    phone:"(610) 346-7535"},
-  {id:"r_sewer",     name:"Sewer Rental",          category:"Quarterly", account:"WELLS · 0146", defaultAmount:89.00,  dueDate:"30th", notes:"Mar / Jun / Sep / Dec",   url:"",                                    phone:""},
+  {id:"r_refuse",    name:"Refuse",               category:"Quarterly", account:"WELLS · 0146", defaultAmount:0,  dueDate:"30th", notes:"Mar / Jun / Sep / Dec",   url:"",                                    phone:"(610) 346-7535"},
+  {id:"r_sewer",     name:"Sewer Rental",          category:"Quarterly", account:"WELLS · 0146", defaultAmount:0,  dueDate:"30th", notes:"Mar / Jun / Sep / Dec",   url:"",                                    phone:""},
   {id:"r_water",     name:"Water Bill",            category:"Quarterly", account:"WELLS · 0146", defaultAmount:0,      dueDate:"",     notes:"Jan / Apr / Jul / Oct",   url:"",                                    phone:""},
   {id:"r_lighthouse",name:"Lighthouse PMC",        category:"Monthly",   account:"",             defaultAmount:0,      dueDate:"",     notes:"Property management. Link on file.", url:"",                          phone:""},
-  {id:"r_hoa",       name:"HOA",                   category:"Yearly",    account:"WELLS · 0146", defaultAmount:360.00, dueDate:"3/31", notes:"Annual due March 31.",     url:"",                                    phone:""},
-  {id:"r_culligan",  name:"Culligan Annual",        category:"Yearly",    account:"CHASE · 2675", defaultAmount:480.00, dueDate:"4/1",  notes:"Annual service due April 1.", url:"https://www.culligan.com",        phone:""},
+  {id:"r_hoa",       name:"HOA",                   category:"Yearly",    account:"WELLS · 0146", defaultAmount:0, dueDate:"3/31", notes:"Annual due March 31.",     url:"",                                    phone:""},
+  {id:"r_culligan",  name:"Culligan Annual",        category:"Yearly",    account:"CHASE · 2675", defaultAmount:0, dueDate:"4/1",  notes:"Annual service due April 1.", url:"https://www.culligan.com",        phone:""},
 ];
 const SW_MONTHS = [
   {id:"m_nov25",year:2025,month:10,label:"November 2025", status:"closed",startingBalance:8321.95, balance:7405.89,closedAt:new Date("2025-11-30").getTime(),
@@ -1176,7 +1176,7 @@ function PropAppDesktop({pk,onNav}){
         {subScreen==="home"    &&<PropHomeDesktop p={p} active={active} closed={closed} onOpen={id=>{setActiveId(id);setSubScreen("bills");}} onNew={()=>setSubScreen("new")} onManage={()=>setSubScreen("manage")} onHistory={()=>setSubScreen("history")} onDelete={deleteMonth}/>}
         {subScreen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={goHome}/>}
         {subScreen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));goHome();}} onBack={goHome}/>}
-        {subScreen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} onBack={goHome}/>}
+        {subScreen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} allMonths={months} onBack={goHome}/>}
         {subScreen==="history" &&<History p={p} months={closed} onView={id=>{setViewId(id);setSubScreen("view");}} onBack={goHome}/>}
         {subScreen==="view"    &&view&&<ViewMonth p={p} month={view} onBack={()=>setSubScreen("history")}/>}
       </div>
@@ -1739,7 +1739,7 @@ function PropApp({pk,onBack}){
       {screen==="home"    &&<PropHome p={p} active={active} closed={closed} onBack={onBack} onOpen={id=>{setActiveId(id);go("bills");}} onNew={()=>go("new")} onManage={()=>go("manage")} onHistory={()=>go("history")} onDelete={deleteMonth}/>}
       {screen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={()=>go("home")}/>}
       {screen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));go("home");}} onBack={()=>go("home")}/>}
-      {screen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} onBack={()=>go("home")}/>}
+      {screen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} allMonths={months} onBack={()=>go("home")}/>}
       {screen==="history" &&<History p={p} months={closed} onView={id=>{setViewId(id);go("view");}} onBack={()=>go("home")}/>}
       {screen==="view"    &&view&&<ViewMonth p={p} month={view} onBack={()=>go("history")}/>}
     </div>
@@ -2161,12 +2161,28 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
 }
 
 // ─── Manage Vendors ───────────────────────────────────────────────────────────
-function ManageVendors({p,vendors,setVendors,onBack}){
-  const[adding,setAdding]=useState(false);
-  const[cat,setCat]=useState("All");
-  const[form,setForm]=useState({name:"",category:p.cats[0],account:"",defaultAmount:"",dueDate:"",notes:"",url:"",phone:""});
-  const filtered=cat==="All"?vendors:vendors.filter(v=>v.category===cat);
-  function add(){if(!form.name.trim())return;setVendors(p=>[...p,{...form,id:uid(),defaultAmount:+form.defaultAmount}]);setForm({name:"",category:p.cats[0],account:"",defaultAmount:"",dueDate:"",notes:"",url:"",phone:""});setAdding(false);}
+function ManageVendors({p, vendors, setVendors, onBack, allMonths}){
+  const [adding,   setAdding]  = useState(false);
+  const [cat,      setCat]     = useState("All");
+  const [selected, setSelected]= useState(null); // vendor id for profile view
+  const [form,     setForm]    = useState({name:"",category:p.cats[0],account:"",defaultAmount:"",dueDate:"",notes:"",url:"",phone:""});
+
+  const filtered = cat==="All" ? vendors : vendors.filter(v=>v.category===cat);
+
+  function add(){
+    if(!form.name.trim()) return;
+    setVendors(pv=>[...pv,{...form,id:uid(),defaultAmount:0}]);
+    setForm({name:"",category:p.cats[0],account:"",defaultAmount:"",dueDate:"",notes:"",url:"",phone:""});
+    setAdding(false);
+  }
+
+  // If a vendor is selected, show its profile
+  if(selected){
+    const v = vendors.find(x=>x.id===selected);
+    if(!v) { setSelected(null); return null; }
+    return <VendorProfile p={p} vendor={v} allMonths={allMonths||[]} onBack={()=>setSelected(null)}/>;
+  }
+
   return(
     <AppleScreen p={p} title="Vendors" onBack={onBack}>
       <div style={{padding:"0 16px"}}>
@@ -2179,67 +2195,192 @@ function ManageVendors({p,vendors,setVendors,onBack}){
             </button>
           ))}
         </div>
+
+        {/* Vendor list */}
         <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden",marginBottom:20}}>
           {filtered.map((v,i)=>(
-            <div key={v.id} style={{borderBottom:i<filtered.length-1?"1px solid rgba(0,0,0,0.06)":"none",padding:"14px 16px"}}>
-              <div style={{display:"flex",alignItems:"flex-start"}}>
+            <div key={v.id} className="bill-row" onClick={()=>setSelected(v.id)}
+              style={{borderBottom:i<filtered.length-1?"1px solid rgba(0,0,0,0.06)":"none",padding:"14px 16px",cursor:"pointer"}}>
+              <div style={{display:"flex",alignItems:"center"}}>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{v.name}</div>
-                  <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:2}}>{v.category}{v.account?` · ${v.account}`:""}{v.dueDate?` · Due ${v.dueDate}`:""}</div>
-                  {v.notes&&<div style={{fontSize:12,color:"rgba(0,0,0,0.5)",marginTop:4,lineHeight:1.45}}>{v.notes}</div>}
+                  <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:2}}>
+                    {v.category}{v.account?` · ${v.account}`:""}{v.dueDate?` · Due ${v.dueDate}`:""}
+                  </div>
                   {(v.url||v.phone)&&(
-                    <div style={{display:"flex",gap:12,marginTop:6,flexWrap:"wrap"}}>
+                    <div style={{display:"flex",gap:12,marginTop:5,flexWrap:"wrap"}} onClick={e=>e.stopPropagation()}>
                       {v.url&&<a href={v.url} target="_blank" rel="noopener noreferrer" style={{fontSize:12,fontWeight:700,color:p.accent,textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
-                        <LinkIcon size={13} color={p.accent}/> Pay Online
+                        <LinkIcon size={12} color={p.accent}/> Pay Online
                       </a>}
                       {v.phone&&<a href={`tel:${v.phone.replace(/[^0-9+]/g,"")}`} style={{fontSize:12,fontWeight:700,color:"#7F58AF",textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
-                        <PhoneIcon size={13} color="#7F58AF"/> {v.phone}
+                        <PhoneIcon size={12} color="#7F58AF"/> {v.phone}
                       </a>}
                     </div>
                   )}
                 </div>
                 <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0,marginLeft:12}}>
-                  <span style={{fontSize:14,fontWeight:600,color:"rgba(0,0,0,0.5)"}}>{v.defaultAmount?fmt(v.defaultAmount):"—"}</span>
-                  <button onClick={()=>setVendors(pv=>pv.filter(x=>x.id!==v.id))} style={{background:"rgba(232,77,138,0.1)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"#E84D8A",cursor:"pointer",fontFamily:"inherit"}}>Remove</button>
+                  <button onClick={e=>{e.stopPropagation();setVendors(pv=>pv.filter(x=>x.id!==v.id));}}
+                    style={{background:"rgba(232,77,138,0.1)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"#E84D8A",cursor:"pointer",fontFamily:"inherit"}}>
+                    Remove
+                  </button>
+                  <span style={{color:"rgba(0,0,0,0.2)",fontSize:18}}>›</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Add vendor form */}
         {adding?(
           <div style={{background:"#ffffff",borderRadius:16,padding:16,marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
             <div style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:14}}>New Vendor</div>
             {[
-              {label:"Name",       field:"name",    ph:"Vendor name",          type:"text"},
-              {label:"Account",    field:"account", ph:"e.g. WELLS · 0146",    type:"text"},
-              {label:"Due Date",   field:"dueDate", ph:"e.g. 15th",            type:"text"},
-              {label:"Website URL",field:"url",     ph:"https://vendor.com",   type:"url"},
-              {label:"Phone",      field:"phone",   ph:"(610) 555-1234",       type:"tel"},
-              {label:"Notes",      field:"notes",   ph:"Any extra details…",   type:"text"},
+              {label:"Name",        field:"name",    ph:"Vendor name",        type:"text"},
+              {label:"Account",     field:"account", ph:"e.g. WELLS · 0146",  type:"text"},
+              {label:"Due Date",    field:"dueDate", ph:"e.g. 15th",          type:"text"},
+              {label:"Website URL", field:"url",     ph:"https://vendor.com", type:"url"},
+              {label:"Phone",       field:"phone",   ph:"(610) 555-1234",     type:"tel"},
+              {label:"Notes",       field:"notes",   ph:"Any extra details…", type:"text"},
             ].map(f=>(
               <div key={f.field} style={{marginBottom:10}}>
                 <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>{f.label}</div>
                 <input type={f.type} value={form[f.field]} onChange={e=>setForm(pf=>({...pf,[f.field]:e.target.value}))} placeholder={f.ph} style={{...inp}}/>
               </div>
             ))}
-            <div style={{marginBottom:10}}>
+            <div style={{marginBottom:14}}>
               <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>Category</div>
               <select style={sel} value={form.category} onChange={e=>setForm(pf=>({...pf,category:e.target.value}))}>{p.cats.map(c=><option key={c}>{c}</option>)}</select>
             </div>
-            <div style={{marginBottom:14}}>
-              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>Default Amount</div>
-              <div style={{display:"flex",alignItems:"center",background:"rgba(0,0,0,0.04)",borderRadius:12,padding:"4px 14px",border:"1px solid rgba(0,0,0,0.09)"}}>
-                <span style={{fontSize:16,color:"rgba(0,0,0,0.28)",marginRight:8}}>$</span>
-                <input type="number" value={form.defaultAmount} onChange={e=>setForm(pf=>({...pf,defaultAmount:e.target.value}))} style={{flex:1,background:"none",border:"none",outline:"none",fontSize:18,fontWeight:600,color:"#1C1C1E",padding:"8px 0",fontFamily:"inherit"}}/>
-              </div>
-            </div>
             <div style={{display:"flex",gap:8}}>
-              <button onClick={add} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:13,fontSize:15,fontWeight:600,color:"#ffffff",cursor:"pointer",fontFamily:"inherit"}}>Add Vendor</button>
+              <button onClick={add} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:13,fontSize:15,fontWeight:600,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Add Vendor</button>
               <button onClick={()=>setAdding(false)} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
             </div>
           </div>
         ):(
           <button onClick={()=>setAdding(true)} style={{width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:14,padding:14,fontSize:15,color:"rgba(0,0,0,0.45)",cursor:"pointer",fontFamily:"inherit"}}>＋ Add New Vendor</button>
+        )}
+      </div>
+    </AppleScreen>
+  );
+}
+
+// ─── Vendor Profile ───────────────────────────────────────────────────────────
+function VendorProfile({p, vendor, allMonths, onBack}){
+  const MO_S = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  // Pull all paid bills for this vendor across all months, newest first
+  const payments = [];
+  allMonths.forEach(m => {
+    m.bills.forEach(b => {
+      if(b.vendorId === vendor.id && b.status === "paid"){
+        payments.push({
+          monthLabel: m.label,
+          month: m.month,
+          year: m.year,
+          amount: b.amount,
+          note: b.note||"",
+          paidAt: b.paidAt,
+        });
+      }
+    });
+  });
+  payments.sort((a,b)=>(b.paidAt||0)-(a.paidAt||0));
+
+  // Stats
+  const totalPaid   = payments.reduce((s,p)=>s+p.amount, 0);
+  const count       = payments.length;
+  const avg         = count > 0 ? totalPaid/count : 0;
+  const lastPayment = payments[0] || null;
+  const highest     = count > 0 ? Math.max(...payments.map(p=>p.amount)) : 0;
+  const lowest      = count > 0 ? Math.min(...payments.filter(p=>p.amount>0).map(p=>p.amount)) : 0;
+
+  return(
+    <AppleScreen p={p} title={vendor.name} onBack={onBack}>
+      <div style={{padding:"0 16px"}}>
+
+        {/* Vendor details card */}
+        <div style={{background:"#fff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
+          {[
+            vendor.account  && {label:"Account",  val:vendor.account},
+            vendor.category && {label:"Category", val:vendor.category},
+            vendor.dueDate  && {label:"Due Date",  val:`Due ${vendor.dueDate}`},
+          ].filter(Boolean).map((row,i,arr)=>(
+            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+              <span style={{fontSize:14,color:"rgba(0,0,0,0.45)"}}>{row.label}</span>
+              <span style={{fontSize:14,fontWeight:600,color:"#1C1C1E"}}>{row.val}</span>
+            </div>
+          ))}
+          {vendor.notes&&(
+            <div style={{padding:"12px 16px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>Notes</div>
+              <div style={{fontSize:14,color:"rgba(0,0,0,0.6)",lineHeight:1.5}}>{vendor.notes}</div>
+            </div>
+          )}
+          {(vendor.url||vendor.phone)&&(
+            <div style={{display:"flex",gap:12,padding:"12px 16px",borderTop:"1px solid rgba(0,0,0,0.06)",flexWrap:"wrap"}}>
+              {vendor.url&&<a href={vendor.url} target="_blank" rel="noopener noreferrer" style={{fontSize:13,fontWeight:700,color:p.accent,textDecoration:"none",display:"flex",alignItems:"center",gap:5}}>
+                <LinkIcon size={13} color={p.accent}/> Pay Online
+              </a>}
+              {vendor.phone&&<a href={`tel:${vendor.phone.replace(/[^0-9+]/g,"")}`} style={{fontSize:13,fontWeight:700,color:"#7F58AF",textDecoration:"none",display:"flex",alignItems:"center",gap:5}}>
+                <PhoneIcon size={13} color="#7F58AF"/> {vendor.phone}
+              </a>}
+            </div>
+          )}
+        </div>
+
+        {/* Payment stats */}
+        {count > 0 && (
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
+            {[
+              {label:"Total Paid",    val:fmt(totalPaid),  color:p.accent},
+              {label:"Times Paid",    val:count,           color:"#1C1C1E"},
+              {label:"Average",       val:fmt(avg),        color:"#1C1C1E"},
+              {label:"Last Payment",  val:lastPayment?`${MO_S[lastPayment.month]} ${lastPayment.year}`:"—", color:"#1C1C1E"},
+            ].map((s,i)=>(
+              <div key={i} style={{background:"#fff",borderRadius:14,padding:"14px 16px",border:"1px solid rgba(0,0,0,0.07)"}}>
+                <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:6}}>{s.label}</div>
+                <div style={{fontSize:20,fontWeight:800,color:s.color,letterSpacing:"-0.3px"}}>{s.val}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Payment history list */}
+        <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,padding:"0 4px"}}>
+          Payment History {count>0&&`· ${count} payments`}
+        </div>
+
+        {count === 0 ? (
+          <div style={{background:"#fff",borderRadius:16,padding:"32px 20px",textAlign:"center",border:"1px solid rgba(0,0,0,0.07)"}}>
+            <div style={{fontSize:32,marginBottom:10}}>📋</div>
+            <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E",marginBottom:6}}>No payments yet</div>
+            <div style={{fontSize:13,color:"rgba(0,0,0,0.4)",lineHeight:1.5}}>Once you mark a bill as paid for {vendor.name}, it will appear here.</div>
+          </div>
+        ) : (
+          <div style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)",marginBottom:32}}>
+            {payments.map((pay,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<payments.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+                {/* Month color dot */}
+                <div style={{width:8,height:8,borderRadius:4,background:p.accent,marginRight:12,flexShrink:0}}/>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{pay.monthLabel}</div>
+                  {pay.note&&<div style={{fontSize:12,color:"rgba(0,0,0,0.45)",marginTop:2}}>{pay.note}</div>}
+                </div>
+                <div style={{textAlign:"right",flexShrink:0}}>
+                  <div style={{fontSize:16,fontWeight:700,color:pay.amount===highest&&count>1?"#E84D8A":pay.amount===lowest&&count>1?"#64C5EB":"#1C1C1E"}}>
+                    {fmt(pay.amount)}
+                  </div>
+                  {pay.amount===highest&&count>1&&<div style={{fontSize:10,color:"#E84D8A",fontWeight:600}}>highest</div>}
+                  {pay.amount===lowest&&count>1&&pay.amount!==highest&&<div style={{fontSize:10,color:"#64C5EB",fontWeight:600}}>lowest</div>}
+                </div>
+              </div>
+            ))}
+            {/* Totals footer */}
+            <div style={{display:"flex",justifyContent:"space-between",padding:"14px 16px",background:"rgba(0,0,0,0.02)",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+              <span style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.5)"}}>All-time total</span>
+              <span style={{fontSize:15,fontWeight:800,color:p.accent}}>{fmt(totalPaid)}</span>
+            </div>
+          </div>
         )}
       </div>
     </AppleScreen>
