@@ -597,8 +597,20 @@ function SignInScreen({ onSignIn, denied }) {
 }
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
+// ─── Responsive hook ─────────────────────────────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return isMobile;
+}
+
 function App(){
   const { user, status, signIn, signOut } = useAuth();
+  const isMobile = useIsMobile();
 
   // Loading state — checking session
   if (status === "loading" || status === "checking") return (
@@ -616,63 +628,293 @@ function App(){
     </div>
   );
 
-  // Signed in and allowed
+  // Signed in — pick layout based on screen size
   return(
-    <div style={{fontFamily:"'Nunito','-apple-system','BlinkMacSystemFont','SF Pro Display',system-ui,sans-serif",background:"#f0f0f5",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+    <div style={{fontFamily:"'Nunito','-apple-system','BlinkMacSystemFont','SF Pro Display',system-ui,sans-serif",background:isMobile?"#f7f7f7":"#f0f0f5",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
       <style>{CSS}</style>
-      <DesktopShell user={user} onSignOut={signOut}/>
+      {isMobile
+        ? <MobileShell user={user} onSignOut={signOut}/>
+        : <DesktopShell user={user} onSignOut={signOut}/>
+      }
     </div>
   );
 }
 
-// ─── Desktop Shell ────────────────────────────────────────────────────────────
-function DesktopShell({user, onSignOut}){
-  const[panel,setPanel]=useState("dashboard"); // dashboard | sw | snap
-  const now = new Date();
-  const MO_S = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+// ─── Mobile Shell ─────────────────────────────────────────────────────────────
+function MobileShell({user, onSignOut}){
+  const [prop,    setProp]    = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const swM  = readStore("bp_months_sw",  SW_MONTHS);
   const snM  = readStore("bp_months_snap",SNAP_MONTHS);
-  const swActive  = swM.filter(m=>m.status!=="closed");
-  const snActive  = snM.filter(m=>m.status!=="closed");
-  const swPending = swActive.reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
-  const snPending = snActive.reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
+  const swPending = swM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
+  const snPending = snM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
 
   const navItems = [
-    { id:"dashboard", label:"Overview",     icon:"grid",   badge:null },
-    { id:"sw",        label:"Sir Walters",  icon:"home",   badge:swPending||null, accent:"#7F58AF" },
-    { id:"snap",      label:"Snapdragon",   icon:"leaf",   badge:snPending||null, accent:"#64C5EB" },
+    { id:"dashboard", label:"Overview",    icon:"grid", badge:null },
+    { id:"sw",        label:"Sir Walters", icon:"home", badge:swPending||null, accent:"#7F58AF" },
+    { id:"snap",      label:"Snapdragon",  icon:"leaf", badge:snPending||null, accent:"#64C5EB" },
   ];
 
-  return(
-    <div style={{display:"flex",height:"100vh",overflow:"hidden"}}>
+  function handleNav(id){
+    setDrawerOpen(false);
+    if(id==="dashboard") setProp(null);
+    else setProp(id);
+  }
 
-      {/* ── Sidebar ── */}
-      <div style={{width:220,background:"rgba(245,245,250,0.95)",borderRight:"1px solid rgba(0,0,0,0.08)",display:"flex",flexDirection:"column",flexShrink:0,backdropFilter:"blur(20px)"}}>
-        {/* Logo */}
+  return(
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",background:"#f7f7f7",position:"relative",overflow:"hidden"}}>
+
+      {/* ── Drawer overlay ── */}
+      {drawerOpen && (
+        <div style={{position:"fixed",inset:0,zIndex:200,display:"flex"}}>
+          {/* Backdrop */}
+          <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(4px)"}} onClick={()=>setDrawerOpen(false)}/>
+          {/* Drawer panel */}
+          <div style={{position:"relative",width:260,background:"rgba(245,245,250,0.98)",height:"100%",display:"flex",flexDirection:"column",boxShadow:"4px 0 24px rgba(0,0,0,0.15)",animation:"slideInLeft 0.25s cubic-bezier(0.4,0,0.2,1)"}}>
+            {/* Close button */}
+            <button onClick={()=>setDrawerOpen(false)}
+              style={{position:"absolute",top:16,right:16,width:30,height:30,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+
+            {/* Logo */}
+            <div style={{padding:"32px 20px 20px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:4}}>Home Workbook</div>
+              <div style={{fontSize:22,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.5px"}}>Bill Pay</div>
+            </div>
+
+            {/* Nav */}
+            <div style={{padding:"0 12px",flex:1}}>
+              {navItems.map(item=>{
+                const isActive = prop===null ? item.id==="dashboard" : item.id===prop;
+                return(
+                  <button key={item.id} onClick={()=>handleNav(item.id)}
+                    style={{width:"100%",display:"flex",alignItems:"center",gap:12,padding:"11px 12px",borderRadius:10,border:"none",background:isActive?"rgba(127,88,175,0.12)":"transparent",cursor:"pointer",fontFamily:"inherit",marginBottom:4,textAlign:"left"}}>
+                    <div style={{width:32,height:32,borderRadius:8,background:isActive?(item.accent||"#7F58AF"):"rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                      {item.icon==="grid" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isActive?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>}
+                      {item.icon==="home" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isActive?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>}
+                      {item.icon==="leaf" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isActive?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>}
+                    </div>
+                    <span style={{fontSize:15,fontWeight:isActive?700:500,color:isActive?"#1C1C1E":"rgba(0,0,0,0.55)",flex:1}}>{item.label}</span>
+                    {item.badge>0 && <span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"2px 8px",fontSize:12,fontWeight:700}}>{item.badge}</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* User + sign out */}
+            <div style={{padding:"16px 16px 48px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                {user?.picture
+                  ? <img src={user.picture} style={{width:36,height:36,borderRadius:18,flexShrink:0}} alt=""/>
+                  : <div style={{width:36,height:36,borderRadius:18,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:14,fontWeight:700,flexShrink:0}}>{user?.name?.[0]||"?"}</div>
+                }
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
+                  <div style={{fontSize:11,color:"rgba(0,0,0,0.35)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.email||""}</div>
+                </div>
+                <button onClick={onSignOut}
+                  style={{background:"rgba(232,77,138,0.1)",border:"none",borderRadius:8,padding:"6px 12px",fontSize:12,fontWeight:700,color:"#E84D8A",cursor:"pointer",fontFamily:"inherit"}}>
+                  Sign out
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Page content with hamburger in hero ── */}
+      {!prop && <MobileDashboard onSelect={setProp} user={user} onSignOut={onSignOut} onMenu={()=>setDrawerOpen(true)}/>}
+      {prop==="sw"   && <PropAppWithMenu pk="sw"   onBack={()=>setProp(null)} onMenu={()=>setDrawerOpen(true)}/>}
+      {prop==="snap" && <PropAppWithMenu pk="snap" onBack={()=>setProp(null)} onMenu={()=>setDrawerOpen(true)}/>}
+    </div>
+  );
+}
+
+// PropApp wrapper that adds hamburger menu button
+function PropAppWithMenu({pk, onBack, onMenu}){
+  return(
+    <div style={{position:"relative"}}>
+      {/* Floating hamburger */}
+      <button onClick={onMenu}
+        style={{position:"fixed",top:16,left:16,zIndex:100,width:36,height:36,borderRadius:10,background:"rgba(255,255,255,0.9)",backdropFilter:"blur(10px)",border:"1px solid rgba(0,0,0,0.08)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.1)"}}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="2.5" strokeLinecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <PropApp pk={pk} onBack={onBack}/>
+    </div>
+  );
+}
+
+// ─── Mobile Dashboard ─────────────────────────────────────────────────────────
+function MobileDashboard({onSelect, user, onSignOut, onMenu}){
+  const swM = readStore("bp_months_sw",   SW_MONTHS);
+  const snM = readStore("bp_months_snap", SNAP_MONTHS);
+  const { ytd, thisMonthSpend, lastMonthSpend, spendDelta, pendingBills,
+          largest, totalBalance, totalPending, health, swStats, snStats, monthHistory } = calcDashStats(swM, snM);
+  const hc  = healthConfig(health);
+  const now = new Date();
+  const greeting = now.getHours()<12?"Good morning":now.getHours()<17?"Good afternoon":"Good evening";
+
+  const insights=[];
+  if(pendingBills.length>0) insights.push({icon:"📋",text:`You have ${pendingBills.length} bill${pendingBills.length>1?"s":""} still pending this month.`});
+  if(spendDelta!==null&&Math.abs(spendDelta)>=5) insights.push({icon:spendDelta>0?"📈":"📉",text:spendDelta>0?`Spending is up ${Math.abs(spendDelta).toFixed(0)}% vs last month.`:`Spending is down ${Math.abs(spendDelta).toFixed(0)}% vs last month.`});
+  if(largest) insights.push({icon:"💡",text:`Largest expense: ${largest.vendorName} at ${fmt(largest.amount)}.`});
+  if(insights.length===0) insights.push({icon:"✅",text:"All caught up. Balance looks healthy."});
+
+  return(
+    <div style={{minHeight:"100vh",background:"#f7f7f7",paddingBottom:48}}>
+      {/* Hero */}
+      <div style={{background:"linear-gradient(160deg,#5a3d80 0%,#7F58AF 100%)",padding:"52px 22px 28px",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 80% 20%,rgba(100,197,235,0.3),transparent 60%)",pointerEvents:"none"}}/>
+        <div style={{position:"relative"}}>
+          {/* Top bar: hamburger + greeting + avatar */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+            <button onClick={onMenu}
+              style={{width:36,height:36,borderRadius:10,background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.2)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
+            <div style={{fontSize:13,color:"rgba(255,255,255,0.7)"}}>{greeting}, {user?.name?.split(" ")[0]||"David"}</div>
+            {user?.picture
+              ? <img src={user.picture} style={{width:32,height:32,borderRadius:16}} alt=""/>
+              : <div style={{width:32,height:32,borderRadius:16,background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:700}}>{user?.name?.[0]||"?"}</div>
+            }
+          </div>
+          <div style={{fontSize:28,fontWeight:800,color:"#ffffff",letterSpacing:"-0.5px",lineHeight:1.15,marginBottom:2}}>Home Workbook</div>
+          <div style={{fontSize:14,color:"rgba(255,255,255,0.5)",marginBottom:24}}>{MO_SHORT[now.getMonth()]} {now.getFullYear()} · Financial Overview</div>
+          {/* Stat pills */}
+          <div style={{display:"flex",gap:10}}>
+            {[
+              {label:"This Month",val:fmt(thisMonthSpend),sub:spendDelta!==null?`${spendDelta>0?"↑":"↓"} ${Math.abs(spendDelta).toFixed(0)}%`:null,subColor:spendDelta>0?"#FEB326":"#64C5EB"},
+              {label:"YTD Paid",val:fmt(ytd),sub:`Jan ${now.getFullYear()}`,subColor:"rgba(255,255,255,0.4)"},
+              {label:"Balance",val:hc.label,sub:fmt(totalBalance),subColor:"rgba(255,255,255,0.4)",valColor:hc.color},
+            ].map((s,i)=>(
+              <div key={i} style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:14,padding:"12px 10px",border:"1px solid rgba(255,255,255,0.1)"}}>
+                <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>{s.label}</div>
+                <div style={{fontSize:15,fontWeight:700,color:s.valColor||"#ffffff",letterSpacing:"-0.3px"}}>{s.val}</div>
+                {s.sub&&<div style={{fontSize:10,marginTop:2,fontWeight:600,color:s.subColor}}>{s.sub}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{padding:"20px 16px 0"}}>
+        {/* Advisor insights */}
+        <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+            <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>💼</div>
+            <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E"}}>Advisor Insights</div>
+          </div>
+          {insights.map((ins,i)=>(
+            <div key={i} style={{display:"flex",gap:8,padding:"8px 0",borderTop:i>0?"1px solid rgba(0,0,0,0.05)":"none",alignItems:"flex-start"}}>
+              <span style={{fontSize:14,flexShrink:0}}>{ins.icon}</span>
+              <span style={{fontSize:13,color:"rgba(0,0,0,0.6)",lineHeight:1.45}}>{ins.text}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Bar chart */}
+        <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px 12px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:12}}>
+            <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Monthly Spending</div>
+            <div style={{fontSize:12,color:"rgba(0,0,0,0.38)"}}>6 months</div>
+          </div>
+          <SpendingBarChart data={monthHistory} currentMonth={now.getMonth()} currentYear={now.getFullYear()}/>
+        </div>
+
+        {/* Properties */}
+        <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,padding:"0 2px"}}>Properties</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
+          {[{p:PROPERTIES.sw,st:swStats},{p:PROPERTIES.snap,st:snStats}].map(({p,st})=>(
+            <div key={p.key} className="prop-card" onClick={()=>onSelect(p.key)}
+              style={{background:"#ffffff",borderRadius:18,overflow:"hidden",cursor:"pointer",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+              <div style={{background:`linear-gradient(140deg,${p.gradient[0]},${p.gradient[1]})`,padding:"14px 12px",position:"relative",overflow:"hidden"}}>
+                <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 80% 30%,${p.accent}30,transparent 70%)`,pointerEvents:"none"}}/>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",position:"relative"}}>
+                  <div>
+                    <div style={{fontSize:9,fontWeight:600,color:"rgba(255,255,255,0.5)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:2}}>{p.sub}</div>
+                    <div style={{fontSize:14,fontWeight:700,color:"#ffffff"}}>{p.label}</div>
+                  </div>
+                  <div style={{fontSize:18}}>{p.key==="sw"?<HomeIcon size={18}/>:<LeafIcon size={18}/>}</div>
+                </div>
+                <div style={{marginTop:10}}>
+                  <div style={{height:3,background:"rgba(255,255,255,0.2)",borderRadius:2,overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${st.pct}%`,background:p.accent,borderRadius:2}}/>
+                  </div>
+                  <div style={{fontSize:10,color:"rgba(255,255,255,0.5)",marginTop:3}}>{st.pct}% this month</div>
+                </div>
+              </div>
+              <div style={{padding:"10px 12px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                  <span style={{fontSize:10,color:"rgba(0,0,0,0.4)"}}>Remaining</span>
+                  <span style={{fontSize:12,fontWeight:700,color:st.bal<0?"#E84D8A":p.accent}}>{fmt(st.bal)}</span>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between"}}>
+                  <span style={{fontSize:10,color:"rgba(0,0,0,0.4)"}}>Pending</span>
+                  <span style={{fontSize:12,fontWeight:600,color:st.pending>0?"#FEB326":"#64C5EB"}}>{st.pending>0?`${st.pending} bills`:"Clear ✓"}</span>
+                </div>
+              </div>
+              <div style={{borderTop:"1px solid rgba(0,0,0,0.05)",padding:"8px 12px",display:"flex",justifyContent:"flex-end"}}>
+                <span style={{fontSize:11,fontWeight:700,color:p.accent}}>Open →</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Shared Sidebar Content ───────────────────────────────────────────────────
+function SidebarContent({panel, setPanel, user, onSignOut, collapsed, navItems}){
+  return(
+    <>
+      {/* Logo */}
+      {!collapsed && (
         <div style={{padding:"28px 18px 20px"}}>
           <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:4}}>Home Workbook</div>
           <div style={{fontSize:20,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.5px"}}>Bill Pay</div>
         </div>
+      )}
+      {collapsed && <div style={{height:28}}/>}
 
-        {/* Nav */}
-        <div style={{padding:"0 10px",flex:1}}>
-          {navItems.map(item=>(
-            <button key={item.id} onClick={()=>setPanel(item.id)}
-              style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:8,border:"none",background:panel===item.id?"rgba(127,88,175,0.12)":"transparent",cursor:"pointer",fontFamily:"inherit",marginBottom:2,textAlign:"left"}}>
-              <div style={{width:28,height:28,borderRadius:7,background:panel===item.id?(item.accent||"#7F58AF"):"rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
-                {item.icon==="grid" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>}
-                {item.icon==="home" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>}
-                {item.icon==="leaf" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>}
-              </div>
-              <span style={{fontSize:13,fontWeight:panel===item.id?700:500,color:panel===item.id?"#1C1C1E":"rgba(0,0,0,0.55)",flex:1}}>{item.label}</span>
-              {item.badge>0 && <span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:11,fontWeight:700}}>{item.badge}</span>}
+      {/* Nav */}
+      <div style={{padding:"0 10px",flex:1}}>
+        {navItems.map(item=>(
+          <button key={item.id} onClick={()=>setPanel(item.id)}
+            style={{width:"100%",display:"flex",alignItems:"center",gap:collapsed?0:10,padding:collapsed?"9px 6px":"9px 10px",borderRadius:8,border:"none",background:panel===item.id?"rgba(127,88,175,0.12)":"transparent",cursor:"pointer",fontFamily:"inherit",marginBottom:2,textAlign:"left",justifyContent:collapsed?"center":"flex-start"}}>
+            <div style={{width:28,height:28,borderRadius:7,background:panel===item.id?(item.accent||"#7F58AF"):"rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s",position:"relative"}}>
+              {item.icon==="grid" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>}
+              {item.icon==="home" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>}
+              {item.icon==="leaf" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={panel===item.id?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>}
+              {item.badge>0 && collapsed && <span style={{position:"absolute",top:-3,right:-3,background:"#E84D8A",color:"#fff",borderRadius:8,padding:"0 4px",fontSize:9,fontWeight:700,minWidth:14,textAlign:"center"}}>{item.badge}</span>}
+            </div>
+            {!collapsed && <span style={{fontSize:13,fontWeight:panel===item.id?700:500,color:panel===item.id?"#1C1C1E":"rgba(0,0,0,0.55)",flex:1}}>{item.label}</span>}
+            {!collapsed && item.badge>0 && <span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:11,fontWeight:700}}>{item.badge}</span>}
+          </button>
+        ))}
+      </div>
+
+      {/* User + Sign Out */}
+      <div style={{padding:collapsed?"12px 10px 24px":"14px 14px 24px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+        {collapsed ? (
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+            {user?.picture
+              ? <img src={user.picture} style={{width:28,height:28,borderRadius:14}} alt=""/>
+              : <div style={{width:28,height:28,borderRadius:14,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:11,fontWeight:700}}>{user?.name?.[0]||"?"}</div>
+            }
+            <button onClick={onSignOut} title="Sign out" style={{background:"none",border:"none",cursor:"pointer",padding:4,color:"rgba(0,0,0,0.3)"}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
-          ))}
-        </div>
-
-        {/* User + Sign Out */}
-        <div style={{padding:"14px 14px 24px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+          </div>
+        ) : (
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             {user?.picture
               ? <img src={user.picture} style={{width:32,height:32,borderRadius:16,flexShrink:0}} alt=""/>
@@ -682,28 +924,64 @@ function DesktopShell({user, onSignOut}){
               <div style={{fontSize:12,fontWeight:700,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
               <div style={{fontSize:10,color:"rgba(0,0,0,0.35)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.email||""}</div>
             </div>
-            <button onClick={onSignOut} title="Sign out"
-              style={{background:"none",border:"none",cursor:"pointer",padding:4,borderRadius:6,color:"rgba(0,0,0,0.3)"}}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
-              </svg>
+            <button onClick={onSignOut} title="Sign out" style={{background:"none",border:"none",cursor:"pointer",padding:4,borderRadius:6,color:"rgba(0,0,0,0.3)"}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
           </div>
-        </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ─── Desktop Shell ────────────────────────────────────────────────────────────
+function DesktopShell({user, onSignOut}){
+  const [panel,     setPanel]     = useState("dashboard");
+  const [collapsed, setCollapsed] = useState(false);
+
+  const swM  = readStore("bp_months_sw",  SW_MONTHS);
+  const snM  = readStore("bp_months_snap",SNAP_MONTHS);
+  const swPending = swM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
+  const snPending = snM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
+
+  const navItems = [
+    { id:"dashboard", label:"Overview",    icon:"grid", badge:null },
+    { id:"sw",        label:"Sir Walters", icon:"home", badge:swPending||null, accent:"#7F58AF" },
+    { id:"snap",      label:"Snapdragon",  icon:"leaf", badge:snPending||null, accent:"#64C5EB" },
+  ];
+
+  const sidebarW = collapsed ? 52 : 220;
+
+  return(
+    <div style={{display:"flex",height:"100vh",overflow:"hidden"}}>
+
+      {/* ── Sidebar ── */}
+      <div style={{width:sidebarW,background:"rgba(245,245,250,0.95)",borderRight:"1px solid rgba(0,0,0,0.08)",display:"flex",flexDirection:"column",flexShrink:0,backdropFilter:"blur(20px)",transition:"width 0.25s cubic-bezier(0.4,0,0.2,1)",overflow:"hidden",position:"relative"}}>
+
+        {/* Collapse toggle button */}
+        <button onClick={()=>setCollapsed(c=>!c)}
+          style={{position:"absolute",top:20,right:collapsed?10:12,zIndex:10,width:26,height:26,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="2.5" strokeLinecap="round">
+            {collapsed
+              ? <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
+              : <><line x1="18" y1="6" x2="6" y2="6"/><line x1="18" y1="12" x2="6" y2="12"/><line x1="18" y1="18" x2="6" y2="18"/></>
+            }
+          </svg>
+        </button>
+
+        <SidebarContent panel={panel} setPanel={p=>{setPanel(p);}} user={user} onSignOut={onSignOut} collapsed={collapsed} navItems={navItems}/>
       </div>
 
       {/* ── Main Content ── */}
-      <div style={{flex:1,overflow:"auto",background:"#f0f0f5"}}>
+      <div style={{flex:1,overflow:"auto",background:"#f0f0f5",transition:"all 0.25s"}}>
         {panel==="dashboard" && <DashboardDesktop onNav={setPanel}/>}
         {panel==="sw"        && <PropAppDesktop pk="sw"   onNav={setPanel}/>}
         {panel==="snap"      && <PropAppDesktop pk="snap" onNav={setPanel}/>}
       </div>
-
     </div>
   );
 }
+
 
 // ─── Desktop Dashboard wrapper ────────────────────────────────────────────────
 function DashboardDesktop({onNav}){
@@ -2067,6 +2345,7 @@ const CSS=`
   .skip-btn{transition:opacity 0.1s;}
   .skip-btn:hover{opacity:0.7;}
   .slide-in{animation:slideIn 0.18s cubic-bezier(0.25,0.46,0.45,0.94);}
+  @keyframes slideInLeft{from{transform:translateX(-100%);}to{transform:translateX(0);}}
   @keyframes slideIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
   @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
   ::-webkit-scrollbar{width:6px;height:6px;}
