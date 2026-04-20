@@ -1176,10 +1176,11 @@ function PropAppDesktop({pk,onNav}){
         <span style={{fontSize:13,color:"rgba(0,0,0,0.35)",cursor:"pointer"}} onClick={()=>onNav("dashboard")}>Overview</span>
         <span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span>
         <span style={{fontSize:13,fontWeight:600,color:"#1C1C1E"}}>{p.label}</span>
-        {subScreen!=="home"&&<><span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span><span style={{fontSize:13,fontWeight:600,color:p.accent,cursor:"pointer"}} onClick={goHome}>{subScreen==="bills"?"Pay Bills":subScreen==="manage"?"Vendors":subScreen==="history"?"History":subScreen==="new"?"New Month":"View"}</span></>}
+        {subScreen!=="home"&&<><span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span><span style={{fontSize:13,fontWeight:600,color:p.accent,cursor:"pointer"}} onClick={goHome}>{subScreen==="bills"?"Pay Bills":subScreen==="manage"?"Vendors":subScreen==="history"?"History":subScreen==="new"?"New Month":subScreen==="schedule"?"Schedule":"View"}</span></>}
       </div>
       <div style={{maxWidth:800,margin:"0 auto",padding:"16px 32px 48px"}}>
-        {subScreen==="home"    &&<PropHomeDesktop p={p} active={active} closed={closed} onOpen={id=>{setActiveId(id);setSubScreen("bills");}} onNew={()=>setSubScreen("new")} onManage={()=>setSubScreen("manage")} onHistory={()=>setSubScreen("history")} onDelete={deleteMonth}/>}
+        {subScreen==="home"     &&<PropHomeDesktop p={p} active={active} closed={closed} onOpen={id=>{setActiveId(id);setSubScreen("bills");}} onNew={()=>setSubScreen("new")} onManage={()=>setSubScreen("manage")} onHistory={()=>setSubScreen("history")} onDelete={deleteMonth} onSchedule={()=>setSubScreen("schedule")}/>}
+        {subScreen==="schedule" &&<BillSchedule p={p} vendors={vendors} months={months} onBack={goHome}/>}
         {subScreen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={goHome}/>}
         {subScreen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));goHome();}} onBack={goHome}/>}
         {subScreen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} allMonths={months} onBack={goHome}/>}
@@ -1191,7 +1192,7 @@ function PropAppDesktop({pk,onNav}){
 }
 
 // ─── Desktop Property Home ────────────────────────────────────────────────────
-function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDelete}){
+function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDelete,onSchedule}){
   const [confirmId,setConfirmId]=useState(null);
   const confirmMonth=active.find(m=>m.id===confirmId);
   const allMonths=[...active,...closed];
@@ -1223,6 +1224,7 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
           </div>
           <div style={{display:"flex",gap:10}}>
             <button onClick={onNew} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.25)",borderRadius:10,padding:"8px 16px",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>＋ New Month</button>
+            <button onClick={onSchedule} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.25)",borderRadius:10,padding:"8px 16px",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>📅 Schedule</button>
             <button onClick={onManage} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>Vendors</button>
             <button onClick={onHistory} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>History</button>
           </div>
@@ -1806,7 +1808,8 @@ function PropApp({pk,onBack}){
   const go=s=>setScreen(s);
   return(
     <div>
-      {screen==="home"    &&<PropHome p={p} active={active} closed={closed} onBack={onBack} onOpen={id=>{setActiveId(id);go("bills");}} onNew={()=>go("new")} onManage={()=>go("manage")} onHistory={()=>go("history")} onDelete={deleteMonth}/>}
+      {screen==="home"     &&<PropHome p={p} active={active} closed={closed} onBack={onBack} onOpen={id=>{setActiveId(id);go("bills");}} onNew={()=>go("new")} onManage={()=>go("manage")} onHistory={()=>go("history")} onDelete={deleteMonth} onSchedule={()=>go("schedule")}/>}
+      {screen==="schedule" &&<BillSchedule p={p} vendors={vendors} months={months} onBack={()=>go("home")}/>}
       {screen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={()=>go("home")}/>}
       {screen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));go("home");}} onBack={()=>go("home")}/>}
       {screen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} allMonths={months} onBack={()=>go("home")}/>}
@@ -1817,7 +1820,7 @@ function PropApp({pk,onBack}){
 }
 
 // ─── Property Home ────────────────────────────────────────────────────────────
-function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDelete}){
+function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDelete,onSchedule}){
   const [confirmId, setConfirmId] = useState(null);
   const confirmMonth = active.find(m=>m.id===confirmId);
   return(
@@ -1898,17 +1901,25 @@ function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDele
       {/* Action Cards */}
       <div style={{padding:"24px 16px 0"}}>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
-          <ActionCard icon="plus" label="New Month" sub="Start billing" accent={p.accent} onClick={onNew}/>
-          <ActionCard icon="gear" label="Vendors" sub={`${p.vendors?p.vendors.length:0} payees`} accent="#636366" onClick={onManage}/>
+          <ActionCard icon="plus"     label="New Month"  sub="Start billing"                    accent={p.accent}  onClick={onNew}/>
+          <ActionCard icon="cal"      label="Schedule"   sub="Due dates view"                   accent={p.accent}  onClick={onSchedule}/>
         </div>
-        <ActionCard icon="folder" label="Payment History" sub={`${closed.length} months archived`} accent="#636366" onClick={onHistory} wide/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+          <ActionCard icon="gear"     label="Vendors"    sub={`${p.vendors?p.vendors.length:0} payees`} accent="#636366" onClick={onManage}/>
+          <ActionCard icon="folder"   label="History"    sub={`${closed.length} archived`}      accent="#636366"   onClick={onHistory}/>
+        </div>
       </div>
     </div>
   );
 }
 
 function ActionCard({icon,label,sub,accent,onClick,wide}){
-  const iconMap={plus:<PlusIcon color={accent}/>,gear:<GearIcon color={accent==="#636366"?"#636366":accent}/>,folder:<FolderIcon color={accent==="#636366"?"#636366":accent}/>};
+  const iconMap={
+    plus:  <PlusIcon color={accent}/>,
+    gear:  <GearIcon color={accent==="#636366"?"#636366":accent}/>,
+    folder:<FolderIcon color={accent==="#636366"?"#636366":accent}/>,
+    cal:   <CalIcon size={20} color={accent}/>,
+  };
   return(
     <div className="action-card" onClick={onClick}
       style={{background:"#ffffff",borderRadius:18,padding:wide?"18px 20px":"20px 18px",cursor:"pointer",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",display:"flex",alignItems:wide?"center":"flex-start",gap:wide?14:0,flexDirection:wide?"row":"column"}}>
@@ -2677,6 +2688,164 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
             <div style={{display:"flex",justifyContent:"space-between",padding:"14px 16px",background:"rgba(0,0,0,0.02)",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
               <span style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.5)"}}>All-time total</span>
               <span style={{fontSize:15,fontWeight:800,color:p.accent}}>{fmt(totalPaid)}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </AppleScreen>
+  );
+}
+
+// ─── Bill Schedule ────────────────────────────────────────────────────────────
+function BillSchedule({p, vendors, months, onBack}){
+  const now      = new Date();
+  const [viewMo, setViewMo] = useState(now.getMonth());
+  const [viewYr, setViewYr] = useState(now.getFullYear());
+
+  // Find active month matching view month
+  const activeMonth = months.find(m=>m.year===viewYr&&m.month===viewMo&&m.status!=="closed");
+
+  // Build a lookup of bill status for this month by vendorId
+  const billStatus = {};
+  if(activeMonth){
+    activeMonth.bills.forEach(b=>{
+      billStatus[b.vendorId] = {status:b.status, amount:b.amount, note:b.note};
+    });
+  }
+
+  // Parse due date string → numeric day (for sorting). Handle "—", "NA", month names
+  function parseDueDay(dueDate){
+    if(!dueDate || dueDate==="—" || dueDate.toLowerCase()==="na") return 99;
+    const n = parseInt(dueDate);
+    if(!isNaN(n)) return n;
+    // month/day format like "3/1" → use day
+    if(dueDate.includes("/")) return parseInt(dueDate.split("/")[1])||99;
+    return 99;
+  }
+
+  // Filter to vendors that have a numeric due date (excludes yearly/home services with no date)
+  const scheduled = vendors
+    .filter(v=>v.dueDate&&v.dueDate!=="—"&&v.dueDate.toLowerCase()!=="na"&&v.dueDate!=="")
+    .sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
+
+  const firstHalf  = scheduled.filter(v=>parseDueDay(v.dueDate)<=15);
+  const secondHalf = scheduled.filter(v=>parseDueDay(v.dueDate)>15&&parseDueDay(v.dueDate)<99);
+  const noDate     = vendors.filter(v=>!v.dueDate||v.dueDate==="—"||v.dueDate.toLowerCase()==="na"||v.dueDate==="");
+
+  function statusColor(st){
+    if(!st) return {dot:"rgba(0,0,0,0.15)", badge:null};
+    if(st.status==="paid")    return {dot:"#64C5EB", badge:{label:"Paid",    bg:"rgba(100,197,235,0.12)",color:"#2d8faf"}};
+    if(st.status==="pending") return {dot:"#FEB326", badge:{label:"Pending", bg:"rgba(254,179,38,0.12)", color:"#b8860b"}};
+    if(st.status==="skipped") return {dot:"rgba(0,0,0,0.2)", badge:{label:"Skipped",bg:"rgba(0,0,0,0.06)",color:"rgba(0,0,0,0.4)"}};
+    return {dot:"rgba(0,0,0,0.15)", badge:null};
+  }
+
+  function VendorRow({v}){
+    const bs = billStatus[v.id];
+    const sc = statusColor(bs);
+    return(
+      <div style={{display:"flex",alignItems:"center",padding:"11px 16px",borderBottom:"1px solid rgba(0,0,0,0.05)"}}>
+        <div style={{width:8,height:8,borderRadius:4,background:sc.dot,marginRight:12,flexShrink:0}}/>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:14,fontWeight:500,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{v.name}</div>
+          <div style={{fontSize:11,color:"rgba(0,0,0,0.38)",marginTop:1}}>{v.account||v.category}{v.dueDate&&v.dueDate!=="—"?` · Due ${v.dueDate}`:""}</div>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0,marginLeft:8}}>
+          {bs?.amount>0&&<span style={{fontSize:13,fontWeight:600,color:"#1C1C1E"}}>{fmt(bs.amount)}</span>}
+          {sc.badge&&<span style={{background:sc.badge.bg,color:sc.badge.color,borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>{sc.badge.label}</span>}
+          {!activeMonth&&!sc.badge&&<span style={{background:"rgba(0,0,0,0.05)",color:"rgba(0,0,0,0.35)",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:600}}>No session</span>}
+        </div>
+      </div>
+    );
+  }
+
+  function HalfSection({title, color, items, totalLabel}){
+    const paid    = items.filter(v=>billStatus[v.id]?.status==="paid");
+    const pending = items.filter(v=>billStatus[v.id]?.status==="pending");
+    const paidAmt = paid.reduce((s,v)=>s+(billStatus[v.id]?.amount||0),0);
+    return(
+      <div style={{marginBottom:20}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,padding:"0 2px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <div style={{width:10,height:10,borderRadius:5,background:color}}/>
+            <span style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.5)",textTransform:"uppercase",letterSpacing:"0.06em"}}>{title}</span>
+            <span style={{fontSize:12,color:"rgba(0,0,0,0.3)"}}>· {items.length} vendors</span>
+          </div>
+          {activeMonth&&paidAmt>0&&<span style={{fontSize:12,fontWeight:700,color:p.accent}}>{fmt(paidAmt)} paid</span>}
+        </div>
+        {/* Progress bar for this half */}
+        {activeMonth&&items.length>0&&(
+          <div style={{marginBottom:10}}>
+            <div style={{height:4,background:"rgba(0,0,0,0.06)",borderRadius:2,overflow:"hidden"}}>
+              <div style={{height:"100%",width:`${Math.round(paid.length/items.length*100)}%`,background:p.accent,borderRadius:2,transition:"width 0.4s"}}/>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
+              <span style={{fontSize:11,color:"rgba(0,0,0,0.35)"}}>{paid.length}/{items.length} paid</span>
+              {pending.length>0&&<span style={{fontSize:11,color:"#FEB326",fontWeight:600}}>{pending.length} pending</span>}
+            </div>
+          </div>
+        )}
+        <div style={{background:"#fff",borderRadius:14,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)"}}>
+          {items.map(v=><VendorRow key={v.id} v={v}/>)}
+          {items.length===0&&<div style={{padding:"16px",textAlign:"center",fontSize:13,color:"rgba(0,0,0,0.35)"}}>No vendors in this half</div>}
+        </div>
+      </div>
+    );
+  }
+
+  // Month navigation
+  function prevMonth(){ if(viewMo===0){setViewMo(11);setViewYr(y=>y-1);}else setViewMo(m=>m-1); }
+  function nextMonth(){ if(viewMo===11){setViewMo(0);setViewYr(y=>y+1);}else setViewMo(m=>m+1); }
+
+  const totalPaid    = scheduled.filter(v=>billStatus[v.id]?.status==="paid").reduce((s,v)=>s+(billStatus[v.id]?.amount||0),0);
+  const totalPending = scheduled.filter(v=>billStatus[v.id]?.status==="pending").reduce((s,v)=>s+(billStatus[v.id]?.amount||0),0);
+
+  return(
+    <AppleScreen p={p} title="Bill Schedule" onBack={onBack}>
+      <div style={{padding:"0 16px"}}>
+
+        {/* Month picker */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#fff",borderRadius:14,padding:"12px 16px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
+          <button onClick={prevMonth} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:8,width:32,height:32,cursor:"pointer",fontSize:16,color:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
+          <div style={{textAlign:"center"}}>
+            <div style={{fontSize:16,fontWeight:700,color:"#1C1C1E"}}>{MO[viewMo]} {viewYr}</div>
+            <div style={{fontSize:11,color:"rgba(0,0,0,0.38)",marginTop:2}}>
+              {activeMonth?`${activeMonth.bills.filter(b=>b.status==="paid").length}/${activeMonth.bills.length} bills paid`:"No active session"}
+            </div>
+          </div>
+          <button onClick={nextMonth} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:8,width:32,height:32,cursor:"pointer",fontSize:16,color:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
+        </div>
+
+        {/* Summary pills */}
+        {activeMonth&&(
+          <div style={{display:"flex",gap:10,marginBottom:16}}>
+            <div style={{flex:1,background:"#fff",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,0,0,0.07)",textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Paid Out</div>
+              <div style={{fontSize:18,fontWeight:800,color:p.accent}}>{fmt(totalPaid)}</div>
+            </div>
+            <div style={{flex:1,background:"#fff",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,0,0,0.07)",textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Pending</div>
+              <div style={{fontSize:18,fontWeight:800,color:"#FEB326"}}>{fmt(totalPending)}</div>
+            </div>
+            <div style={{flex:1,background:"#fff",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,0,0,0.07)",textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Remaining</div>
+              <div style={{fontSize:18,fontWeight:800,color:"#1C1C1E"}}>{fmt(activeMonth.balance)}</div>
+            </div>
+          </div>
+        )}
+
+        {/* 1st Half */}
+        <HalfSection title="1st Half · 1st–15th" color="#7F58AF" items={firstHalf}/>
+
+        {/* 2nd Half */}
+        <HalfSection title="2nd Half · 16th–31st" color="#64C5EB" items={secondHalf}/>
+
+        {/* No due date / Yearly / As needed */}
+        {noDate.length>0&&(
+          <div style={{marginBottom:24}}>
+            <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,padding:"0 2px"}}>As Needed / No Fixed Date</div>
+            <div style={{background:"#fff",borderRadius:14,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)"}}>
+              {noDate.map(v=><VendorRow key={v.id} v={v}/>)}
             </div>
           </div>
         )}
