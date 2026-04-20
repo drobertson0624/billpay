@@ -2699,8 +2699,21 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
 // ─── Bill Schedule ────────────────────────────────────────────────────────────
 function BillSchedule({p, vendors, months, onBack}){
   const now      = new Date();
-  const [viewMo, setViewMo] = useState(now.getMonth());
-  const [viewYr, setViewYr] = useState(now.getFullYear());
+  const [viewMo,         setViewMo]         = useState(now.getMonth());
+  const [viewYr,         setViewYr]         = useState(now.getFullYear());
+  const [selectedVendor, setSelectedVendor] = useState(null);
+  const [editingVendor,  setEditingVendor]  = useState(null);
+  const [editForm,       setEditForm]       = useState({});
+
+  // If a vendor is selected show its profile
+  if(selectedVendor){
+    const v = vendors.find(x=>x.id===selectedVendor);
+    if(!v){ setSelectedVendor(null); return null; }
+    return(
+      <VendorProfile p={p} vendor={v} allMonths={months} onBack={()=>setSelectedVendor(null)}
+        onEdit={()=>{ setEditingVendor(v.id); setEditForm({name:v.name,category:v.category,account:v.account||"",dueDate:v.dueDate||"",notes:v.notes||"",url:v.url||"",phone:v.phone||""}); setSelectedVendor(null); }}/>
+    );
+  }
 
   // Find active month matching view month
   const activeMonth = months.find(m=>m.year===viewYr&&m.month===viewMo&&m.status!=="closed");
@@ -2713,24 +2726,23 @@ function BillSchedule({p, vendors, months, onBack}){
     });
   }
 
-  // Parse due date string → numeric day (for sorting). Handle "—", "NA", month names
+  // Categories that belong in the halves vs as-needed
+  const HALF_CATS = ["1ST","2ND","Tithes","Amazon","Chase United","Monthly","Quarterly"];
+
+  // Parse due date string → numeric day. Only meaningful for half-cat vendors.
   function parseDueDay(dueDate){
     if(!dueDate || dueDate==="—" || dueDate.toLowerCase()==="na") return 99;
     const n = parseInt(dueDate);
     if(!isNaN(n)) return n;
-    // month/day format like "3/1" → use day
-    if(dueDate.includes("/")) return parseInt(dueDate.split("/")[1])||99;
     return 99;
   }
 
-  // Filter to vendors that have a numeric due date (excludes yearly/home services with no date)
-  const scheduled = vendors
-    .filter(v=>v.dueDate&&v.dueDate!=="—"&&v.dueDate.toLowerCase()!=="na"&&v.dueDate!=="")
-    .sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
+  // Split vendors into sections
+  const halfVendors = vendors.filter(v=>HALF_CATS.includes(v.category));
+  const asNeeded    = vendors.filter(v=>!HALF_CATS.includes(v.category));
 
-  const firstHalf  = scheduled.filter(v=>parseDueDay(v.dueDate)<=15);
-  const secondHalf = scheduled.filter(v=>parseDueDay(v.dueDate)>15&&parseDueDay(v.dueDate)<99);
-  const noDate     = vendors.filter(v=>!v.dueDate||v.dueDate==="—"||v.dueDate.toLowerCase()==="na"||v.dueDate==="");
+  const firstHalf  = halfVendors.filter(v=>parseDueDay(v.dueDate)<=15).sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
+  const secondHalf = halfVendors.filter(v=>parseDueDay(v.dueDate)>15).sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
 
   function statusColor(st){
     if(!st) return {dot:"rgba(0,0,0,0.15)", badge:null};
@@ -2744,16 +2756,20 @@ function BillSchedule({p, vendors, months, onBack}){
     const bs = billStatus[v.id];
     const sc = statusColor(bs);
     return(
-      <div style={{display:"flex",alignItems:"center",padding:"11px 16px",borderBottom:"1px solid rgba(0,0,0,0.05)"}}>
-        <div style={{width:8,height:8,borderRadius:4,background:sc.dot,marginRight:12,flexShrink:0}}/>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:14,fontWeight:500,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{v.name}</div>
-          <div style={{fontSize:11,color:"rgba(0,0,0,0.38)",marginTop:1}}>{v.account||v.category}{v.dueDate&&v.dueDate!=="—"?` · Due ${v.dueDate}`:""}</div>
-        </div>
-        <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0,marginLeft:8}}>
-          {bs?.amount>0&&<span style={{fontSize:13,fontWeight:600,color:"#1C1C1E"}}>{fmt(bs.amount)}</span>}
-          {sc.badge&&<span style={{background:sc.badge.bg,color:sc.badge.color,borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>{sc.badge.label}</span>}
-          {!activeMonth&&!sc.badge&&<span style={{background:"rgba(0,0,0,0.05)",color:"rgba(0,0,0,0.35)",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:600}}>No session</span>}
+      <div>
+        <div className="bill-row" onClick={()=>setSelectedVendor(v.id)}
+          style={{display:"flex",alignItems:"center",padding:"11px 16px",borderBottom:"1px solid rgba(0,0,0,0.05)",cursor:"pointer"}}>
+          <div style={{width:8,height:8,borderRadius:4,background:sc.dot,marginRight:12,flexShrink:0}}/>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:14,fontWeight:500,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{v.name}</div>
+            <div style={{fontSize:11,color:"rgba(0,0,0,0.38)",marginTop:1}}>{v.account||v.category}{v.dueDate&&v.dueDate!=="—"?` · Due ${v.dueDate}`:""}</div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0,marginLeft:8}}>
+            {bs?.amount>0&&<span style={{fontSize:13,fontWeight:600,color:"#1C1C1E"}}>{fmt(bs.amount)}</span>}
+            {sc.badge&&<span style={{background:sc.badge.bg,color:sc.badge.color,borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>{sc.badge.label}</span>}
+            {!activeMonth&&!sc.badge&&<span style={{background:"rgba(0,0,0,0.05)",color:"rgba(0,0,0,0.35)",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:600}}>No session</span>}
+            <span style={{color:"rgba(0,0,0,0.2)",fontSize:16,marginLeft:2}}>›</span>
+          </div>
         </div>
       </div>
     );
@@ -2797,8 +2813,8 @@ function BillSchedule({p, vendors, months, onBack}){
   function prevMonth(){ if(viewMo===0){setViewMo(11);setViewYr(y=>y-1);}else setViewMo(m=>m-1); }
   function nextMonth(){ if(viewMo===11){setViewMo(0);setViewYr(y=>y+1);}else setViewMo(m=>m+1); }
 
-  const totalPaid    = scheduled.filter(v=>billStatus[v.id]?.status==="paid").reduce((s,v)=>s+(billStatus[v.id]?.amount||0),0);
-  const totalPending = scheduled.filter(v=>billStatus[v.id]?.status==="pending").reduce((s,v)=>s+(billStatus[v.id]?.amount||0),0);
+  const totalPaid    = [...firstHalf,...secondHalf].filter(v=>billStatus[v.id]?.status==="paid").reduce((s,v)=>s+(billStatus[v.id]?.amount||0),0);
+  const totalPending = [...firstHalf,...secondHalf].filter(v=>billStatus[v.id]?.status==="pending").reduce((s,v)=>s+(billStatus[v.id]?.amount||0),0);
 
   return(
     <AppleScreen p={p} title="Bill Schedule" onBack={onBack}>
@@ -2840,13 +2856,22 @@ function BillSchedule({p, vendors, months, onBack}){
         {/* 2nd Half */}
         <HalfSection title="2nd Half · 16th–31st" color="#64C5EB" items={secondHalf}/>
 
-        {/* No due date / Yearly / As needed */}
-        {noDate.length>0&&(
+        {/* As Needed / Yearly / Home Services */}
+        {asNeeded.length>0&&(
           <div style={{marginBottom:24}}>
-            <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,padding:"0 2px"}}>As Needed / No Fixed Date</div>
-            <div style={{background:"#fff",borderRadius:14,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)"}}>
-              {noDate.map(v=><VendorRow key={v.id} v={v}/>)}
-            </div>
+            <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,padding:"0 2px"}}>Yearly &amp; As Needed · {asNeeded.length} vendors</div>
+            {/* Group by category */}
+            {[...new Set(asNeeded.map(v=>v.category))].map(cat=>{
+              const catVendors = asNeeded.filter(v=>v.category===cat);
+              return(
+                <div key={cat} style={{marginBottom:12}}>
+                  <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.3)",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:6,padding:"0 4px"}}>{cat}</div>
+                  <div style={{background:"#fff",borderRadius:14,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)"}}>
+                    {catVendors.map(v=><VendorRow key={v.id} v={v}/>)}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
