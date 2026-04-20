@@ -1180,7 +1180,7 @@ function PropAppDesktop({pk,onNav}){
       </div>
       <div style={{maxWidth:800,margin:"0 auto",padding:"16px 32px 48px"}}>
         {subScreen==="home"     &&<PropHomeDesktop p={p} active={active} closed={closed} onOpen={id=>{setActiveId(id);setSubScreen("bills");}} onNew={()=>setSubScreen("new")} onManage={()=>setSubScreen("manage")} onHistory={()=>setSubScreen("history")} onDelete={deleteMonth} onSchedule={()=>setSubScreen("schedule")}/>}
-        {subScreen==="schedule" &&<BillSchedule p={p} vendors={vendors} months={months} onBack={goHome}/>}
+        {subScreen==="schedule" &&<BillSchedule p={p} vendors={vendors} setVendors={saveVendors} months={months} onBack={goHome}/>}
         {subScreen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={goHome}/>}
         {subScreen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));goHome();}} onBack={goHome}/>}
         {subScreen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} allMonths={months} onBack={goHome}/>}
@@ -1809,7 +1809,7 @@ function PropApp({pk,onBack}){
   return(
     <div>
       {screen==="home"     &&<PropHome p={p} active={active} closed={closed} onBack={onBack} onOpen={id=>{setActiveId(id);go("bills");}} onNew={()=>go("new")} onManage={()=>go("manage")} onHistory={()=>go("history")} onDelete={deleteMonth} onSchedule={()=>go("schedule")}/>}
-      {screen==="schedule" &&<BillSchedule p={p} vendors={vendors} months={months} onBack={()=>go("home")}/>}
+      {screen==="schedule" &&<BillSchedule p={p} vendors={vendors} setVendors={saveVendors} months={months} onBack={()=>go("home")}/>}
       {screen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={()=>go("home")}/>}
       {screen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));go("home");}} onBack={()=>go("home")}/>}
       {screen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} allMonths={months} onBack={()=>go("home")}/>}
@@ -2697,21 +2697,65 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
 }
 
 // ─── Bill Schedule ────────────────────────────────────────────────────────────
-function BillSchedule({p, vendors, months, onBack}){
+function BillSchedule({p, vendors, setVendors, months, onBack}){
   const now      = new Date();
   const [viewMo,         setViewMo]         = useState(now.getMonth());
   const [viewYr,         setViewYr]         = useState(now.getFullYear());
-  const [selectedVendor, setSelectedVendor] = useState(null);
-  const [editingVendor,  setEditingVendor]  = useState(null);
+  const [selectedVendor, setSelectedVendor] = useState(null); // view profile
+  const [editingVendor,  setEditingVendor]  = useState(null); // edit form
   const [editForm,       setEditForm]       = useState({});
 
-  // If a vendor is selected show its profile
+  function startEdit(v){
+    setSelectedVendor(null);
+    setEditingVendor(v.id);
+    setEditForm({name:v.name,category:v.category,account:v.account||"",dueDate:v.dueDate||"",notes:v.notes||"",url:v.url||"",phone:v.phone||""});
+  }
+
+  function saveEdit(){
+    if(setVendors) setVendors(pv=>pv.map(v=>v.id===editingVendor?{...v,...editForm}:v));
+    setEditingVendor(null);
+  }
+
+  // ── Edit screen ──
+  if(editingVendor){
+    const v = vendors.find(x=>x.id===editingVendor);
+    if(!v){ setEditingVendor(null); return null; }
+    return(
+      <AppleScreen p={p} title={`Edit ${v.name}`} onBack={()=>setEditingVendor(null)}>
+        <div style={{padding:"0 16px"}}>
+          {[
+            {label:"Name",        field:"name",    type:"text", ph:"Vendor name"},
+            {label:"Account",     field:"account", type:"text", ph:"e.g. WELLS · 0146"},
+            {label:"Due Date",    field:"dueDate", type:"text", ph:"e.g. 15th"},
+            {label:"Website URL", field:"url",     type:"url",  ph:"https://vendor.com"},
+            {label:"Phone",       field:"phone",   type:"tel",  ph:"(610) 555-1234"},
+            {label:"Notes",       field:"notes",   type:"text", ph:"Any extra details…"},
+          ].map(f=>(
+            <div key={f.field} style={{marginBottom:12}}>
+              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4,fontWeight:600}}>{f.label}</div>
+              <input type={f.type} value={editForm[f.field]||""} onChange={e=>setEditForm(ef=>({...ef,[f.field]:e.target.value}))}
+                placeholder={f.ph} style={{...inp}}/>
+            </div>
+          ))}
+          <div style={{marginBottom:20}}>
+            <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4,fontWeight:600}}>Category</div>
+            <select style={sel} value={editForm.category||p.cats[0]} onChange={e=>setEditForm(ef=>({...ef,category:e.target.value}))}>
+              {p.cats.map(c=><option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <AppleButton accent={p.accent} onClick={saveEdit}>Save Changes</AppleButton>
+        </div>
+      </AppleScreen>
+    );
+  }
+
+  // ── Vendor profile screen ──
   if(selectedVendor){
     const v = vendors.find(x=>x.id===selectedVendor);
     if(!v){ setSelectedVendor(null); return null; }
     return(
       <VendorProfile p={p} vendor={v} allMonths={months} onBack={()=>setSelectedVendor(null)}
-        onEdit={()=>{ setEditingVendor(v.id); setEditForm({name:v.name,category:v.category,account:v.account||"",dueDate:v.dueDate||"",notes:v.notes||"",url:v.url||"",phone:v.phone||""}); setSelectedVendor(null); }}/>
+        onEdit={()=>startEdit(v)}/>
     );
   }
 
