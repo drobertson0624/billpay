@@ -1967,7 +1967,17 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
   const[showBal,setShowBal]=useState(false);
   const[newBal,setNewBal]=useState("");
   const[addingBill,setAddingBill]=useState(false);
-  const[newVId,setNewVId]=useState("");
+  const[selectedVIds,setSelectedVIds]=useState(new Set());
+
+  function toggleVendor(id){ setSelectedVIds(prev=>{ const s=new Set(prev); s.has(id)?s.delete(id):s.add(id); return s; }); }
+
+  function addBills(){
+    if(selectedVIds.size===0) return;
+    const toAdd=[...selectedVIds].map(id=>{ const v=vendors.find(x=>x.id===id); return v?{id:uid(),vendorId:v.id,vendorName:v.name,amount:0,status:"pending",account:v.account,dueDate:v.dueDate,note:""}:null; }).filter(Boolean);
+    onUpdate(month.id,m=>({bills:[...m.bills,...toAdd]}));
+    setAddingBill(false);
+    setSelectedVIds(new Set());
+  }
 
   const bills=month.bills;
   const pending=bills.filter(b=>b.status==="pending");
@@ -1988,7 +1998,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
   function skipBill(id){onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===id?{...b,status:"skipped"}:b)}));}
   function unpay(id){const b=bills.find(x=>x.id===id);onUpdate(month.id,m=>({bills:m.bills.map(x=>x.id===id?{...x,status:"pending"}:x),balance:m.balance+(b?.amount||0)}));}
   function saveBalance(){const bal=parseFloat(newBal)||0;onUpdate(month.id,()=>({startingBalance:bal,balance:bal-paidAmt}));setShowBal(false);}
-  function addBill(){const v=vendors.find(x=>x.id===newVId);if(!v)return;onUpdate(month.id,m=>({bills:[...m.bills,{id:uid(),vendorId:v.id,vendorName:v.name,amount:v.defaultAmount||0,status:"pending",account:v.account,dueDate:v.dueDate,note:""}]}));setAddingBill(false);setNewVId("");}
+  function addBill(){} // replaced by addBills multi-select
 
   const catGroups={};
   p.cats.forEach(cat=>{const items=bills.filter(b=>{const v=vendors.find(x=>x.id===b.vendorId);return v?.category===cat;});if(items.length)catGroups[cat]=items;});
@@ -2175,14 +2185,53 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
             ))}
             {addingBill?(
               <div style={{background:"#ffffff",borderRadius:16,padding:16,marginBottom:16}}>
-                <div style={{fontSize:13,fontWeight:600,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Add Vendor</div>
-                <select style={{...sel,marginBottom:12}} value={newVId} onChange={e=>setNewVId(e.target.value)}>
-                  <option value="">Select vendor…</option>
-                  {vendors.filter(v=>!bills.find(b=>b.vendorId===v.id)).map(v=><option key={v.id} value={v.id}>{v.name} ({v.category})</option>)}
-                </select>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                  <div style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em"}}>Add Vendors</div>
+                  {selectedVIds.size>0&&<span style={{background:p.accent,color:"#fff",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:700}}>{selectedVIds.size} selected</span>}
+                </div>
+                {/* Available vendors grouped by category */}
+                {(()=>{
+                  const available = vendors.filter(v=>!bills.find(b=>b.vendorId===v.id));
+                  if(available.length===0) return <div style={{textAlign:"center",color:"rgba(0,0,0,0.35)",fontSize:14,padding:"16px 0"}}>All vendors already added</div>;
+                  const cats=[...new Set(available.map(v=>v.category))];
+                  return(
+                    <div style={{maxHeight:320,overflowY:"auto",marginBottom:14,borderRadius:12,border:"1px solid rgba(0,0,0,0.08)"}}>
+                      {cats.map((cat,ci)=>{
+                        const catVendors=available.filter(v=>v.category===cat);
+                        return(
+                          <div key={cat}>
+                            {/* Category header */}
+                            <div style={{padding:"8px 14px 4px",background:"rgba(0,0,0,0.02)",borderTop:ci>0?"1px solid rgba(0,0,0,0.06)":"none"}}>
+                              <span style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em"}}>{cat}</span>
+                            </div>
+                            {catVendors.map((v,i)=>(
+                              <div key={v.id} onClick={()=>toggleVendor(v.id)}
+                                style={{display:"flex",alignItems:"center",padding:"10px 14px",borderTop:"1px solid rgba(0,0,0,0.04)",cursor:"pointer",background:selectedVIds.has(v.id)?`${p.accent}08`:"transparent"}}>
+                                {/* Checkbox */}
+                                <div style={{width:20,height:20,borderRadius:6,border:selectedVIds.has(v.id)?`2px solid ${p.accent}`:"2px solid rgba(0,0,0,0.2)",background:selectedVIds.has(v.id)?p.accent:"transparent",display:"flex",alignItems:"center",justifyContent:"center",marginRight:12,flexShrink:0,transition:"all 0.15s"}}>
+                                  {selectedVIds.has(v.id)&&<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                                </div>
+                                <div style={{flex:1,minWidth:0}}>
+                                  <div style={{fontSize:14,fontWeight:selectedVIds.has(v.id)?600:400,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{v.name}</div>
+                                  {v.dueDate&&v.dueDate!=="—"&&<div style={{fontSize:11,color:"rgba(0,0,0,0.35)",marginTop:1}}>Due {v.dueDate}</div>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
                 <div style={{display:"flex",gap:8}}>
-                  <button onClick={addBill} disabled={!newVId} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:13,fontSize:15,fontWeight:600,color:"#ffffff",cursor:"pointer",fontFamily:"inherit",opacity:newVId?1:0.4}}>Add</button>
-                  <button onClick={()=>setAddingBill(false)} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+                  <button onClick={addBills} disabled={selectedVIds.size===0}
+                    style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:13,fontSize:15,fontWeight:600,color:"#fff",cursor:selectedVIds.size?'pointer':'default',fontFamily:"inherit",opacity:selectedVIds.size>0?1:0.4}}>
+                    Add {selectedVIds.size>0?`${selectedVIds.size} Vendor${selectedVIds.size>1?"s":""}`:""}
+                  </button>
+                  <button onClick={()=>{setAddingBill(false);setSelectedVIds(new Set());}}
+                    style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>
+                    Cancel
+                  </button>
                 </div>
               </div>
             ):(
