@@ -806,6 +806,9 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
       </div>
 
       <div style={{padding:"20px 16px 0"}}>
+        {/* Reminders widget */}
+        <RemindersWidget/>
+
         {/* Advisor insights */}
         <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
@@ -1087,8 +1090,11 @@ function DashboardDesktop({onNav}){
           </div>
         </div>
 
-        {/* Right column: insights + properties */}
+        {/* Right column: reminders + insights + properties */}
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
+
+          {/* Reminders */}
+          <RemindersWidget/>
 
           {/* Advisor insights */}
           <div style={{background:"#fff",borderRadius:16,padding:"18px 20px",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
@@ -1296,6 +1302,46 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Reminders Widget ────────────────────────────────────────────────────────
+function RemindersWidget(){
+  const {reminders} = useReminders();
+  if(reminders.length === 0) return null;
+
+  // Sort by next due date, show overdue + upcoming 90 days
+  const withDue = reminders.map(r=>({...r, due:nextDueDate(r), status:reminderStatus(r)}));
+  withDue.sort((a,b)=>a.due-b.due);
+  const visible = withDue.filter(r=>r.status.days <= 90);
+  if(visible.length === 0) return null;
+
+  const overdue = visible.filter(r=>r.status.days < 0);
+  const upcoming = visible.filter(r=>r.status.days >= 0);
+
+  return(
+    <div style={{background:"#fff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px 10px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#FEB326,#E84D8A)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>🔔</div>
+          <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E"}}>Reminders</div>
+        </div>
+        {overdue.length > 0 && (
+          <span style={{background:"rgba(232,77,138,0.1)",color:"#E84D8A",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:700}}>{overdue.length} overdue</span>
+        )}
+      </div>
+      {visible.map((r,i)=>(
+        <div key={r.id} style={{display:"flex",alignItems:"center",padding:"10px 16px",borderTop:"1px solid rgba(0,0,0,0.05)"}}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:13,fontWeight:600,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.vendorName}</div>
+            <div style={{fontSize:11,color:"rgba(0,0,0,0.45)",marginTop:1}}>{r.note} · {FREQ_LABELS[r.frequency]}</div>
+          </div>
+          <span style={{background:r.status.bg,color:r.status.color,borderRadius:20,padding:"3px 10px",fontSize:12,fontWeight:700,flexShrink:0,marginLeft:8}}>
+            {r.status.days < 0 ? "Overdue" : r.status.days === 0 ? "Today" : `${r.status.days}d`}
+          </span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -2317,34 +2363,69 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths}){
 }
 
 // ─── Vendor Profile ───────────────────────────────────────────────────────────
+// ─── Reminder helpers ─────────────────────────────────────────────────────────
+const FREQ_LABELS = {once:"One-time", monthly:"Monthly", quarterly:"Quarterly", yearly:"Yearly"};
+
+function nextDueDate(reminder){
+  const base = new Date(reminder.startDate);
+  const now  = new Date();
+  if(reminder.frequency === "once") return base;
+  let next = new Date(base);
+  while(next <= now){
+    if(reminder.frequency==="monthly")   next.setMonth(next.getMonth()+1);
+    if(reminder.frequency==="quarterly") next.setMonth(next.getMonth()+3);
+    if(reminder.frequency==="yearly")    next.setFullYear(next.getFullYear()+1);
+  }
+  return next;
+}
+
+function reminderStatus(reminder){
+  const due  = nextDueDate(reminder);
+  const now  = new Date();
+  const days = Math.round((due - now) / 86400000);
+  if(days < 0)  return {label:"Overdue",    color:"#E84D8A", bg:"rgba(232,77,138,0.1)",  days};
+  if(days === 0) return {label:"Due today",  color:"#E84D8A", bg:"rgba(232,77,138,0.1)",  days};
+  if(days <= 7)  return {label:`${days}d`,   color:"#FEB326", bg:"rgba(254,179,38,0.12)", days};
+  if(days <= 30) return {label:`${days}d`,   color:"#7F58AF", bg:"rgba(127,88,175,0.1)",  days};
+  return              {label:`${days}d`,     color:"rgba(0,0,0,0.35)", bg:"rgba(0,0,0,0.05)", days};
+}
+
+function useReminders(){
+  const [reminders, setReminders] = useStorage("bp_reminders", []);
+  function addReminder(vendorId, vendorName, propKey, note, frequency, startDate){
+    const r = {id:uid(), vendorId, vendorName, propKey, note, frequency, startDate, createdAt:Date.now()};
+    setReminders(prev=>[...prev, r]);
+  }
+  function deleteReminder(id){ setReminders(prev=>prev.filter(r=>r.id!==id)); }
+  function updateReminder(id, changes){ setReminders(prev=>prev.map(r=>r.id===id?{...r,...changes}:r)); }
+  return {reminders, addReminder, deleteReminder, updateReminder};
+}
+
 function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
   const MO_S = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const {reminders, addReminder, deleteReminder} = useReminders();
+  const [showAddReminder, setShowAddReminder] = useState(false);
+  const [rForm, setRForm] = useState({note:"", frequency:"quarterly", startDate: new Date().toISOString().slice(0,10)});
+
+  const vendorReminders = reminders.filter(r=>r.vendorId===vendor.id);
 
   // Pull all paid bills for this vendor across all months, newest first
   const payments = [];
   allMonths.forEach(m => {
     m.bills.forEach(b => {
       if(b.vendorId === vendor.id && b.status === "paid"){
-        payments.push({
-          monthLabel: m.label,
-          month: m.month,
-          year: m.year,
-          amount: b.amount,
-          note: b.note||"",
-          paidAt: b.paidAt,
-        });
+        payments.push({monthLabel:m.label, month:m.month, year:m.year, amount:b.amount, note:b.note||"", paidAt:b.paidAt});
       }
     });
   });
   payments.sort((a,b)=>(b.paidAt||0)-(a.paidAt||0));
 
-  // Stats
-  const totalPaid   = payments.reduce((s,p)=>s+p.amount, 0);
+  const totalPaid   = payments.reduce((s,x)=>s+x.amount, 0);
   const count       = payments.length;
   const avg         = count > 0 ? totalPaid/count : 0;
   const lastPayment = payments[0] || null;
-  const highest     = count > 0 ? Math.max(...payments.map(p=>p.amount)) : 0;
-  const lowest      = count > 0 ? Math.min(...payments.filter(p=>p.amount>0).map(p=>p.amount)) : 0;
+  const highest     = count > 0 ? Math.max(...payments.map(x=>x.amount)) : 0;
+  const lowest      = count > 0 ? Math.min(...payments.filter(x=>x.amount>0).map(x=>x.amount)) : 0;
 
   return(
     <AppleScreen p={p} title={vendor.name} onBack={onBack}>
@@ -2394,14 +2475,90 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
           )}
         </div>
 
+        {/* ── Reminders ── */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,padding:"0 4px"}}>
+          <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em"}}>
+            Reminders {vendorReminders.length>0&&`· ${vendorReminders.length}`}
+          </div>
+          <button onClick={()=>setShowAddReminder(v=>!v)}
+            style={{background:p.accent,border:"none",borderRadius:8,padding:"5px 12px",fontSize:12,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
+            {showAddReminder?"Cancel":"＋ Add"}
+          </button>
+        </div>
+
+        {/* Add reminder form */}
+        {showAddReminder&&(
+          <div style={{background:"#fff",borderRadius:16,padding:16,marginBottom:12,border:`1px solid ${p.accent}25`}} className="slide-in">
+            <div style={{marginBottom:10}}>
+              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4,fontWeight:600}}>What to check</div>
+              <input type="text" value={rForm.note} onChange={e=>setRForm(f=>({...f,note:e.target.value}))}
+                placeholder={`e.g. Check ${vendor.name} rates`} style={{...inp}}/>
+            </div>
+            <div style={{marginBottom:10}}>
+              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4,fontWeight:600}}>Frequency</div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {Object.entries(FREQ_LABELS).map(([k,v])=>(
+                  <button key={k} onClick={()=>setRForm(f=>({...f,frequency:k}))}
+                    style={{padding:"7px 14px",borderRadius:20,border:"none",background:rForm.frequency===k?p.accent:"#e5e5ea",color:rForm.frequency===k?"#fff":"rgba(0,0,0,0.5)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
+                    {v}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4,fontWeight:600}}>Start date</div>
+              <input type="date" value={rForm.startDate} onChange={e=>setRForm(f=>({...f,startDate:e.target.value}))} style={{...inp}}/>
+            </div>
+            <button onClick={()=>{
+              if(!rForm.note.trim()) return;
+              addReminder(vendor.id, vendor.name, p.key, rForm.note, rForm.frequency, rForm.startDate);
+              setRForm({note:"",frequency:"quarterly",startDate:new Date().toISOString().slice(0,10)});
+              setShowAddReminder(false);
+            }} style={{width:"100%",background:p.accent,border:"none",borderRadius:12,padding:12,fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
+              Save Reminder
+            </button>
+          </div>
+        )}
+
+        {/* Reminder list */}
+        {vendorReminders.length > 0 ? (
+          <div style={{background:"#fff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
+            {vendorReminders.map((r,i)=>{
+              const st = reminderStatus(r);
+              const due = nextDueDate(r);
+              return(
+                <div key={r.id} style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<vendorReminders.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:14,fontWeight:600,color:"#1C1C1E"}}>{r.note}</div>
+                    <div style={{fontSize:12,color:"rgba(0,0,0,0.4)",marginTop:2}}>
+                      {FREQ_LABELS[r.frequency]} · Due {due.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+                    </div>
+                  </div>
+                  <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0,marginLeft:8}}>
+                    <span style={{background:st.bg,color:st.color,borderRadius:20,padding:"3px 10px",fontSize:12,fontWeight:700,whiteSpace:"nowrap"}}>{st.label}</span>
+                    <button onClick={()=>deleteReminder(r.id)}
+                      style={{background:"none",border:"none",cursor:"pointer",padding:4,color:"rgba(0,0,0,0.25)"}}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : !showAddReminder && (
+          <div style={{background:"rgba(0,0,0,0.03)",borderRadius:14,padding:"18px 16px",marginBottom:16,textAlign:"center",border:"1px dashed rgba(0,0,0,0.1)"}}>
+            <div style={{fontSize:13,color:"rgba(0,0,0,0.35)"}}>No reminders set for {vendor.name}</div>
+          </div>
+        )}
+
         {/* Payment stats */}
         {count > 0 && (
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
             {[
-              {label:"Total Paid",    val:fmt(totalPaid),  color:p.accent},
-              {label:"Times Paid",    val:count,           color:"#1C1C1E"},
-              {label:"Average",       val:fmt(avg),        color:"#1C1C1E"},
-              {label:"Last Payment",  val:lastPayment?`${MO_S[lastPayment.month]} ${lastPayment.year}`:"—", color:"#1C1C1E"},
+              {label:"Total Paid",   val:fmt(totalPaid), color:p.accent},
+              {label:"Times Paid",   val:count,          color:"#1C1C1E"},
+              {label:"Average",      val:fmt(avg),       color:"#1C1C1E"},
+              {label:"Last Payment", val:lastPayment?`${MO_S[lastPayment.month]} ${lastPayment.year}`:"—", color:"#1C1C1E"},
             ].map((s,i)=>(
               <div key={i} style={{background:"#fff",borderRadius:14,padding:"14px 16px",border:"1px solid rgba(0,0,0,0.07)"}}>
                 <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:6}}>{s.label}</div>
@@ -2411,11 +2568,10 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
           </div>
         )}
 
-        {/* Payment history list */}
+        {/* Payment history */}
         <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,padding:"0 4px"}}>
           Payment History {count>0&&`· ${count} payments`}
         </div>
-
         {count === 0 ? (
           <div style={{background:"#fff",borderRadius:16,padding:"32px 20px",textAlign:"center",border:"1px solid rgba(0,0,0,0.07)"}}>
             <div style={{fontSize:32,marginBottom:10}}>📋</div>
@@ -2426,7 +2582,6 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
           <div style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)",marginBottom:32}}>
             {payments.map((pay,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<payments.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
-                {/* Month color dot */}
                 <div style={{width:8,height:8,borderRadius:4,background:p.accent,marginRight:12,flexShrink:0}}/>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{pay.monthLabel}</div>
@@ -2441,7 +2596,6 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
                 </div>
               </div>
             ))}
-            {/* Totals footer */}
             <div style={{display:"flex",justifyContent:"space-between",padding:"14px 16px",background:"rgba(0,0,0,0.02)",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
               <span style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.5)"}}>All-time total</span>
               <span style={{fontSize:15,fontWeight:800,color:p.accent}}>{fmt(totalPaid)}</span>
