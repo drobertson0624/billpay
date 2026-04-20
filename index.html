@@ -1308,17 +1308,18 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
 
 // ─── Reminders Widget ────────────────────────────────────────────────────────
 function RemindersWidget(){
-  const {reminders} = useReminders();
+  const {reminders, dismissReminder, snoozeReminder} = useReminders();
+  const [snoozeId,   setSnoozeId]   = useState(null);
+  const [snoozeDate, setSnoozeDate] = useState("");
+
   if(reminders.length === 0) return null;
 
-  // Sort by next due date, show overdue + upcoming 90 days
   const withDue = reminders.map(r=>({...r, due:nextDueDate(r), status:reminderStatus(r)}));
   withDue.sort((a,b)=>a.due-b.due);
   const visible = withDue.filter(r=>r.status.days <= 90);
   if(visible.length === 0) return null;
 
-  const overdue = visible.filter(r=>r.status.days < 0);
-  const upcoming = visible.filter(r=>r.status.days >= 0);
+  const overdueCount = visible.filter(r=>r.status.days < 0).length;
 
   return(
     <div style={{background:"#fff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
@@ -1327,19 +1328,42 @@ function RemindersWidget(){
           <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#FEB326,#E84D8A)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>🔔</div>
           <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E"}}>Reminders</div>
         </div>
-        {overdue.length > 0 && (
-          <span style={{background:"rgba(232,77,138,0.1)",color:"#E84D8A",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:700}}>{overdue.length} overdue</span>
+        {overdueCount > 0 && (
+          <span style={{background:"rgba(232,77,138,0.1)",color:"#E84D8A",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:700}}>{overdueCount} overdue</span>
         )}
       </div>
       {visible.map((r,i)=>(
-        <div key={r.id} style={{display:"flex",alignItems:"center",padding:"10px 16px",borderTop:"1px solid rgba(0,0,0,0.05)"}}>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:13,fontWeight:600,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.vendorName}</div>
-            <div style={{fontSize:11,color:"rgba(0,0,0,0.45)",marginTop:1}}>{r.note} · {FREQ_LABELS[r.frequency]}</div>
+        <div key={r.id} style={{borderTop:"1px solid rgba(0,0,0,0.05)"}}>
+          {/* Row */}
+          <div style={{display:"flex",alignItems:"center",padding:"10px 16px"}}>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:13,fontWeight:600,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.vendorName}</div>
+              <div style={{fontSize:11,color:"rgba(0,0,0,0.45)",marginTop:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.note} · {FREQ_LABELS[r.frequency]}</div>
+            </div>
+            <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0,marginLeft:8}}>
+              <span style={{background:r.status.bg,color:r.status.color,borderRadius:20,padding:"2px 8px",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>
+                {r.status.days<0?"Overdue":r.status.days===0?"Today":`${r.status.days}d`}
+              </span>
+              {r.snoozedUntil&&<span style={{background:"rgba(100,197,235,0.12)",color:"#2d8faf",borderRadius:20,padding:"2px 8px",fontSize:11,fontWeight:700}}>Snoozed</span>}
+              {/* Quick actions */}
+              <button onClick={()=>dismissReminder(r.id)} title="Mark done"
+                style={{background:"rgba(100,197,235,0.1)",border:"none",borderRadius:7,padding:"4px 8px",fontSize:11,fontWeight:700,color:"#2d8faf",cursor:"pointer",fontFamily:"inherit"}}>✓</button>
+              <button onClick={()=>{setSnoozeId(snoozeId===r.id?null:r.id);setSnoozeDate("");}} title="Snooze"
+                style={{background:"rgba(254,179,38,0.1)",border:"none",borderRadius:7,padding:"4px 8px",fontSize:11,fontWeight:700,color:"#b8860b",cursor:"pointer",fontFamily:"inherit"}}>⏰</button>
+            </div>
           </div>
-          <span style={{background:r.status.bg,color:r.status.color,borderRadius:20,padding:"3px 10px",fontSize:12,fontWeight:700,flexShrink:0,marginLeft:8}}>
-            {r.status.days < 0 ? "Overdue" : r.status.days === 0 ? "Today" : `${r.status.days}d`}
-          </span>
+          {/* Snooze picker */}
+          {snoozeId===r.id&&(
+            <div style={{padding:"0 16px 12px",display:"flex",gap:8,alignItems:"center"}} className="slide-in">
+              <input type="date" value={snoozeDate} onChange={e=>setSnoozeDate(e.target.value)}
+                min={new Date().toISOString().slice(0,10)}
+                style={{flex:1,background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:10,padding:"8px 12px",fontSize:13,color:"#1C1C1E",fontFamily:"inherit",outline:"none"}}/>
+              <button onClick={()=>{if(snoozeDate){snoozeReminder(r.id,snoozeDate);setSnoozeId(null);}}}
+                style={{background:"#7F58AF",border:"none",borderRadius:10,padding:"8px 14px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+                Set
+              </button>
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -2367,6 +2391,8 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths}){
 const FREQ_LABELS = {once:"One-time", monthly:"Monthly", quarterly:"Quarterly", yearly:"Yearly"};
 
 function nextDueDate(reminder){
+  // If snoozed, use that date
+  if(reminder.snoozedUntil) return new Date(reminder.snoozedUntil);
   const base = new Date(reminder.startDate);
   const now  = new Date();
   if(reminder.frequency === "once") return base;
@@ -2392,19 +2418,41 @@ function reminderStatus(reminder){
 
 function useReminders(){
   const [reminders, setReminders] = useStorage("bp_reminders", []);
+
   function addReminder(vendorId, vendorName, propKey, note, frequency, startDate){
-    const r = {id:uid(), vendorId, vendorName, propKey, note, frequency, startDate, createdAt:Date.now()};
+    const r = {id:uid(), vendorId, vendorName, propKey, note, frequency, startDate, createdAt:Date.now(), snoozedUntil:null};
     setReminders(prev=>[...prev, r]);
   }
+
   function deleteReminder(id){ setReminders(prev=>prev.filter(r=>r.id!==id)); }
+
   function updateReminder(id, changes){ setReminders(prev=>prev.map(r=>r.id===id?{...r,...changes}:r)); }
-  return {reminders, addReminder, deleteReminder, updateReminder};
+
+  // Dismiss: for recurring, advance startDate to next cycle. For one-time, remove it.
+  function dismissReminder(id){
+    setReminders(prev=>prev.map(r=>{
+      if(r.id !== id) return r;
+      if(r.frequency === "once") return null; // filter below
+      // Advance startDate to the next due date so the cycle continues from there
+      const next = nextDueDate(r);
+      return {...r, startDate: next.toISOString().slice(0,10), snoozedUntil: null};
+    }).filter(Boolean));
+  }
+
+  // Snooze: override next due with a specific date
+  function snoozeReminder(id, untilDate){
+    setReminders(prev=>prev.map(r=>r.id===id?{...r, snoozedUntil: untilDate}:r));
+  }
+
+  return {reminders, addReminder, deleteReminder, updateReminder, dismissReminder, snoozeReminder};
 }
 
 function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
   const MO_S = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const {reminders, addReminder, deleteReminder} = useReminders();
+  const {reminders, addReminder, deleteReminder, dismissReminder, snoozeReminder} = useReminders();
   const [showAddReminder, setShowAddReminder] = useState(false);
+  const [snoozeId, setSnoozeId] = useState(null);
+  const [snoozeDate, setSnoozeDate] = useState("");
   const [rForm, setRForm] = useState({note:"", frequency:"quarterly", startDate: new Date().toISOString().slice(0,10)});
 
   const vendorReminders = reminders.filter(r=>r.vendorId===vendor.id);
@@ -2524,23 +2572,53 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
         {vendorReminders.length > 0 ? (
           <div style={{background:"#fff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
             {vendorReminders.map((r,i)=>{
-              const st = reminderStatus(r);
+              const st  = reminderStatus(r);
               const due = nextDueDate(r);
+              const isSnoozed = !!r.snoozedUntil;
               return(
-                <div key={r.id} style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<vendorReminders.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:14,fontWeight:600,color:"#1C1C1E"}}>{r.note}</div>
-                    <div style={{fontSize:12,color:"rgba(0,0,0,0.4)",marginTop:2}}>
-                      {FREQ_LABELS[r.frequency]} · Due {due.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+                <div key={r.id} style={{borderBottom:i<vendorReminders.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+                  {/* Row */}
+                  <div style={{display:"flex",alignItems:"flex-start",padding:"14px 16px"}}>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+                        <div style={{fontSize:14,fontWeight:600,color:"#1C1C1E"}}>{r.note}</div>
+                        <span style={{background:st.bg,color:st.color,borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>
+                          {st.days<0?"Overdue":st.days===0?"Today":`${st.days}d`}
+                        </span>
+                        {isSnoozed&&<span style={{background:"rgba(100,197,235,0.12)",color:"#2d8faf",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:700}}>Snoozed</span>}
+                      </div>
+                      <div style={{fontSize:12,color:"rgba(0,0,0,0.4)",marginTop:3}}>
+                        {FREQ_LABELS[r.frequency]} · Due {due.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+                      </div>
+                      {/* Action buttons */}
+                      <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+                        <button onClick={()=>dismissReminder(r.id)}
+                          style={{background:"rgba(100,197,235,0.1)",border:"1px solid rgba(100,197,235,0.25)",borderRadius:8,padding:"5px 12px",fontSize:12,fontWeight:700,color:"#2d8faf",cursor:"pointer",fontFamily:"inherit"}}>
+                          ✓ {r.frequency==="once"?"Dismiss":"Done, next cycle"}
+                        </button>
+                        <button onClick={()=>{setSnoozeId(snoozeId===r.id?null:r.id);setSnoozeDate("");}}
+                          style={{background:"rgba(254,179,38,0.1)",border:"1px solid rgba(254,179,38,0.25)",borderRadius:8,padding:"5px 12px",fontSize:12,fontWeight:700,color:"#b8860b",cursor:"pointer",fontFamily:"inherit"}}>
+                          ⏰ Snooze
+                        </button>
+                        <button onClick={()=>deleteReminder(r.id)}
+                          style={{background:"rgba(232,77,138,0.08)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"#E84D8A",cursor:"pointer",fontFamily:"inherit"}}>
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0,marginLeft:8}}>
-                    <span style={{background:st.bg,color:st.color,borderRadius:20,padding:"3px 10px",fontSize:12,fontWeight:700,whiteSpace:"nowrap"}}>{st.label}</span>
-                    <button onClick={()=>deleteReminder(r.id)}
-                      style={{background:"none",border:"none",cursor:"pointer",padding:4,color:"rgba(0,0,0,0.25)"}}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                  </div>
+                  {/* Snooze date picker */}
+                  {snoozeId===r.id&&(
+                    <div style={{padding:"0 16px 14px",display:"flex",gap:8,alignItems:"center"}} className="slide-in">
+                      <input type="date" value={snoozeDate} onChange={e=>setSnoozeDate(e.target.value)}
+                        min={new Date().toISOString().slice(0,10)}
+                        style={{...inp,flex:1,fontSize:13,padding:"9px 12px"}}/>
+                      <button onClick={()=>{if(snoozeDate){snoozeReminder(r.id,snoozeDate);setSnoozeId(null);}}}
+                        style={{background:p.accent,border:"none",borderRadius:10,padding:"9px 16px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+                        Set Date
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}
