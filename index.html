@@ -885,28 +885,83 @@ function DesktopShell({user, onSignOut}){
   const swPending = swM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
   const snPending = snM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
 
-  const navItems = [
-    { id:"dashboard", label:"Overview",    icon:"grid", badge:null },
-    { id:"sw",        label:"Sir Walters", icon:"home", badge:swPending||null, accent:"#7F58AF" },
-    { id:"snap",      label:"Snapdragon",  icon:"leaf", badge:snPending||null, accent:"#64C5EB" },
-  ];
-
-  // Hamburger icon SVG
   const MenuIcon = () => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2.5" strokeLinecap="round">
-      <line x1="3" y1="6" x2="21" y2="6"/>
-      <line x1="3" y1="12" x2="21" y2="12"/>
-      <line x1="3" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
     </svg>
   );
 
   const NavIcon = ({icon, active}) => {
-    const stroke = active ? "#fff" : "rgba(0,0,0,0.45)";
-    if (icon==="grid") return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>;
-    if (icon==="home") return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>;
-    if (icon==="leaf") return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>;
+    const s = active ? "#fff" : "rgba(0,0,0,0.45)";
+    if(icon==="grid")    return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>;
+    if(icon==="home")    return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>;
+    if(icon==="leaf")    return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>;
+    if(icon==="vendors") return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M19 8v6M22 11h-6"/></svg>;
+    if(icon==="schedule") return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
     return null;
   };
+
+  // Nav structure: top-level items + sub-items per property
+  const sections = [
+    {
+      id:"dashboard", label:"Overview", icon:"grid", badge:null, accent:"#7F58AF", sub:[]
+    },
+    {
+      id:"sw", label:"Sir Walters", icon:"home", badge:swPending||null, accent:"#7F58AF",
+      sub:[
+        {id:"sw-vendors",  label:"Vendors",  icon:"vendors",  accent:"#7F58AF"},
+        {id:"sw-schedule", label:"Schedule", icon:"schedule", accent:"#7F58AF"},
+      ]
+    },
+    {
+      id:"snap", label:"Snapdragon", icon:"leaf", badge:snPending||null, accent:"#64C5EB",
+      sub:[
+        {id:"snap-vendors",  label:"Vendors",  icon:"vendors",  accent:"#64C5EB"},
+        {id:"snap-schedule", label:"Schedule", icon:"schedule", accent:"#64C5EB"},
+      ]
+    },
+  ];
+
+  // Which top-level section is active (for showing sub-items)
+  const activeTop = panel.includes("-") ? panel.split("-")[0] : panel;
+
+  function NavBtn({item, depth=0}){
+    const active = panel === item.id;
+    const isTop  = depth === 0;
+    return(
+      <button onClick={()=>setPanel(item.id)}
+        style={{
+          width:"100%", display:"flex", alignItems:"center",
+          justifyContent: collapsed ? "center" : "flex-start",
+          gap: collapsed ? 0 : 9,
+          padding: collapsed ? "5px 0" : isTop ? "7px 10px" : "5px 10px 5px 16px",
+          borderRadius:8, border:"none",
+          background: active ? `${item.accent||"#7F58AF"}18` : "transparent",
+          cursor:"pointer", fontFamily:"inherit", marginBottom:1,
+          position:"relative"
+        }}>
+        <div style={{
+          width: isTop?32:26, height: isTop?32:26, borderRadius: isTop?8:7, flexShrink:0,
+          background: active ? (item.accent||"#7F58AF") : isTop?"rgba(0,0,0,0.06)":"transparent",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          position:"relative", transition:"background 0.15s"
+        }}>
+          <NavIcon icon={item.icon} active={active}/>
+          {collapsed && item.badge>0 && (
+            <span style={{position:"absolute",top:-4,right:-4,background:"#E84D8A",color:"#fff",borderRadius:10,padding:"0 4px",fontSize:9,fontWeight:700,lineHeight:"15px",minWidth:15,textAlign:"center"}}>{item.badge}</span>
+          )}
+        </div>
+        {!collapsed && (
+          <>
+            <span style={{fontSize: isTop?13:12, fontWeight:active?700:isTop?500:400, color:active?(item.accent||"#7F58AF"):"rgba(0,0,0,0.55)", flex:1, textAlign:"left", whiteSpace:"nowrap"}}>
+              {item.label}
+            </span>
+            {item.badge>0 && <span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:11,fontWeight:700}}>{item.badge}</span>}
+          </>
+        )}
+      </button>
+    );
+  }
 
   return(
     <div style={{display:"flex",height:"100vh",overflow:"hidden"}}>
@@ -921,14 +976,8 @@ function DesktopShell({user, onSignOut}){
         transition:"width 0.22s cubic-bezier(0.4,0,0.2,1)",
         overflow:"hidden"
       }}>
-
-        {/* Top bar — toggle button + logo */}
-        <div style={{
-          display:"flex", alignItems:"center",
-          padding: collapsed ? "18px 0 14px" : "18px 12px 14px",
-          justifyContent: collapsed ? "center" : "flex-start",
-          gap:10, flexShrink:0
-        }}>
+        {/* Top bar */}
+        <div style={{display:"flex",alignItems:"center",padding:collapsed?"18px 0 14px":"18px 12px 14px",justifyContent:collapsed?"center":"flex-start",gap:10,flexShrink:0}}>
           <button onClick={()=>setCollapsed(c=>!c)}
             style={{width:32,height:32,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
             <MenuIcon/>
@@ -941,58 +990,25 @@ function DesktopShell({user, onSignOut}){
           )}
         </div>
 
-        {/* Nav items */}
-        <div style={{flex:1, padding: collapsed ? "4px 6px" : "4px 10px", overflowY:"auto"}}>
-          {navItems.map(item => {
-            const active = panel === item.id;
-            return (
-              <button key={item.id} onClick={()=>setPanel(item.id)}
-                style={{
-                  width:"100%", display:"flex", alignItems:"center",
-                  justifyContent: collapsed ? "center" : "flex-start",
-                  gap: collapsed ? 0 : 10,
-                  padding: collapsed ? "6px 0" : "8px 10px",
-                  borderRadius:8, border:"none",
-                  background: active ? "rgba(127,88,175,0.12)" : "transparent",
-                  cursor:"pointer", fontFamily:"inherit", marginBottom:2,
-                  position:"relative"
-                }}>
-                {/* Icon badge container */}
-                <div style={{
-                  width:32, height:32, borderRadius:8, flexShrink:0,
-                  background: active ? (item.accent||"#7F58AF") : "rgba(0,0,0,0.06)",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  position:"relative", transition:"background 0.15s"
-                }}>
-                  <NavIcon icon={item.icon} active={active}/>
-                  {/* Badge dot on icon when collapsed */}
-                  {collapsed && item.badge>0 && (
-                    <span style={{position:"absolute",top:-4,right:-4,background:"#E84D8A",color:"#fff",borderRadius:10,padding:"0 4px",fontSize:9,fontWeight:700,lineHeight:"15px",minWidth:15,textAlign:"center"}}>
-                      {item.badge}
-                    </span>
-                  )}
+        {/* Nav sections */}
+        <div style={{flex:1,padding:collapsed?"4px 6px":"4px 10px",overflowY:"auto"}}>
+          {sections.map(item=>(
+            <div key={item.id}>
+              <NavBtn item={item} depth={0}/>
+              {/* Sub-items shown when this section is active and sidebar is expanded */}
+              {!collapsed && activeTop===item.id && item.sub.length>0 && (
+                <div style={{marginBottom:4}}>
+                  {item.sub.map(sub=>(
+                    <NavBtn key={sub.id} item={sub} depth={1}/>
+                  ))}
                 </div>
-                {/* Label + badge when expanded */}
-                {!collapsed && (
-                  <>
-                    <span style={{fontSize:13,fontWeight:active?700:500,color:active?"#1C1C1E":"rgba(0,0,0,0.55)",flex:1,textAlign:"left",whiteSpace:"nowrap"}}>{item.label}</span>
-                    {item.badge>0 && <span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:11,fontWeight:700}}>{item.badge}</span>}
-                  </>
-                )}
-              </button>
-            );
-          })}
+              )}
+            </div>
+          ))}
         </div>
 
         {/* User row */}
-        <div style={{
-          padding: collapsed ? "10px 0 24px" : "12px 12px 24px",
-          borderTop:"1px solid rgba(0,0,0,0.07)",
-          display:"flex", alignItems:"center",
-          justifyContent: collapsed ? "center" : "flex-start",
-          gap: collapsed ? 0 : 10, flexShrink:0,
-          flexDirection: collapsed ? "column" : "row"
-        }}>
+        <div style={{padding:collapsed?"10px 0 24px":"12px 12px 24px",borderTop:"1px solid rgba(0,0,0,0.07)",display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:collapsed?0:10,flexShrink:0,flexDirection:collapsed?"column":"row"}}>
           {user?.picture
             ? <img src={user.picture} style={{width:30,height:30,borderRadius:15,flexShrink:0}} alt=""/>
             : <div style={{width:30,height:30,borderRadius:15,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:12,fontWeight:700,flexShrink:0}}>{user?.name?.[0]||"?"}</div>
@@ -1003,12 +1019,9 @@ function DesktopShell({user, onSignOut}){
                 <div style={{fontSize:12,fontWeight:700,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
                 <div style={{fontSize:10,color:"rgba(0,0,0,0.35)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.email||""}</div>
               </div>
-              <button onClick={onSignOut} title="Sign out"
-                style={{background:"none",border:"none",cursor:"pointer",padding:4,borderRadius:6,flexShrink:0}}>
+              <button onClick={onSignOut} title="Sign out" style={{background:"none",border:"none",cursor:"pointer",padding:4,borderRadius:6,flexShrink:0}}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                  <polyline points="16 17 21 12 16 7"/>
-                  <line x1="21" y1="12" x2="9" y2="12"/>
+                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
               </button>
             </>
@@ -1018,9 +1031,13 @@ function DesktopShell({user, onSignOut}){
 
       {/* ── Main Content ── */}
       <div style={{flex:1,overflow:"auto",background:"#f0f0f5"}}>
-        {panel==="dashboard" && <DashboardDesktop onNav={setPanel}/>}
-        {panel==="sw"        && <PropAppDesktop pk="sw"   onNav={setPanel}/>}
-        {panel==="snap"      && <PropAppDesktop pk="snap" onNav={setPanel}/>}
+        {panel==="dashboard"    && <DashboardDesktop onNav={setPanel}/>}
+        {panel==="sw"           && <PropAppDesktop pk="sw"   onNav={setPanel}/>}
+        {panel==="snap"         && <PropAppDesktop pk="snap" onNav={setPanel}/>}
+        {panel==="sw-vendors"   && <PropAppDesktop pk="sw"   onNav={setPanel} startScreen="manage"/>}
+        {panel==="snap-vendors" && <PropAppDesktop pk="snap" onNav={setPanel} startScreen="manage"/>}
+        {panel==="sw-schedule"  && <PropAppDesktop pk="sw"   onNav={setPanel} startScreen="schedule"/>}
+        {panel==="snap-schedule"&& <PropAppDesktop pk="snap" onNav={setPanel} startScreen="schedule"/>}
       </div>
     </div>
   );
@@ -1141,10 +1158,10 @@ function DashboardDesktop({onNav}){
 }
 
 // ─── Desktop Property App wrapper ─────────────────────────────────────────────
-function PropAppDesktop({pk,onNav}){
+function PropAppDesktop({pk, onNav, startScreen}){
   const p=PROPERTIES[pk];
   const { months, vendors, synced, error, updateMonth, addMonth, deleteMonth, saveVendors } = useSupabaseData(pk, p.vendors, p.seed);
-  const [subScreen,setSubScreen]=useState("home");
+  const [subScreen,setSubScreen]=useState(startScreen||"home");
   const [activeId,setActiveId]=useState(null);
   const [viewId,setViewId]=useState(null);
 
@@ -1175,8 +1192,8 @@ function PropAppDesktop({pk,onNav}){
       <div style={{padding:"20px 32px 0",display:"flex",alignItems:"center",gap:8}}>
         <span style={{fontSize:13,color:"rgba(0,0,0,0.35)",cursor:"pointer"}} onClick={()=>onNav("dashboard")}>Overview</span>
         <span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span>
-        <span style={{fontSize:13,fontWeight:600,color:"#1C1C1E"}}>{p.label}</span>
-        {subScreen!=="home"&&<><span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span><span style={{fontSize:13,fontWeight:600,color:p.accent,cursor:"pointer"}} onClick={goHome}>{subScreen==="bills"?"Pay Bills":subScreen==="manage"?"Vendors":subScreen==="history"?"History":subScreen==="new"?"New Month":subScreen==="schedule"?"Schedule":"View"}</span></>}
+        <span style={{fontSize:13,fontWeight:600,color:"#1C1C1E",cursor:"pointer"}} onClick={goHome}>{p.label}</span>
+        {subScreen!=="home"&&<><span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span><span style={{fontSize:13,fontWeight:600,color:p.accent}}>{subScreen==="bills"?"Pay Bills":subScreen==="manage"?"Vendors":subScreen==="history"?"History":subScreen==="new"?"New Month":subScreen==="schedule"?"Schedule":"View"}</span></>}
       </div>
       <div style={{maxWidth:800,margin:"0 auto",padding:"16px 32px 48px"}}>
         {subScreen==="home"     &&<PropHomeDesktop p={p} active={active} closed={closed} onOpen={id=>{setActiveId(id);setSubScreen("bills");}} onNew={()=>setSubScreen("new")} onManage={()=>setSubScreen("manage")} onHistory={()=>setSubScreen("history")} onDelete={deleteMonth} onSchedule={()=>setSubScreen("schedule")}/>}
