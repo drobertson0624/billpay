@@ -2048,11 +2048,11 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
             {month.startingBalance?fmt(month.startingBalance):"Set Balance"}
           </button>
         </div>
-        {/* Segmented Control */}
+        {/* Tabs */}
         <div style={{display:"flex",background:"rgba(0,0,0,0.04)",borderRadius:10,padding:3,marginBottom:0}}>
-          {[["pay","Pay Bills"],["all","All Bills"],["summary","Summary"]].map(([t,l])=>(
+          {[["pay","Bills"],["all","All Bills"],["summary","Summary"]].map(([t,l])=>(
             <button key={t} onClick={()=>setTab(t)}
-              style={{flex:1,padding:"7px 0",borderRadius:8,border:"none",background:tab===t?"#ffffff":"transparent",color:tab===t?"#7F58AF":"rgba(0,0,0,0.4)",fontWeight:tab===t?700:600,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all 0.2s"}}>
+              style={{flex:1,padding:"7px 0",borderRadius:8,border:"none",background:tab===t?"#ffffff":"transparent",color:tab===t?"#7F58AF":"rgba(0,0,0,0.4)",fontWeight:tab===t?700:600,fontSize:13,cursor:"pointer",fontFamily:"inherit",transition:"all 0.2s"}}>
               {l}
             </button>
           ))}
@@ -2061,7 +2061,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
 
       {/* Balance Modal */}
       {showBal&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.35)",backdropFilter:"blur(20px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:200,padding:"0 0 0"}} onClick={()=>setShowBal(false)}>
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.35)",backdropFilter:"blur(20px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:200}} onClick={()=>setShowBal(false)}>
           <div style={{background:"#ffffff",borderRadius:"20px 20px 0 0",padding:"20px 20px 40px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
             <div style={{width:36,height:4,background:"rgba(0,0,0,0.15)",borderRadius:2,margin:"0 auto 20px"}}/>
             <div style={{fontSize:20,fontWeight:700,color:"#1C1C1E",marginBottom:20}}>Bank Balance</div>
@@ -2076,157 +2076,130 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
       )}
 
       <div style={{padding:"20px 16px 0"}}>
-        {/* PAY TAB */}
-        {tab==="pay"&&(
-          <div>
-            {allDone&&(
-              <div style={{background:"linear-gradient(135deg,rgba(100,197,235,0.15),rgba(48,209,88,0.1))",border:"1px solid rgba(100,197,235,0.3)",borderRadius:18,padding:"20px 22px",marginBottom:20,display:"flex",alignItems:"center",gap:14}}>
-                <div style={{fontSize:36}}>🎉</div>
-                <div>
-                  <div style={{fontSize:17,fontWeight:700,color:"#1C1C1E"}}>All done!</div>
-                  <div style={{fontSize:13,color:"rgba(0,0,0,0.45)",marginTop:3}}>Every bill is taken care of this month.</div>
-                  <button onClick={()=>setTab("summary")} style={{marginTop:10,background:p.accent,border:"none",borderRadius:10,padding:"8px 18px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>View Summary →</button>
-                </div>
-              </div>
-            )}
+        {/* ── BILLS TAB — Schedule + Pay combined ── */}
+        {tab==="pay"&&(()=>{
+          const HALF_CATS = ["1ST","2ND","Tithes","Amazon","Chase United","Monthly","Quarterly"];
+          function parseDueDay(dd){ if(!dd||dd==="—") return 99; const n=parseInt(dd); return isNaN(n)?99:n; }
 
-            {/* ── Pending checklist ── */}
-            {pending.length>0&&(
-              <div style={{marginBottom:16}}>
-                <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,padding:"0 2px"}}>
-                  To Pay · {pending.length} left
-                </div>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {pending.map(b=>{
-                    const vendor  = vendors.find(v=>v.id===b.vendorId);
-                    const isOpen  = editing===b.id;
-                    const needsAmt= !b.amount || b.amount===0;
-                    return(
-                      <div key={b.id} style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-                        {/* Main row */}
-                        <div style={{display:"flex",alignItems:"center",padding:"14px 16px",gap:14}}>
+          function getSection(b){
+            const v=vendors.find(x=>x.id===b.vendorId);
+            if(!HALF_CATS.includes(v?.category)) return "as-needed";
+            return parseDueDay(b.dueDate)<=15?"first":"second";
+          }
+          const firstHalf  = bills.filter(b=>getSection(b)==="first").sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
+          const secondHalf = bills.filter(b=>getSection(b)==="second").sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
+          const asNeeded   = bills.filter(b=>getSection(b)==="as-needed");
 
-                          {/* Big checkbox — tap to pay (or open amount if needed) */}
-                          <button onClick={()=>{
-                            if(needsAmt){ startEdit(b); }
-                            else{ setEditAmt(b.amount); setEditNote(b.note||""); setEditing(b.id); confirmPay(); }
-                          }}
-                            style={{width:32,height:32,borderRadius:10,border:`2px solid ${p.accent}`,background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
-                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke={p.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                          </button>
-
-                          {/* Info */}
-                          <div style={{flex:1,minWidth:0}} onClick={()=>isOpen?setEditing(null):startEdit(b)} style={{flex:1,minWidth:0,cursor:"pointer"}}>
-                            <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{b.vendorName}</div>
-                            <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:1}}>{b.account}{b.dueDate&&b.dueDate!=="—"?` · Due ${b.dueDate}`:""}</div>
-                            {/* Pay online / phone links */}
-                            {(vendor?.url||vendor?.phone)&&(
-                              <div style={{display:"flex",gap:12,marginTop:5,flexWrap:"wrap"}} onClick={e=>e.stopPropagation()}>
-                                {vendor.url&&<a href={vendor.url} target="_blank" rel="noopener noreferrer" style={{fontSize:12,fontWeight:700,color:p.accent,textDecoration:"none",display:"flex",alignItems:"center",gap:3}}>
-                                  <LinkIcon size={12} color={p.accent}/> Pay Online
-                                </a>}
-                                {vendor.phone&&<a href={`tel:${vendor.phone.replace(/[^0-9+]/g,"")}`} style={{fontSize:12,fontWeight:700,color:"#7F58AF",textDecoration:"none",display:"flex",alignItems:"center",gap:3}}>
-                                  <PhoneIcon size={12} color="#7F58AF"/> {vendor.phone}
-                                </a>}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Amount + skip */}
-                          <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-                            {b.amount>0
-                              ? <span style={{fontSize:16,fontWeight:700,color:"#1C1C1E"}}>{fmt(b.amount)}</span>
-                              : <span style={{fontSize:13,fontWeight:600,color:"rgba(0,0,0,0.3)",background:"rgba(0,0,0,0.05)",borderRadius:8,padding:"4px 10px"}}>Enter amt</span>
-                            }
-                            <button onClick={e=>{e.stopPropagation();skipBill(b.id);}}
-                              style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"rgba(0,0,0,0.38)",cursor:"pointer",fontFamily:"inherit"}}>
-                              Skip
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Inline amount entry — slides open when tapped */}
-                        {isOpen&&(
-                          <div style={{padding:"0 16px 16px",borderTop:"1px solid rgba(0,0,0,0.06)",paddingTop:14}} className="slide-in">
-                            <div style={{display:"flex",alignItems:"center",background:"rgba(0,0,0,0.04)",borderRadius:12,padding:"4px 14px",marginBottom:10,border:"1px solid rgba(0,0,0,0.09)"}}>
-                              <span style={{fontSize:18,color:"rgba(0,0,0,0.28)",marginRight:8,fontWeight:300}}>$</span>
-                              <input autoFocus type="number" value={editAmt} onChange={e=>setEditAmt(e.target.value)}
-                                onKeyDown={e=>e.key==="Enter"&&confirmPay()}
-                                style={{flex:1,background:"none",border:"none",outline:"none",fontSize:22,fontWeight:700,color:"#1C1C1E",padding:"8px 0",fontFamily:"inherit"}}/>
-                            </div>
-                            <input type="text" value={editNote} onChange={e=>setEditNote(e.target.value)}
-                              placeholder="Confirmation # (optional)"
-                              style={{width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:12,padding:"10px 14px",fontSize:14,color:"#1C1C1E",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
-                            <div style={{display:"flex",gap:8}}>
-                              <button onClick={confirmPay}
-                                style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:"12px",fontSize:15,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
-                                ✓ Mark Paid
-                              </button>
-                              <button onClick={saveAmount}
-                                style={{background:"rgba(127,88,175,0.1)",border:"1px solid rgba(127,88,175,0.15)",borderRadius:12,padding:"12px 16px",fontSize:14,fontWeight:600,color:"#7F58AF",cursor:"pointer",fontFamily:"inherit"}}>
-                                💾 Save
-                              </button>
-                              <button onClick={()=>setEditing(null)}
-                                style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:12,padding:"12px 14px",fontSize:14,color:"rgba(0,0,0,0.4)",cursor:"pointer",fontFamily:"inherit"}}>
-                                ✕
-                              </button>
-                            </div>
-                          </div>
-                        )}
+          function BillCard({b}){
+            const vendor   = vendors.find(v=>v.id===b.vendorId);
+            const isOpen   = editing===b.id;
+            const isPaid   = b.status==="paid";
+            const isSkipped= b.status==="skipped";
+            const needsAmt = !b.amount||b.amount===0;
+            return(
+              <div style={{background:isPaid?"rgba(100,197,235,0.04)":isSkipped?"rgba(0,0,0,0.02)":"#fff",borderRadius:16,overflow:"hidden",border:isPaid?"1px solid rgba(100,197,235,0.18)":isSkipped?"1px dashed rgba(0,0,0,0.08)":"1px solid rgba(0,0,0,0.07)",boxShadow:isPaid||isSkipped?"none":"0 1px 4px rgba(0,0,0,0.04)",opacity:isSkipped?0.65:1}}>
+                <div style={{display:"flex",alignItems:"center",padding:"13px 16px",gap:13}}>
+                  {/* Checkbox */}
+                  {isPaid?(
+                    <button onClick={()=>unpay(b.id)} style={{width:30,height:30,borderRadius:9,background:"#64C5EB",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </button>
+                  ):isSkipped?(
+                    <button onClick={()=>unpay(b.id)} style={{width:30,height:30,borderRadius:9,border:"2px dashed rgba(0,0,0,0.2)",background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}} title="Undo skip">
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><line x1="3" y1="3" x2="9" y2="9" stroke="rgba(0,0,0,0.3)" strokeWidth="2" strokeLinecap="round"/><line x1="9" y1="3" x2="3" y2="9" stroke="rgba(0,0,0,0.3)" strokeWidth="2" strokeLinecap="round"/></svg>
+                    </button>
+                  ):(
+                    <button onClick={()=>{ if(needsAmt){startEdit(b);}else{setEditAmt(b.amount);setEditNote(b.note||"");setEditing(b.id);confirmPay();} }}
+                      style={{width:30,height:30,borderRadius:9,border:`2px solid ${p.accent}`,background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke={p.accent+"60"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </button>
+                  )}
+                  {/* Info */}
+                  <div style={{flex:1,minWidth:0,cursor:isPaid||isSkipped?"default":"pointer"}} onClick={()=>{ if(isPaid||isSkipped) return; isOpen?setEditing(null):startEdit(b); }}>
+                    <div style={{fontSize:14,fontWeight:isPaid?500:600,color:isPaid?"rgba(0,0,0,0.38)":isSkipped?"rgba(0,0,0,0.32)":"#1C1C1E",textDecoration:isPaid?"line-through":"none",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</div>
+                    {!isPaid&&!isSkipped&&<div style={{fontSize:11,color:"rgba(0,0,0,0.35)",marginTop:1}}>{b.account}{b.dueDate&&b.dueDate!=="—"?` · Due ${b.dueDate}`:""}</div>}
+                    {!isPaid&&!isSkipped&&(vendor?.url||vendor?.phone)&&(
+                      <div style={{display:"flex",gap:10,marginTop:4,flexWrap:"wrap"}} onClick={e=>e.stopPropagation()}>
+                        {vendor.url&&<a href={vendor.url} target="_blank" rel="noopener noreferrer" style={{fontSize:11,fontWeight:700,color:p.accent,textDecoration:"none",display:"flex",alignItems:"center",gap:2}}><LinkIcon size={11} color={p.accent}/> Pay Online</a>}
+                        {vendor.phone&&<a href={"tel:"+vendor.phone.replace(/[^0-9+]/g,"")} style={{fontSize:11,fontWeight:700,color:"#7F58AF",textDecoration:"none",display:"flex",alignItems:"center",gap:2}}><PhoneIcon size={11} color="#7F58AF"/> {vendor.phone}</a>}
                       </div>
-                    );
-                  })}
+                    )}
+                  </div>
+                  {/* Amount + action */}
+                  <div style={{display:"flex",alignItems:"center",gap:7,flexShrink:0}}>
+                    {isPaid
+                      ? <span style={{fontSize:14,fontWeight:700,color:"#64C5EB"}}>{fmt(b.amount)}</span>
+                      : isSkipped
+                        ? <span style={{fontSize:11,color:"rgba(0,0,0,0.3)"}}>Skipped</span>
+                        : b.amount>0
+                          ? <span style={{fontSize:15,fontWeight:700,color:"#1C1C1E"}}>{fmt(b.amount)}</span>
+                          : <span style={{fontSize:11,fontWeight:600,color:"rgba(0,0,0,0.3)",background:"rgba(0,0,0,0.05)",borderRadius:7,padding:"3px 8px"}}>Enter amt</span>
+                    }
+                    {!isPaid&&!isSkipped&&(
+                      <button onClick={e=>{e.stopPropagation();skipBill(b.id);}} style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:7,padding:"3px 8px",fontSize:11,color:"rgba(0,0,0,0.32)",cursor:"pointer",fontFamily:"inherit"}}>Skip</button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* ── Paid checklist (collapsed) ── */}
-            {paid.length>0&&(
-              <div style={{marginBottom:16}}>
-                <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,padding:"0 2px",display:"flex",justifyContent:"space-between"}}>
-                  <span>Paid · {paid.length}</span>
-                  <span style={{color:"#64C5EB"}}>{fmt(paid.reduce((s,b)=>s+b.amount,0))}</span>
-                </div>
-                <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                  {paid.map(b=>(
-                    <div key={b.id} style={{background:"#fff",borderRadius:14,padding:"12px 16px",border:"1px solid rgba(100,197,235,0.15)",display:"flex",alignItems:"center",gap:14,opacity:0.8}}>
-                      {/* Filled checkbox */}
-                      <div style={{width:28,height:28,borderRadius:9,background:"#64C5EB",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      </div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:14,fontWeight:500,color:"rgba(0,0,0,0.45)",textDecoration:"line-through",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</div>
-                        {b.note&&<div style={{fontSize:11,color:"rgba(0,0,0,0.28)",marginTop:1}}>{b.note}</div>}
-                      </div>
-                      <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-                        <span style={{fontSize:14,fontWeight:700,color:"#64C5EB"}}>{fmt(b.amount)}</span>
-                        <button onClick={()=>unpay(b.id)} style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:7,padding:"3px 9px",fontSize:11,color:"rgba(0,0,0,0.3)",cursor:"pointer",fontFamily:"inherit"}}>Undo</button>
-                      </div>
+                {/* Inline amount input */}
+                {isOpen&&(
+                  <div style={{padding:"0 16px 13px",borderTop:"1px solid rgba(0,0,0,0.06)",paddingTop:12}} className="slide-in">
+                    <div style={{display:"flex",alignItems:"center",background:"rgba(0,0,0,0.04)",borderRadius:12,padding:"4px 14px",marginBottom:10,border:"1px solid rgba(0,0,0,0.09)"}}>
+                      <span style={{fontSize:18,color:"rgba(0,0,0,0.28)",marginRight:8,fontWeight:300}}>$</span>
+                      <input autoFocus type="number" value={editAmt} onChange={e=>setEditAmt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&confirmPay()}
+                        style={{flex:1,background:"none",border:"none",outline:"none",fontSize:22,fontWeight:700,color:"#1C1C1E",padding:"7px 0",fontFamily:"inherit"}}/>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ── Skipped ── */}
-            {skipped.length>0&&(
-              <div style={{marginBottom:16}}>
-                <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.25)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8,padding:"0 2px"}}>Skipped · {skipped.length}</div>
-                <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                  {skipped.map(b=>(
-                    <div key={b.id} style={{background:"rgba(0,0,0,0.03)",borderRadius:14,padding:"11px 16px",border:"1px dashed rgba(0,0,0,0.08)",display:"flex",alignItems:"center",gap:14}}>
-                      <div style={{width:28,height:28,borderRadius:9,border:"2px dashed rgba(0,0,0,0.15)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><line x1="4" y1="4" x2="12" y2="12" stroke="rgba(0,0,0,0.25)" strokeWidth="2" strokeLinecap="round"/><line x1="12" y1="4" x2="4" y2="12" stroke="rgba(0,0,0,0.25)" strokeWidth="2" strokeLinecap="round"/></svg>
-                      </div>
-                      <div style={{flex:1,fontSize:14,fontWeight:400,color:"rgba(0,0,0,0.3)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</div>
+                    <input type="text" value={editNote} onChange={e=>setEditNote(e.target.value)} placeholder="Confirmation # (optional)"
+                      style={{width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:12,padding:"9px 14px",fontSize:14,color:"#1C1C1E",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
+                    <div style={{display:"flex",gap:8}}>
+                      <button onClick={confirmPay} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:"11px",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>✓ Mark Paid</button>
+                      <button onClick={saveAmount} style={{background:"rgba(127,88,175,0.1)",border:"1px solid rgba(127,88,175,0.15)",borderRadius:12,padding:"11px 14px",fontSize:13,fontWeight:600,color:"#7F58AF",cursor:"pointer",fontFamily:"inherit"}}>💾 Save</button>
+                      <button onClick={()=>setEditing(null)} style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:12,padding:"11px 13px",fontSize:13,color:"rgba(0,0,0,0.4)",cursor:"pointer",fontFamily:"inherit"}}>✕</button>
                     </div>
-                  ))}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          function Section({title, accentColor, items}){
+            if(items.length===0) return null;
+            const secPending = items.filter(b=>b.status==="pending").length;
+            const secPaid    = items.filter(b=>b.status==="paid").reduce((s,b)=>s+b.amount,0);
+            return(
+              <div style={{marginBottom:22}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,padding:"0 2px"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{width:10,height:10,borderRadius:5,background:accentColor}}/>
+                    <span style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.45)",textTransform:"uppercase",letterSpacing:"0.06em"}}>{title}</span>
+                    {secPending>0&&<span style={{background:"rgba(254,179,38,0.15)",color:"#b8860b",borderRadius:20,padding:"1px 8px",fontSize:11,fontWeight:700}}>{secPending} left</span>}
+                  </div>
+                  {secPaid>0&&<span style={{fontSize:12,fontWeight:700,color:"#64C5EB"}}>{fmt(secPaid)} paid</span>}
+                </div>
+                <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                  {items.map(b=><BillCard key={b.id} b={b}/>)}
                 </div>
               </div>
-            )}
-          </div>
-        )}
+            );
+          }
 
+          return(
+            <div>
+              {allDone&&(
+                <div style={{background:"linear-gradient(135deg,rgba(100,197,235,0.15),rgba(48,209,88,0.1))",border:"1px solid rgba(100,197,235,0.3)",borderRadius:18,padding:"18px 20px",marginBottom:20,display:"flex",alignItems:"center",gap:14}}>
+                  <div style={{fontSize:32}}>🎉</div>
+                  <div>
+                    <div style={{fontSize:16,fontWeight:700,color:"#1C1C1E"}}>All done!</div>
+                    <div style={{fontSize:13,color:"rgba(0,0,0,0.45)",marginTop:2}}>Every bill taken care of this month.</div>
+                    <button onClick={()=>setTab("summary")} style={{marginTop:8,background:p.accent,border:"none",borderRadius:10,padding:"7px 16px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>View Summary →</button>
+                  </div>
+                </div>
+              )}
+              <Section title="1st Half · 1st–15th"  accentColor="#7F58AF" items={firstHalf}/>
+              <Section title="2nd Half · 16th–31st" accentColor="#64C5EB" items={secondHalf}/>
+              <Section title="Yearly & As Needed"   accentColor="#FEB326" items={asNeeded}/>
+            </div>
+          );
+        })()}
         {/* ALL BILLS TAB */}
         {tab==="all"&&(
           <div>
