@@ -1988,6 +1988,11 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
   const allDone=bills.length>0&&pending.length===0;
 
   function startEdit(b){setEditing(b.id);setEditAmt(b.amount||"");setEditNote(b.note||"");}
+  function saveAmount(){
+    const amt=parseFloat(editAmt)||0;
+    onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===editing?{...b,amount:amt,note:editNote}:b)}));
+    setEditing(null);
+  }
   function confirmPay(){
     const amt=parseFloat(editAmt)||0;
     const old=bills.find(b=>b.id===editing);
@@ -2114,9 +2119,19 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                           </div>
                           <input type="text" value={editNote} onChange={e=>setEditNote(e.target.value)} placeholder="Note or confirmation # (optional)"
                             style={{width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:12,padding:"11px 14px",fontSize:14,color:"#1C1C1E",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:12}}/>
-                          <div style={{display:"flex",gap:8}}>
-                            <button onClick={confirmPay} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:"13px",fontSize:15,fontWeight:600,color:"#ffffff",cursor:"pointer",fontFamily:"inherit"}}>✓ Mark Paid</button>
-                            <button onClick={()=>setEditing(null)} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+                          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                            <button onClick={saveAmount}
+                              style={{flex:1,background:"rgba(127,88,175,0.1)",border:"1px solid rgba(127,88,175,0.2)",borderRadius:12,padding:"12px",fontSize:14,fontWeight:700,color:"#7F58AF",cursor:"pointer",fontFamily:"inherit",minWidth:100}}>
+                              💾 Save Amount
+                            </button>
+                            <button onClick={confirmPay}
+                              style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:"12px",fontSize:14,fontWeight:700,color:"#ffffff",cursor:"pointer",fontFamily:"inherit",minWidth:100}}>
+                              ✓ Mark Paid
+                            </button>
+                            <button onClick={()=>setEditing(null)}
+                              style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"12px 16px",fontSize:14,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>
+                              Cancel
+                            </button>
                           </div>
                         </div>
                       )}
