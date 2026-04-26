@@ -339,7 +339,40 @@ function useSupabaseData(propKey, seedVendors, seedMonths) {
   return { months, vendors, synced, error, updateMonth, addMonth, deleteMonth, saveVendors };
 }
 
-async function seedToSupabase(propKey, seedMonths, seedVendors) {
+// ─── useLiveMonths — loads both properties' months from Supabase for dashboard ─
+function useLiveMonths(){
+  const [swMonths, setSwMonths] = useState(SW_MONTHS);
+  const [snMonths, setSnMonths] = useState(SNAP_MONTHS);
+  const [loaded,   setLoaded]   = useState(false);
+
+  useEffect(()=>{
+    let cancelled = false;
+    async function load(){
+      try{
+        const [mRows, bRows] = await Promise.all([
+          sb.select("months"),
+          sb.select("bills"),
+        ]);
+        if(cancelled) return;
+        const sw = rowsToMonths(mRows.filter(m=>m.prop_key==="sw"),  bRows);
+        const sn = rowsToMonths(mRows.filter(m=>m.prop_key==="snap"), bRows);
+        if(sw.length > 0) setSwMonths(sw);
+        if(sn.length > 0) setSnMonths(sn);
+        setLoaded(true);
+      } catch(e){
+        console.error("Dashboard load error:", e);
+        setLoaded(true);
+      }
+    }
+    load();
+    // Real-time refresh
+    const unsub1 = sb.subscribe("months", ()=>load());
+    const unsub2 = sb.subscribe("bills",  ()=>load());
+    return ()=>{ cancelled=true; unsub1(); unsub2(); };
+  }, []);
+
+  return { swMonths, snMonths, loaded };
+}
   try {
     await sb.upsert("vendors", seedVendors.map(v => vendorToRow(v, propKey)));
     for (const m of seedMonths) {
@@ -701,9 +734,7 @@ function App(){
 function MobileShell({user, onSignOut}){
   const [prop,       setProp]      = useNavState("bp_nav_mobile_prop", null);
   const [drawerOpen, setDrawerOpen]= useState(false);
-
-  const swM  = readStore("bp_months_sw",  SW_MONTHS);
-  const snM  = readStore("bp_months_snap",SNAP_MONTHS);
+  const { swMonths: swM, snMonths: snM } = useLiveMonths();
   const swPending = swM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
   const snPending = snM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
 
@@ -809,8 +840,7 @@ function PropAppWithMenu({pk, onBack, onMenu}){
 
 // ─── Mobile Dashboard ─────────────────────────────────────────────────────────
 function MobileDashboard({onSelect, user, onSignOut, onMenu}){
-  const swM = readStore("bp_months_sw",   SW_MONTHS);
-  const snM = readStore("bp_months_snap", SNAP_MONTHS);
+  const { swMonths: swM, snMonths: snM, loaded } = useLiveMonths();
   const { ytd, thisMonthSpend, lastMonthSpend, spendDelta, pendingBills,
           largest, totalBalance, totalPending, health, swStats, snStats, monthHistory } = calcDashStats(swM, snM);
   const hc  = healthConfig(health);
@@ -936,9 +966,7 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
 function DesktopShell({user, onSignOut}){
   const [panel,     setPanel]     = useNavState("bp_nav_desktop_panel", "dashboard");
   const [collapsed, setCollapsed] = useNavState("bp_nav_desktop_collapsed", false);
-
-  const swM  = readStore("bp_months_sw",  SW_MONTHS);
-  const snM  = readStore("bp_months_snap",SNAP_MONTHS);
+  const { swMonths: swM, snMonths: snM } = useLiveMonths();
   const swPending = swM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
   const snPending = snM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
 
@@ -1103,8 +1131,7 @@ function DesktopShell({user, onSignOut}){
 
 // ─── Desktop Dashboard wrapper ────────────────────────────────────────────────
 function DashboardDesktop({onNav}){
-  const swM = readStore("bp_months_sw",   SW_MONTHS);
-  const snM = readStore("bp_months_snap", SNAP_MONTHS);
+  const { swMonths: swM, snMonths: snM, loaded } = useLiveMonths();
   const { ytd, thisMonthSpend, lastMonthSpend, spendDelta, pendingBills,
           largest, totalBalance, totalPending, health, swStats, snStats, monthHistory } = calcDashStats(swM, snM);
   const hc  = healthConfig(health);
@@ -1273,7 +1300,7 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
   const [confirmId,setConfirmId]=useState(null);
   const confirmMonth=active.find(m=>m.id===confirmId);
   const allMonths=[...active,...closed];
-  const totalPaid=allMonths.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0),0);
+  const totalPaid=allMonths.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+(b.paidAmount||b.amount||0),0),0);
 
   return(
     <div>
@@ -1609,19 +1636,19 @@ function calcDashStats(swM, snM) {
   // YTD paid
   const ytd = allMonths.reduce((s,m) => {
     if (m.year !== thisYear) return s;
-    return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0);
+    return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+(b.paidAmount||b.amount||0),0);
   }, 0);
 
   // This month spending (both properties combined)
   const thisMonthSpend = allMonths.reduce((s,m) => {
     if (m.year !== thisYear || m.month !== thisMonth) return s;
-    return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0);
+    return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+(b.paidAmount||b.amount||0),0);
   }, 0);
 
   // Last month spending
   const lastMonthSpend = allMonths.reduce((s,m) => {
     if (m.year !== lastYear || m.month !== lastMonth) return s;
-    return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0);
+    return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+(b.paidAmount||b.amount||0),0);
   }, 0);
 
   const spendDelta = lastMonthSpend > 0 ? ((thisMonthSpend - lastMonthSpend) / lastMonthSpend) * 100 : null;
@@ -1651,7 +1678,7 @@ function calcDashStats(swM, snM) {
   const propStats = (months) => {
     const active = months.filter(m=>m.status!=="closed");
     const pending = active.reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
-    const paidAmt = active.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0),0);
+    const paidAmt = active.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+(b.paidAmount||b.amount||0),0),0);
     const bal     = active.reduce((s,m)=>s+m.balance,0);
     const totalBills = active.reduce((s,m)=>s+m.bills.length,0);
     const paidCount  = active.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").length,0);
@@ -1668,7 +1695,7 @@ function calcDashStats(swM, snM) {
     if (mo < 0) { mo += 12; yr -= 1; }
     const spent = allMonths.reduce((s,m) => {
       if (m.year !== yr || m.month !== mo) return s;
-      return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0);
+      return s + m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+(b.paidAmount||b.amount||0),0);
     }, 0);
     monthHistory.push({ label: MO_SHORT[mo], mo, yr, spent });
   }
@@ -1686,8 +1713,7 @@ function healthConfig(h) {
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 function Dashboard({onSelect}){
-  const swM = readStore("bp_months_sw",   SW_MONTHS);
-  const snM = readStore("bp_months_snap", SNAP_MONTHS);
+  const { swMonths: swM, snMonths: snM } = useLiveMonths();
   const { ytd, thisMonthSpend, lastMonthSpend, spendDelta, pendingBills,
           largest, totalBalance, totalPending, health, swStats, snStats, monthHistory } = calcDashStats(swM, snM);
   const hc  = healthConfig(health);
@@ -2080,26 +2106,40 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
   const pending=bills.filter(b=>b.status==="pending");
   const paid=bills.filter(b=>b.status==="paid");
   const skipped=bills.filter(b=>b.status==="skipped");
-  const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+  const paidAmt=paid.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
   const pendAmt=pending.reduce((s,b)=>s+b.amount,0);
   const allDone=bills.length>0&&pending.length===0;
 
-  function startEdit(b){setEditing(b.id);setEditAmt(b.amount||"");setEditNote(b.note||"");}
+  function startEdit(b){setEditing(b.id);setEditAmt(b.paidAmount||b.amount||"");setEditNote(b.note||"");}
   function saveAmount(){
     const amt=parseFloat(editAmt)||0;
     onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===editing?{...b,amount:amt,note:editNote}:b)}));
     setEditing(null);
   }
   function confirmPay(){
-    const amt=parseFloat(editAmt)||0;
-    const old=bills.find(b=>b.id===editing);
-    const prev=old?.status==="paid"?(old?.amount||0):0;
-    onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===editing?{...b,status:"paid",amount:amt,note:editNote,paidAt:Date.now()}:b),balance:m.balance+prev-amt}));
+    const amt = parseFloat(editAmt)||0;
+    const old = bills.find(b=>b.id===editing);
+    const prev = old?.status==="paid" ? (old?.paidAmount||old?.amount||0) : 0;
+    onUpdate(month.id, m=>({
+      bills: m.bills.map(b=>b.id===editing
+        ? {...b, status:"paid", amount:0, paidAmount:amt, note:editNote, paidAt:Date.now()}
+        : b),
+      balance: m.balance + prev - amt
+    }));
     setEditing(null);
   }
   function flagBill(id){onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===id?{...b,flagged:!b.flagged}:b)}));}
   function skipBill(id){onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===id?{...b,status:"skipped"}:b)}));}
-  function unpay(id){const b=bills.find(x=>x.id===id);onUpdate(month.id,m=>({bills:m.bills.map(x=>x.id===id?{...x,status:"pending",flagged:false}:x),balance:m.balance+(b?.amount||0)}));}
+  function unpay(id){
+    const b=bills.find(x=>x.id===id);
+    const restoreAmt = b?.paidAmount||b?.amount||0;
+    onUpdate(month.id, m=>({
+      bills: m.bills.map(x=>x.id===id
+        ? {...x, status:"pending", amount:restoreAmt, paidAmount:null, flagged:false}
+        : x),
+      balance: m.balance + restoreAmt
+    }));
+  }
   function saveBalance(){const bal=parseFloat(newBal)||0;onUpdate(month.id,()=>({startingBalance:bal,balance:bal-paidAmt}));setShowBal(false);}
   function addBill(){}
 
@@ -2314,7 +2354,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
           function Section({title, accentColor, items}){
             if(items.length===0) return null;
             const secPending = items.filter(b=>b.status==="pending").length;
-            const secPaid    = items.filter(b=>b.status==="paid").reduce((s,b)=>s+b.amount,0);
+            const secPaid    = items.filter(b=>b.status==="paid").reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
             return(
               <div style={{marginBottom:28}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:8,paddingLeft:4,paddingRight:4}}>
@@ -2375,6 +2415,38 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
               <Section title="1st Half · 1st–15th"  accentColor="#7F58AF" items={firstHalf}/>
               <Section title="2nd Half · 16th–31st" accentColor="#64C5EB" items={secondHalf}/>
               <Section title="Yearly & As Needed"   accentColor="#FEB326" items={asNeeded}/>
+
+              {/* ── Paid section ── */}
+              {paid.length>0&&(
+                <div style={{marginBottom:28}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:8,paddingLeft:4,paddingRight:4}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <div style={{width:8,height:8,borderRadius:4,background:"#34C759"}}/>
+                      <span style={{fontSize:13,fontWeight:400,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em"}}>Paid · {paid.length}</span>
+                    </div>
+                    <span style={{fontSize:13,color:"#34C759",fontWeight:600}}>{fmt(paidAmt)} total</span>
+                  </div>
+                  <div style={{background:"#fff",borderRadius:12,overflow:"hidden"}}>
+                    {paid.map((b,i)=>(
+                      <div key={b.id} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:i<paid.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
+                        {/* Green filled check — tap to undo */}
+                        <button onClick={()=>unpay(b.id)}
+                          style={{width:26,height:26,borderRadius:13,background:"#34C759",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}>
+                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </button>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:16,color:"#8E8E93",textDecoration:"line-through",letterSpacing:"-0.2px",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</div>
+                          {b.note&&<div style={{fontSize:12,color:"#C7C7CC",marginTop:1}}>{b.note}</div>}
+                        </div>
+                        <div style={{textAlign:"right",flexShrink:0,marginLeft:12}}>
+                          <div style={{fontSize:16,color:"#C7C7CC",letterSpacing:"-0.3px"}}>$0.00</div>
+                          <div style={{fontSize:11,color:"#34C759",marginTop:1}}>{fmt(b.paidAmount||b.amount||0)} paid</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* ── Add Vendor to this month ── */}
               <div style={{marginBottom:32,marginTop:8}}>
@@ -3270,7 +3342,7 @@ function BillSchedule({p, vendors, setVendors, months, onBack, updateMonth}){
 // ─── History ─────────────────────────────────────────────────────────────────
 function History({p,months,onView,onBack}){
   const sorted=[...months].sort((a,b)=>(b.closedAt||0)-(a.closedAt||0));
-  const totalPaid=months.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+b.amount,0),0);
+  const totalPaid=months.reduce((s,m)=>s+m.bills.filter(b=>b.status==="paid").reduce((x,b)=>x+(b.paidAmount||b.amount||0),0),0);
   return(
     <AppleScreen p={p} title="History" onBack={onBack}>
       <div style={{padding:"0 16px"}}>
