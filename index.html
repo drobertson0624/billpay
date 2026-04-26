@@ -482,24 +482,59 @@ const PhoneIcon = ({size=14,color="#7F58AF"}={}) => (
 const GOOGLE_CLIENT_ID = "1003372732048-d29pha2o6s7e7mpma6jc0mstepsh351r.apps.googleusercontent.com";
 
 function useAuth() {
-  const [user,    setUser]    = useState(null);   // { email, name, picture }
-  const [status,  setStatus]  = useState("loading"); // loading | checking | allowed | denied | signedout
+  const [user,    setUser]    = useState(null);
+  // Start as "loading" if we have a saved session — avoids the sign-in flash
+  const [status,  setStatus]  = useState(() => {
+    try { return localStorage.getItem("bp_user") ? "loading" : "signedout"; }
+    catch { return "signedout"; }
+  });
 
   useEffect(() => {
-    // Load Google Identity Services script
+    // If we have a saved session, verify it first before loading Google SDK
+    const saved = localStorage.getItem("bp_user");
+    if (saved) {
+      try {
+        const u = JSON.parse(saved);
+        // Silently re-verify against allowlist
+        fetch(`${SUPABASE_URL}/rest/v1/allowed_users?email=eq.${encodeURIComponent(u.email)}&select=email`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } })
+          .then(r => r.json())
+          .then(rows => {
+            if (rows && rows.length > 0) {
+              setUser(u);
+              setStatus("allowed");
+            } else {
+              localStorage.removeItem("bp_user");
+              setStatus("signedout");
+            }
+          })
+          .catch(() => {
+            // Network error — trust the cached session rather than blocking
+            setUser(u);
+            setStatus("allowed");
+          });
+      } catch(e) {
+        localStorage.removeItem("bp_user");
+        setStatus("signedout");
+      }
+    }
+
+    // Load Google Identity Services script (always, for sign-in button)
     if (!window.google) {
       const s = document.createElement("script");
       s.src = "https://accounts.google.com/gsi/client";
       s.async = true;
-      s.onload = () => setStatus("signedout");
+      s.onload = () => {
+        // Only flip to signedout if we're still loading with no session
+        setStatus(prev => prev === "loading" ? "signedout" : prev);
+      };
       document.head.appendChild(s);
     } else {
-      setStatus("signedout");
+      setStatus(prev => prev === "loading" ? "signedout" : prev);
     }
   }, []);
 
   async function signIn(credential) {
-    // Decode JWT to get user info
     const payload = JSON.parse(atob(credential.split(".")[1]));
     const email   = payload.email;
     const name    = payload.name;
@@ -507,7 +542,6 @@ function useAuth() {
 
     setStatus("checking");
     try {
-      // Check allowlist
       const res = await fetch(
         `${SUPABASE_URL}/rest/v1/allowed_users?email=eq.${encodeURIComponent(email)}&select=email`,
         { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
@@ -532,25 +566,6 @@ function useAuth() {
     localStorage.removeItem("bp_user");
     if (window.google) window.google.accounts.id.disableAutoSelect();
   }
-
-  // Restore session from localStorage
-  useEffect(() => {
-    if (status === "signedout") {
-      const saved = localStorage.getItem("bp_user");
-      if (saved) {
-        try {
-          const u = JSON.parse(saved);
-          // Re-verify against allowlist
-          fetch(`${SUPABASE_URL}/rest/v1/allowed_users?email=eq.${encodeURIComponent(u.email)}&select=email`,
-            { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } })
-            .then(r => r.json())
-            .then(rows => {
-              if (rows && rows.length > 0) { setUser(u); setStatus("allowed"); }
-            }).catch(() => {});
-        } catch(e) {}
-      }
-    }
-  }, [status]);
 
   return { user, status, signIn, signOut };
 }
