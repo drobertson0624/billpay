@@ -373,6 +373,8 @@ function useLiveMonths(){
 
   return { swMonths, snMonths, loaded };
 }
+
+async function seedToSupabase(propKey, seedMonths, seedVendors) {
   try {
     await sb.upsert("vendors", seedVendors.map(v => vendorToRow(v, propKey)));
     for (const m of seedMonths) {
