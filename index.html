@@ -15,6 +15,7 @@
     body{font-family:'Nunito',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;}
     input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
@@ -545,24 +546,27 @@ const PhoneIcon = ({size=14,color="#7F58AF"}={}) => (
 const GOOGLE_CLIENT_ID = "1003372732048-d29pha2o6s7e7mpma6jc0mstepsh351r.apps.googleusercontent.com";
 
 function useAuth() {
-  const [user,    setUser]    = useState(null);
-  // Start as "loading" if we have a saved session — avoids the sign-in flash
-  const [status,  setStatus]  = useState(() => {
+  const [user,   setUser]   = useState(null);
+  const [status, setStatus] = useState(() => {
     try { return localStorage.getItem("bp_user") ? "loading" : "signedout"; }
     catch { return "signedout"; }
   });
+  // Track whether a session verification is in-flight so Google SDK
+  // onload never races ahead and shows the login screen
+  const verifying = useRef(false);
 
   useEffect(() => {
-    // If we have a saved session, verify it first before loading Google SDK
     const saved = localStorage.getItem("bp_user");
+
     if (saved) {
+      verifying.current = true;
       try {
         const u = JSON.parse(saved);
-        // Silently re-verify against allowlist
         fetch(`${SUPABASE_URL}/rest/v1/allowed_users?email=eq.${encodeURIComponent(u.email)}&select=email`,
           { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } })
           .then(r => r.json())
           .then(rows => {
+            verifying.current = false;
             if (rows && rows.length > 0) {
               setUser(u);
               setStatus("allowed");
@@ -572,43 +576,41 @@ function useAuth() {
             }
           })
           .catch(() => {
-            // Network error — trust the cached session rather than blocking
+            verifying.current = false;
+            // Network error — trust cached session
             setUser(u);
             setStatus("allowed");
           });
       } catch(e) {
+        verifying.current = false;
         localStorage.removeItem("bp_user");
         setStatus("signedout");
       }
     }
 
-    // Load Google Identity Services script (always, for sign-in button)
+    // Load Google SDK — only flip to signedout if NOT verifying
+    const flipToSignedOut = () => {
+      if (!verifying.current) setStatus(prev => prev === "loading" ? "signedout" : prev);
+    };
+
     if (!window.google) {
       const s = document.createElement("script");
       s.src = "https://accounts.google.com/gsi/client";
       s.async = true;
-      s.onload = () => {
-        // Only flip to signedout if we're still loading with no session
-        setStatus(prev => prev === "loading" ? "signedout" : prev);
-      };
+      s.onload = flipToSignedOut;
       document.head.appendChild(s);
     } else {
-      setStatus(prev => prev === "loading" ? "signedout" : prev);
+      flipToSignedOut();
     }
   }, []);
 
   async function signIn(credential) {
     const payload = JSON.parse(atob(credential.split(".")[1]));
-    const email   = payload.email;
-    const name    = payload.name;
-    const picture = payload.picture;
-
+    const { email, name, picture } = payload;
     setStatus("checking");
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/allowed_users?email=eq.${encodeURIComponent(email)}&select=email`,
-        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-      );
+      const res  = await fetch(`${SUPABASE_URL}/rest/v1/allowed_users?email=eq.${encodeURIComponent(email)}&select=email`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
       const rows = await res.json();
       if (rows && rows.length > 0) {
         setUser({ email, name, picture });
@@ -705,11 +707,16 @@ function App(){
   const { user, status, signIn, signOut } = useAuth();
   const isMobile = useIsMobile();
 
-  // Loading state — checking session
-  if (status === "loading" || status === "checking") return (
-    <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
-      <div style={{width:40,height:40,border:"3px solid rgba(255,255,255,0.2)",borderTop:"3px solid white",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
-      <div style={{fontSize:14,color:"rgba(255,255,255,0.6)"}}>{status==="checking"?"Verifying access…":"Loading…"}</div>
+  // Loading — show blank app background, no login screen
+  if (status === "loading") return (
+    <div style={{minHeight:"100vh",background:"#F2F2F7"}}/>
+  );
+
+  // Checking credentials after Google sign-in
+  if (status === "checking") return (
+    <div style={{minHeight:"100vh",background:"#F2F2F7",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
+      <div style={{width:32,height:32,border:"3px solid rgba(127,88,175,0.2)",borderTop:"3px solid #7F58AF",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
+      <div style={{fontSize:14,color:"#8E8E93"}}>Verifying access…</div>
     </div>
   );
 
