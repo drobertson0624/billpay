@@ -2255,9 +2255,9 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
             if(!HALF_CATS.includes(v?.category)) return "as-needed";
             return parseDueDay(b.dueDate)<=15?"first":"second";
           }
-          const firstHalf  = bills.filter(b=>getSection(b)==="first").sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
-          const secondHalf = bills.filter(b=>getSection(b)==="second").sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
-          const asNeeded   = bills.filter(b=>getSection(b)==="as-needed");
+          const firstHalf  = bills.filter(b=>getSection(b)==="first"     &&b.status!=="paid").sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
+          const secondHalf = bills.filter(b=>getSection(b)==="second"    &&b.status!=="paid").sort((a,b)=>parseDueDay(a.dueDate)-parseDueDay(b.dueDate));
+          const asNeeded   = bills.filter(b=>getSection(b)==="as-needed" &&b.status!=="paid");
 
           function BillCard({b, isLast}){
             const vendor   = vendors.find(v=>v.id===b.vendorId);
