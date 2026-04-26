@@ -2393,7 +2393,8 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
               {/* ── Payment Method Totals — iOS grouped inset list ── */}
               {Object.keys(paymentMethods).length>0&&(
                 <div style={{marginBottom:24}}>
-                  <div style={{fontSize:13,fontWeight:400,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4}}>Card Payments Due</div>
+                  <div style={{fontSize:13,fontWeight:400,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:4,paddingLeft:4}}>Card Payment Calculator</div>
+                  <div style={{fontSize:12,color:"#8E8E93",marginBottom:8,paddingLeft:4}}>Breakdown of pending card bills — already included in Amount Pending above</div>
                   <div style={{background:"#fff",borderRadius:12,overflow:"hidden"}}>
                     {Object.entries(paymentMethods).map(([label,total],i,arr)=>(
                       <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
@@ -2407,7 +2408,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                       </div>
                     ))}
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",background:"rgba(60,60,67,0.04)"}}>
-                      <span style={{fontSize:15,fontWeight:600,color:"#6C6C70"}}>Total Owed</span>
+                      <span style={{fontSize:15,fontWeight:600,color:"#6C6C70"}}>Card Total</span>
                       <span style={{fontSize:17,fontWeight:700,color:p.accent,letterSpacing:"-0.3px"}}>{fmt(Object.values(paymentMethods).reduce((s,v)=>s+v,0))}</span>
                     </div>
                   </div>
