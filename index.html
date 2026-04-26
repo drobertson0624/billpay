@@ -371,6 +371,33 @@ function useNavState(key, defaultVal){
   return [val, set];
 }
 
+
+// ─── Known accounts dropdown ──────────────────────────────────────────────────
+const KNOWN_ACCOUNTS = [
+  { label:"WELLS · 0146",  value:"WELLS · 0146",  type:"bank"   },
+  { label:"WELLS · 0282",  value:"WELLS · 0282",  type:"bank"   },
+  { label:"BOA · 3319",    value:"BOA · 3319",    type:"bank"   },
+  { label:"CHASE · 2675",  value:"CHASE · 2675",  type:"card"   },
+  { label:"CHASE · 6108",  value:"CHASE · 6108",  type:"card"   },
+  { label:"AMEX · 2002",   value:"AMEX · 2002",   type:"card"   },
+  { label:"WELLS · 0146 (Apple Card)", value:"APPLE · WELLS · 0146", type:"card" },
+  { label:"Other / None",  value:"",              type:"other"  },
+];
+
+function AccountSelect({value, onChange, style}){
+  return(
+    <div style={{position:"relative"}}>
+      <select value={value||""} onChange={e=>onChange(e.target.value)}
+        style={{...style, paddingRight:32}}>
+        {KNOWN_ACCOUNTS.map(a=>(
+          <option key={a.value} value={a.value}>{a.label}{a.type==="card"?" 💳":a.type==="bank"?" 🏦":""}</option>
+        ))}
+      </select>
+      <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none",color:"#8E8E93",fontSize:12}}>▾</div>
+    </div>
+  );
+}
+
 // ─── SVG Line Icons (matching uploaded icon style) ────────────────────────────
 const ic = (d, extra="") => ({size=20, color="#1C1C1E", strokeWidth=1.6}={}) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{display:"block",flexShrink:0}}>
@@ -2076,15 +2103,13 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
   function saveBalance(){const bal=parseFloat(newBal)||0;onUpdate(month.id,()=>({startingBalance:bal,balance:bal-paidAmt}));setShowBal(false);}
   function addBill(){}
 
-  // Credit card payment totals — ONLY credit card accounts, not bank debits
-  // Key insight: WELLS·0146, WELLS·0282, BOA·3319 are BANK ACCOUNTS (direct debit)
-  // AMEX·2002, CHASE·2675, CHASE·6108, APPLE card etc. are CREDIT CARDS to pay off
+  // Credit card payment totals — only card accounts, not bank debits
   const CREDIT_CARD_PATTERNS = [
-    { match: /AMEX/i,                          label: "AMEX"         },
-    { match: /CHASE\s*[·•]\s*2675/i,           label: "Chase · 2675" },
-    { match: /CHASE\s*[·•]\s*6108/i,           label: "Chase · 6108" },
-    { match: /CHASE\s*[·•]\s*(?!2675|6108)\d/i,label: "Chase"        },
-    { match: /APPLE/i,                          label: "Apple Card"   },
+    { match: /AMEX/i,                           label: "AMEX"         },
+    { match: /CHASE\s*[·•]\s*2675/i,            label: "Chase · 2675" },
+    { match: /CHASE\s*[·•]\s*6108/i,            label: "Chase · 6108" },
+    { match: /APPLE/i,                           label: "Apple Card"   },
+    { match: /CHASE\s*[·•]\s*(?!2675|6108)\d/i, label: "Chase"        },
   ];
 
   const paymentMethods = {};
@@ -2584,7 +2609,7 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths}){
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{highlight(v.name)}</div>
                     <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:2}}>
-                      {v.category}{v.account?` · ${highlight(v.account)}`:""}{v.dueDate?` · Due ${v.dueDate}`:""}
+                      {v.category}{v.account?` · ${v.account}`:""}{v.dueDate?` · Due ${v.dueDate}`:""}
                     </div>
                     {(v.url||v.phone)&&(
                       <div style={{display:"flex",gap:12,marginTop:5,flexWrap:"wrap"}} onClick={e=>e.stopPropagation()}>
@@ -2617,7 +2642,6 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths}){
                   <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:12}}>Edit {v.name}</div>
                   {[
                     {label:"Name",        field:"name",    type:"text", ph:"Vendor name"},
-                    {label:"Account",     field:"account", type:"text", ph:"e.g. WELLS · 0146"},
                     {label:"Due Date",    field:"dueDate", type:"text", ph:"e.g. 15th"},
                     {label:"Website URL", field:"url",     type:"url",  ph:"https://vendor.com"},
                     {label:"Phone",       field:"phone",   type:"tel",  ph:"(610) 555-1234"},
@@ -2629,6 +2653,10 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths}){
                         placeholder={f.ph} style={{...inp}}/>
                     </div>
                   ))}
+                  <div style={{marginBottom:10}}>
+                    <div style={{fontSize:11,color:"rgba(0,0,0,0.38)",marginBottom:3,fontWeight:600}}>Account</div>
+                    <AccountSelect value={editForm.account||""} onChange={v=>setEditForm(ef=>({...ef,account:v}))} style={{...sel}}/>
+                  </div>
                   <div style={{marginBottom:14}}>
                     <div style={{fontSize:11,color:"rgba(0,0,0,0.38)",marginBottom:3,fontWeight:600}}>Category</div>
                     <select style={sel} value={editForm.category||p.cats[0]} onChange={e=>setEditForm(ef=>({...ef,category:e.target.value}))}>
@@ -2651,7 +2679,6 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths}){
             <div style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:14}}>New Vendor</div>
             {[
               {label:"Name",        field:"name",    ph:"Vendor name",        type:"text"},
-              {label:"Account",     field:"account", ph:"e.g. WELLS · 0146",  type:"text"},
               {label:"Due Date",    field:"dueDate", ph:"e.g. 15th",          type:"text"},
               {label:"Website URL", field:"url",     ph:"https://vendor.com", type:"url"},
               {label:"Phone",       field:"phone",   ph:"(610) 555-1234",     type:"tel"},
@@ -2659,9 +2686,13 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths}){
             ].map(f=>(
               <div key={f.field} style={{marginBottom:10}}>
                 <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>{f.label}</div>
-                <input type={f.type} value={form[f.field]} onChange={e=>setForm(pf=>({...pf,[f.field]:e.target.value}))} placeholder={f.ph} style={{...inp}}/>
+                <input type={f.type} value={form[f.field]||""} onChange={e=>setForm(pf=>({...pf,[f.field]:e.target.value}))} placeholder={f.ph} style={{...inp}}/>
               </div>
             ))}
+            <div style={{marginBottom:10}}>
+              <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>Account</div>
+              <AccountSelect value={form.account||""} onChange={v=>setForm(pf=>({...pf,account:v}))} style={{...sel}}/>
+            </div>
             <div style={{marginBottom:14}}>
               <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>Category</div>
               <select style={sel} value={form.category} onChange={e=>setForm(pf=>({...pf,category:e.target.value}))}>{p.cats.map(c=><option key={c}>{c}</option>)}</select>
@@ -3007,7 +3038,6 @@ function BillSchedule({p, vendors, setVendors, months, onBack}){
         <div style={{padding:"0 16px"}}>
           {[
             {label:"Name",        field:"name",    type:"text", ph:"Vendor name"},
-            {label:"Account",     field:"account", type:"text", ph:"e.g. WELLS · 0146"},
             {label:"Due Date",    field:"dueDate", type:"text", ph:"e.g. 15th"},
             {label:"Website URL", field:"url",     type:"url",  ph:"https://vendor.com"},
             {label:"Phone",       field:"phone",   type:"tel",  ph:"(610) 555-1234"},
@@ -3019,6 +3049,10 @@ function BillSchedule({p, vendors, setVendors, months, onBack}){
                 placeholder={f.ph} style={{...inp}}/>
             </div>
           ))}
+          <div style={{marginBottom:12}}>
+            <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4,fontWeight:600}}>Account</div>
+            <AccountSelect value={editForm.account||""} onChange={v=>setEditForm(ef=>({...ef,account:v}))} style={{...sel}}/>
+          </div>
           <div style={{marginBottom:20}}>
             <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4,fontWeight:600}}>Category</div>
             <select style={sel} value={editForm.category||p.cats[0]} onChange={e=>setEditForm(ef=>({...ef,category:e.target.value}))}>
