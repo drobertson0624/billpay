@@ -2523,7 +2523,10 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
   }
 
   function saveEdit(){
-    setVendors(pv=>pv.map(v=>v.id===editing?{...v,...editForm}:v));
+    // Build the updated vendor list first, then pass the full array to setVendors
+    // (setVendors is saveVendors which writes to Supabase — it needs the full array)
+    const updated = vendors.map(v=>v.id===editing?{...v,...editForm}:v);
+    setVendors(updated);
     // Sync account + name on all pending bills for this vendor across active months
     if(updateMonth && allMonths){
       allMonths.filter(m=>m.status!=="closed").forEach(m=>{
@@ -3036,8 +3039,11 @@ function BillSchedule({p, vendors, setVendors, months, onBack, updateMonth}){
   }
 
   function saveEdit(){
-    if(setVendors) setVendors(pv=>pv.map(v=>v.id===editingVendor?{...v,...editForm}:v));
-    // Sync account + name on pending bills across active months
+    if(setVendors){
+      const updated = vendors.map(v=>v.id===editingVendor?{...v,...editForm}:v);
+      setVendors(updated);
+    }
+    // Sync pending bills in active months
     if(updateMonth && months){
       months.filter(m=>m.status!=="closed").forEach(m=>{
         const hasBill = m.bills.some(b=>b.vendorId===editingVendor&&b.status==="pending");
