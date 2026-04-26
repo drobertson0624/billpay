@@ -357,6 +357,20 @@ const fmt=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).fo
 const uid=()=>Math.random().toString(36).slice(2,9);
 function readStore(k,fb){try{const s=localStorage.getItem(k);return s?JSON.parse(s):fb}catch{return fb}}
 
+// ─── Session-persistent nav state (survives refresh, clears on tab close) ────
+function useNavState(key, defaultVal){
+  const [val, setVal] = useState(()=>{
+    try{ const s=sessionStorage.getItem(key); return s!==null?JSON.parse(s):defaultVal; }
+    catch{ return defaultVal; }
+  });
+  function set(v){
+    const next = typeof v==="function" ? v(val) : v;
+    try{ sessionStorage.setItem(key, JSON.stringify(next)); }catch{}
+    setVal(next);
+  }
+  return [val, set];
+}
+
 // ─── SVG Line Icons (matching uploaded icon style) ────────────────────────────
 const ic = (d, extra="") => ({size=20, color="#1C1C1E", strokeWidth=1.6}={}) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{display:"block",flexShrink:0}}>
@@ -643,8 +657,8 @@ function App(){
 
 // ─── Mobile Shell ─────────────────────────────────────────────────────────────
 function MobileShell({user, onSignOut}){
-  const [prop,    setProp]    = useState(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [prop,       setProp]      = useNavState("bp_nav_mobile_prop", null);
+  const [drawerOpen, setDrawerOpen]= useState(false);
 
   const swM  = readStore("bp_months_sw",  SW_MONTHS);
   const snM  = readStore("bp_months_snap",SNAP_MONTHS);
@@ -878,8 +892,8 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
 
 // ─── Desktop Shell ────────────────────────────────────────────────────────────
 function DesktopShell({user, onSignOut}){
-  const [panel,     setPanel]     = useState("dashboard");
-  const [collapsed, setCollapsed] = useState(false);
+  const [panel,     setPanel]     = useNavState("bp_nav_desktop_panel", "dashboard");
+  const [collapsed, setCollapsed] = useNavState("bp_nav_desktop_collapsed", false);
 
   const swM  = readStore("bp_months_sw",  SW_MONTHS);
   const snM  = readStore("bp_months_snap",SNAP_MONTHS);
@@ -1162,9 +1176,12 @@ function DashboardDesktop({onNav}){
 function PropAppDesktop({pk, onNav, startScreen}){
   const p=PROPERTIES[pk];
   const { months, vendors, synced, error, updateMonth, addMonth, deleteMonth, saveVendors } = useSupabaseData(pk, p.vendors, p.seed);
-  const [subScreen,setSubScreen]=useState(startScreen||"home");
-  const [activeId,setActiveId]=useState(null);
-  const [viewId,setViewId]=useState(null);
+  const [subScreen,setSubScreen]=useNavState(`bp_nav_desk_${pk}_screen`, startScreen||"home");
+  const [activeId, setActiveId] =useNavState(`bp_nav_desk_${pk}_active`, null);
+  const [viewId,   setViewId]   =useNavState(`bp_nav_desk_${pk}_view`,   null);
+
+  // When sidebar deep-links to a specific screen, honor it
+  useEffect(()=>{ if(startScreen) setSubScreen(startScreen); }, [startScreen]);
 
   const active=months.filter(m=>m.status!=="closed");
   const closed=months.filter(m=>m.status==="closed");
@@ -1799,9 +1816,9 @@ function Dashboard({onSelect}){
 function PropApp({pk,onBack}){
   const p=PROPERTIES[pk];
   const { months, vendors, synced, updateMonth, addMonth, deleteMonth, saveVendors } = useSupabaseData(pk, p.vendors, p.seed);
-  const[screen,setScreen]=useState("home");
-  const[activeId,setActiveId]=useState(null);
-  const[viewId,setViewId]=useState(null);
+  const[screen,  setScreen]  =useNavState(`bp_nav_mob_${pk}_screen`, "home");
+  const[activeId,setActiveId]=useNavState(`bp_nav_mob_${pk}_active`, null);
+  const[viewId,  setViewId]  =useNavState(`bp_nav_mob_${pk}_view`,   null);
 
   const active=months.filter(m=>m.status!=="closed");
   const closed=months.filter(m=>m.status==="closed");
