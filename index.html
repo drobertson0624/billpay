@@ -2112,6 +2112,10 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
   const pendAmt=pending.reduce((s,b)=>s+b.amount,0);
   const allDone=bills.length>0&&pending.length===0;
 
+  // Live derived balance — always accurate regardless of stored balance field
+  const liveRemaining = (month.startingBalance||0) - paidAmt;
+  const liveBalance   = liveRemaining;
+
   function startEdit(b){setEditing(b.id);setEditAmt(b.paidAmount||b.amount||"");setEditNote(b.note||"");}
   function saveAmount(){
     const amt=parseFloat(editAmt)||0;
@@ -2196,7 +2200,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
           <div style={{display:"flex",gap:24,marginTop:16,position:"relative"}}>
             <div>
               <div style={{fontSize:11,color:"rgba(255,255,255,0.55)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Remaining</div>
-              <div style={{fontSize:18,fontWeight:700,color:month.balance<0?"#FF453A":"rgba(255,255,255,0.9)",marginTop:1}}>{fmt(month.balance)}</div>
+              <div style={{fontSize:18,fontWeight:700,color:liveRemaining<0?"#FF453A":"rgba(255,255,255,0.9)",marginTop:1}}>{fmt(liveRemaining)}</div>
               <div style={{fontSize:10,color:"rgba(255,255,255,0.35)",marginTop:1}}>after paid bills</div>
             </div>
             <div>
