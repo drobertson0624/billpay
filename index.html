@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
-    html,body,#root{height:100%;background:#e7e7e7;}
+    html,body,#root{height:100%;background:#ffffff;}
     body{font-family:"Inter",-apple-system,"Helvetica Neue",system-ui,sans-serif;}
     input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
     input,select,textarea{color:#0c203c;}
@@ -162,7 +162,7 @@ const SW_CATS   = ["1ST","2ND","Tithes","Amazon","Chase United","Yearly","Home S
 const SNAP_CATS = ["Monthly","Quarterly","Yearly"];
 const PROPERTIES = {
   sw:  {key:"sw",   label:"Sir Walters", sub:"Primary Residence", emoji:"house",  gradient:["#1e3e77","#136ef6"], accent:"#136ef6", vendors:SW_VENDORS,   cats:SW_CATS,   seed:SW_MONTHS},
-  snap:{key:"snap", label:"Snapdragon",  sub:"Rental Property",   emoji:"leaf",   gradient:["#102749","#416cb3"], accent:"#416cb3", vendors:SNAP_VENDORS, cats:SNAP_CATS, seed:SNAP_MONTHS},
+  snap:{key:"snap", label:"Snapdragon",  sub:"Rental Property",   emoji:"leaf",   gradient:["#102749","#1e3e77"], accent:"#416cb3", vendors:SNAP_VENDORS, cats:SNAP_CATS, seed:SNAP_MONTHS},
 };
 
 // ─── Supabase ─────────────────────────────────────────────────────────────────
@@ -507,13 +507,13 @@ const PlusIcon = ({size=18,color="#136ef6"}={}) => (
   </svg>
 );
 
-const GearIcon = ({size=18,color="#e7e7e7"}={}) => (
+const GearIcon = ({size=18,color="#ffffff"}={}) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block"}}>
     <rect x="9" y="9" width="6" height="6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
   </svg>
 );
 
-const FolderIcon = ({size=18,color="#e7e7e7"}={}) => (
+const FolderIcon = ({size=18,color="#ffffff"}={}) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block"}}>
     <path d="M2 6h8l2 3h10v11H2z"/><line x1="2" y1="9" x2="22" y2="9"/>
   </svg>
@@ -550,7 +550,40 @@ const CalIcon = ({size=18,color="#136ef6"}={}) => (
   </svg>
 );
 
-// ─── Auth // ─── Auth ─────────────────────────────────────────────────────────────────────
+// ─── Auth // ─── Tooltip component ───────────────────────────────────────────────────────
+function Tip({label, children}){
+  const [show, setShow] = React.useState(false);
+  return(
+    <div style={{position:"relative",display:"inline-flex"}}
+      onMouseEnter={()=>setShow(true)}
+      onMouseLeave={()=>setShow(false)}>
+      {children}
+      {show&&(
+        <div style={{
+          position:"absolute",bottom:"calc(100% + 6px)",left:"50%",
+          transform:"translateX(-50%)",
+          background:"#0c203c",color:"#ffffff",
+          fontSize:11,fontWeight:500,whiteSpace:"nowrap",
+          padding:"4px 8px",borderRadius:6,
+          boxShadow:"0 2px 8px rgba(0,0,0,0.2)",
+          pointerEvents:"none",zIndex:9999,
+          letterSpacing:"0.02em"
+        }}>
+          {label}
+          <div style={{
+            position:"absolute",top:"100%",left:"50%",transform:"translateX(-50%)",
+            width:0,height:0,
+            borderLeft:"4px solid transparent",
+            borderRight:"4px solid transparent",
+            borderTop:"4px solid #0c203c"
+          }}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 const GOOGLE_CLIENT_ID = "1003372732048-d29pha2o6s7e7mpma6jc0mstepsh351r.apps.googleusercontent.com";
 
 function useAuth() {
@@ -717,12 +750,12 @@ function App(){
 
   // Loading — show blank app background, no login screen
   if (status === "loading") return (
-    <div style={{minHeight:"100vh",background:"#e7e7e7"}}/>
+    <div style={{minHeight:"100vh",background:"#ffffff"}}/>
   );
 
   // Checking credentials after Google sign-in
   if (status === "checking") return (
-    <div style={{minHeight:"100vh",background:"#e7e7e7",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
+    <div style={{minHeight:"100vh",background:"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
       <div style={{width:32,height:32,border:"3px solid rgba(19,110,246,0.2)",borderTop:"3px solid #136ef6",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
       <div style={{fontSize:14,color:"#416cb3"}}>Verifying access…</div>
     </div>
@@ -872,7 +905,7 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
   if(insights.length===0) insights.push({icon:"✅",text:"All caught up. Balance looks healthy."});
 
   return(
-    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
+    <div style={{minHeight:"100vh",background:"#ffffff",paddingBottom:60}}>
       {/* Hero */}
       <div style={{background:"linear-gradient(160deg,#0c203c 0%,#1e3e77 100%)",padding:"52px 22px 28px",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 80% 20%,rgba(100,197,235,0.3),transparent 60%)",pointerEvents:"none"}}/>
@@ -1217,7 +1250,7 @@ function DesktopShell({user, onSignOut}){
       </div>
 
       {/* ── Main Content ── */}
-      <div style={{flex:1,overflow:"auto",background:"#e7e7e7"}}>
+      <div style={{flex:1,overflow:"auto",background:"#ffffff"}}>
         {panel==="dashboard"    && <DashboardDesktop onNav={setPanel}/>}
         {panel==="sw"           && <PropAppDesktop pk="sw"   onNav={setPanel}/>}
         {panel==="snap"         && <PropAppDesktop pk="snap" onNav={setPanel}/>}
@@ -1377,7 +1410,7 @@ function PropAppDesktop({pk, onNav, startScreen}){
   );
 
   return(
-    <div style={{padding:"0",minHeight:"100vh",background:"#e7e7e7"}}>
+    <div style={{padding:"0",minHeight:"100vh",background:"#ffffff"}}>
       <div style={{padding:"20px 32px 0",display:"flex",alignItems:"center",gap:8}}>
         <span style={{fontSize:13,color:"rgba(0,0,0,0.35)",cursor:"pointer"}} onClick={()=>onNav("dashboard")}>Overview</span>
         <span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span>
@@ -1438,7 +1471,7 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
           {[{l:"All-Time Paid",v:fmt(totalPaid)},{l:"Months Archived",v:closed.length},{l:"Active Sessions",v:active.length}].map((s,i)=>(
             <div key={i}>
               <div style={{fontSize:18,fontWeight:700,color:"#fff"}}>{s.v}</div>
-              <div style={{fontSize:11,color:"rgba(255,255,255,0.5)",marginTop:2}}>{s.l}</div>
+              <div style={{fontSize:11,color:"rgba(255,255,255,0.65)",marginTop:2}}>{s.l}</div>
             </div>
           ))}
         </div>
@@ -1838,7 +1871,7 @@ function Dashboard({onSelect}){
     insights.push({ icon:"✅", text:"All caught up. No pending bills and your balance looks healthy." });
 
   return(
-    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
+    <div style={{minHeight:"100vh",background:"#ffffff",paddingBottom:60}}>
 
       {/* ── Hero Header ── */}
       <div style={{background:"linear-gradient(160deg,#0c203c 0%,#1e3e77 100%)",padding:"52px 22px 28px",position:"relative",overflow:"hidden"}}>
@@ -1958,15 +1991,15 @@ function Dashboard({onSelect}){
               {/* Stats */}
               <div style={{padding:"12px 14px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
-                  <span style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>Remaining</span>
+                  <span style={{fontSize:11,color:"rgba(255,255,255,0.65)"}}>Remaining</span>
                   <span style={{fontSize:13,fontWeight:700,color:st.bal<0?"#E84D8A":p.accent}}>{fmt(st.bal)}</span>
                 </div>
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
-                  <span style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>Paid out</span>
+                  <span style={{fontSize:11,color:"rgba(255,255,255,0.65)"}}>Paid out</span>
                   <span style={{fontSize:13,fontWeight:600,color:"#0c203c"}}>{fmt(st.paidAmt)}</span>
                 </div>
                 <div style={{display:"flex",justifyContent:"space-between"}}>
-                  <span style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>Pending</span>
+                  <span style={{fontSize:11,color:"rgba(255,255,255,0.65)"}}>Pending</span>
                   <span style={{fontSize:13,fontWeight:600,color:st.pending>0?"#FEB326":"#416cb3"}}>{st.pending>0?`${st.pending} bills`:"Clear ✓"}</span>
                 </div>
               </div>
@@ -2028,12 +2061,12 @@ function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDele
   const [confirmId, setConfirmId] = useState(null);
   const confirmMonth = active.find(m=>m.id===confirmId);
   return(
-    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
+    <div style={{minHeight:"100vh",background:"#ffffff",paddingBottom:60}}>
 
       {/* ── Delete Confirm Modal ── */}
       {confirmId&&confirmMonth&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(12px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:300,padding:0}} onClick={()=>setConfirmId(null)}>
-          <div style={{background:"#e7e7e7",borderRadius:"20px 20px 0 0",padding:"8px 16px 48px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
+          <div style={{background:"#ffffff",borderRadius:"20px 20px 0 0",padding:"8px 16px 48px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
             <div style={{width:36,height:4,background:"rgba(0,0,0,0.15)",borderRadius:2,margin:"10px auto 20px"}}/>
             <div style={{background:"#ffffff",borderRadius:14,padding:"16px",marginBottom:8,textAlign:"center"}}>
               <div style={{fontSize:17,fontWeight:600,color:"#0c203c",marginBottom:4,letterSpacing:"-0.2px"}}>Delete {confirmMonth.label}?</div>
@@ -2105,16 +2138,16 @@ function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDele
 
       {/* iOS grouped action list */}
       <div style={{padding:"20px 16px 0"}}>
-        <div style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4}}>Actions</div>
+        <div style={{fontSize:13,fontWeight:400,color:"#1e3e77",textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:600,marginBottom:8,paddingLeft:4}}>Actions</div>
         <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden",marginBottom:24}}>
-          <div className="ios-row" onClick={onNew} style={{display:"flex",alignItems:"center",padding:"14px 16px",cursor:"pointer",borderBottom:"0.5px solid rgba(0,0,0,0.08)"}}>
+          <div className="ios-row" onClick={onNew} style={{display:"flex",alignItems:"center",padding:"14px 16px",cursor:"pointer",borderBottom:"0.5px solid rgba(0,0,0,0.1)"}}>
             <div style={{width:30,height:30,borderRadius:8,background:p.accent,display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
             <span style={{flex:1,fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>New Month</span>
             <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
-          <div className="ios-row" onClick={onManage} style={{display:"flex",alignItems:"center",padding:"14px 16px",cursor:"pointer",borderBottom:"0.5px solid rgba(0,0,0,0.08)"}}>
+          <div className="ios-row" onClick={onManage} style={{display:"flex",alignItems:"center",padding:"14px 16px",cursor:"pointer",borderBottom:"0.5px solid rgba(0,0,0,0.1)"}}>
             <div style={{width:30,height:30,borderRadius:8,background:"#636366",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}>
               <GearIcon size={15} color="white"/>
             </div>
@@ -2308,10 +2341,10 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
   if(uncat.length)catGroups["Other"]=uncat;
 
   return(
-    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
+    <div style={{minHeight:"100vh",background:"#ffffff",paddingBottom:60}}>
 
       {/* iOS-style large title header */}
-      <div style={{background:"#e7e7e7",padding:"56px 20px 0"}}>
+      <div style={{background:"#ffffff",padding:"56px 20px 0"}}>
         <button onClick={onBack} style={{background:"none",border:"none",color:p.accent,fontSize:17,cursor:"pointer",padding:"0 0 8px",display:"flex",alignItems:"center",gap:4,fontFamily:"inherit",fontWeight:400,letterSpacing:"-0.2px"}}>
           <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1 8.5L9 16" stroke={p.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           {p.label}
@@ -2328,8 +2361,8 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
           <div style={{fontSize:13,color:"rgba(0,0,0,0.55)",fontWeight:500,letterSpacing:"0.02em",marginBottom:4,position:"relative"}}>
             Account Balance · tap to update
           </div>
-          <div style={{fontSize:36,fontWeight:700,color:"#fff",letterSpacing:"-1px",lineHeight:1,position:"relative"}}>
-            {month.startingBalance ? fmt(month.startingBalance) : <span style={{opacity:0.5,fontSize:28}}>Tap to set</span>}
+          <div style={{fontSize:36,fontWeight:700,color:"#ffffff",letterSpacing:"-1px",lineHeight:1,position:"relative"}}>
+            {month.startingBalance ? fmt(month.startingBalance) : <span style={{color:"rgba(255,255,255,0.5)",fontSize:28}}>Tap to set</span>}
           </div>
           <div style={{display:"flex",gap:24,marginTop:16,position:"relative"}}>
             <div>
@@ -2339,7 +2372,7 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
             </div>
             <div>
               <div style={{fontSize:11,color:"rgba(0,0,0,0.45)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Amount Pending</div>
-              <div style={{fontSize:18,fontWeight:700,color:"rgba(255,255,255,0.9)",marginTop:1}}>{fmt(pendAmt)}</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#ffffff",marginTop:1}}>{fmt(pendAmt)}</div>
               <div style={{fontSize:10,color:"rgba(0,0,0,0.25)",marginTop:1}}>pending payments</div>
             </div>
           </div>
@@ -2369,7 +2402,7 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
       {/* Balance Modal */}
       {showBal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(20px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:200}} onClick={()=>setShowBal(false)}>
-          <div style={{background:"#e7e7e7",borderRadius:"20px 20px 0 0",padding:"8px 20px 48px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
+          <div style={{background:"#ffffff",borderRadius:"20px 20px 0 0",padding:"8px 20px 48px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
             <div style={{width:36,height:4,background:"rgba(0,0,0,0.15)",borderRadius:2,margin:"10px auto 20px"}}/>
             <div style={{fontSize:22,fontWeight:700,color:"#0c203c",marginBottom:20,letterSpacing:"-0.5px"}}>Account Balance</div>
             <div style={{background:"#ffffff",borderRadius:12,display:"flex",alignItems:"center",padding:"4px 16px",marginBottom:16}}>
@@ -2404,7 +2437,7 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
             const isSkipped= b.status==="skipped";
             const needsAmt = !b.amount||b.amount===0;
             return(
-              <div style={{borderBottom:isLast?"none":"0.5px solid rgba(0,0,0,0.08)",marginLeft:56}}>
+              <div style={{borderBottom:isLast?"none":"0.5px solid rgba(0,0,0,0.1)",marginLeft:56}}>
                 <div style={{display:"flex",alignItems:"center",padding:"11px 16px 11px 0",gap:0,marginLeft:-56,paddingLeft:16,background:b.flagged?"rgba(255,59,48,0.03)":"transparent"}}>
 
                   {/* iOS-style checkbox */}
@@ -2460,11 +2493,12 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
                           style={{width:30,height:30,borderRadius:8,background:b.flagged?"rgba(255,59,48,0.12)":"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}>
                           🚩
                         </button>
-                        <button onClick={e=>{e.stopPropagation();rolloverBill(b.id);}} title="Roll over to next month"
-                          style={{width:30,height:30,borderRadius:8,background:"rgba(100,197,235,0.12)",border:"none",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}
-                          >
-                          ↩
-                        </button>
+                        <Tip label="Roll to next month">
+                          <button onClick={e=>{e.stopPropagation();rolloverBill(b.id);}}
+                            style={{width:30,height:30,borderRadius:8,background:"rgba(19,110,246,0.1)",border:"none",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                            ↩
+                          </button>
+                        </Tip>
                         <button onClick={e=>{e.stopPropagation();skipBill(b.id);}}
                           style={{width:30,height:30,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",fontSize:11,color:"#416cb3",fontFamily:"inherit",fontWeight:500}}>
                           Skip
@@ -2478,17 +2512,17 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
                 {/* Inline amount input — iOS sheet style */}
                 {isOpen&&(
                   <div style={{padding:"14px 16px",borderTop:"0.5px solid rgba(60,60,67,0.12)",background:"#FAFAFA"}} className="slide-in">
-                    <div style={{display:"flex",alignItems:"center",background:"#e7e7e7",borderRadius:10,padding:"4px 14px",marginBottom:10}}>
+                    <div style={{display:"flex",alignItems:"center",background:"#ffffff",borderRadius:10,padding:"4px 14px",marginBottom:10}}>
                       <span style={{fontSize:20,color:"rgba(0,0,0,0.3)",marginRight:8,fontWeight:300}}>$</span>
                       <input autoFocus type="number" value={editAmt} onChange={e=>setEditAmt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&confirmPay()}
                         style={{flex:1,background:"none",border:"none",outline:"none",fontSize:24,fontWeight:600,color:"#0c203c",padding:"8px 0",fontFamily:"inherit",letterSpacing:"-0.5px"}}/>
                     </div>
                     <input type="text" value={editNote} onChange={e=>setEditNote(e.target.value)} placeholder="Confirmation #"
-                      style={{width:"100%",background:"#e7e7e7",border:"none",borderRadius:10,padding:"10px 14px",fontSize:15,color:"#0c203c",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
+                      style={{width:"100%",background:"#ffffff",border:"none",borderRadius:10,padding:"10px 14px",fontSize:15,color:"#0c203c",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
                     <div style={{display:"flex",gap:8}}>
                       <button onClick={confirmPay} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:"13px",fontSize:15,fontWeight:600,color:"#fff",cursor:"pointer",fontFamily:"inherit",letterSpacing:"-0.2px"}}>Mark Paid</button>
-                      <button onClick={saveAmount} style={{flex:"0 0 auto",background:"#e7e7e7",border:"none",borderRadius:12,padding:"13px 16px",fontSize:14,fontWeight:500,color:p.accent,cursor:"pointer",fontFamily:"inherit"}}>Save</button>
-                      <button onClick={()=>setEditing(null)} style={{flex:"0 0 auto",background:"#e7e7e7",border:"none",borderRadius:12,padding:"13px",fontSize:14,color:"#416cb3",cursor:"pointer",fontFamily:"inherit"}}>✕</button>
+                      <button onClick={saveAmount} style={{flex:"0 0 auto",background:"#ffffff",border:"none",borderRadius:12,padding:"13px 16px",fontSize:14,fontWeight:500,color:p.accent,cursor:"pointer",fontFamily:"inherit"}}>Save</button>
+                      <button onClick={()=>setEditing(null)} style={{flex:"0 0 auto",background:"#ffffff",border:"none",borderRadius:12,padding:"13px",fontSize:14,color:"#416cb3",cursor:"pointer",fontFamily:"inherit"}}>✕</button>
                     </div>
                   </div>
                 )}
@@ -2505,7 +2539,7 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:8,paddingLeft:4,paddingRight:4}}>
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
                     <div style={{width:8,height:8,borderRadius:4,background:accentColor}}/>
-                    <span style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em"}}>{title}</span>
+                    <span style={{fontSize:13,fontWeight:400,color:"#1e3e77",textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:600}}>{title}</span>
                     {secPending>0&&<span style={{fontSize:12,color:accentColor,fontWeight:600}}>{secPending} left</span>}
                   </div>
                   {secPaid>0&&<span style={{fontSize:13,color:"#34C759",fontWeight:600}}>{fmt(secPaid)} paid</span>}
@@ -2530,17 +2564,17 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
                     <div style={{fontSize:17,fontWeight:600,color:"#0c203c",letterSpacing:"-0.2px"}}>All done!</div>
                     <div style={{fontSize:14,color:"#416cb3",marginTop:2}}>Every bill taken care of.</div>
                   </div>
-                  <button onClick={()=>setTab("summary")} style={{background:"#e7e7e7",border:"none",borderRadius:10,padding:"8px 14px",fontSize:14,fontWeight:500,color:p.accent,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>Summary</button>
+                  <button onClick={()=>setTab("summary")} style={{background:"#ffffff",border:"none",borderRadius:10,padding:"8px 14px",fontSize:14,fontWeight:500,color:p.accent,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>Summary</button>
                 </div>
               )}
               {/* ── Payment Method Totals — iOS grouped inset list ── */}
               {Object.keys(paymentMethods).length>0&&(
                 <div style={{marginBottom:24}}>
-                  <div style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:4,paddingLeft:4}}>Card Payment Calculator</div>
+                  <div style={{fontSize:13,fontWeight:400,color:"#1e3e77",textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:600,marginBottom:4,paddingLeft:4}}>Card Payment Calculator</div>
                   <div style={{fontSize:12,color:"#416cb3",marginBottom:8,paddingLeft:4}}>Breakdown of pending card bills — already included in Amount Pending above</div>
                   <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
                     {Object.entries(paymentMethods).map(([label,total],i,arr)=>(
-                      <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+                      <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.1)":"none"}}>
                         <div style={{display:"flex",alignItems:"center",gap:12}}>
                           <div style={{width:30,height:30,borderRadius:8,background:p.accent,display:"flex",alignItems:"center",justifyContent:"center"}}>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
@@ -2568,13 +2602,13 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:8,paddingLeft:4,paddingRight:4}}>
                     <div style={{display:"flex",alignItems:"center",gap:6}}>
                       <div style={{width:8,height:8,borderRadius:4,background:"#34C759"}}/>
-                      <span style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em"}}>Paid · {paid.length}</span>
+                      <span style={{fontSize:13,fontWeight:400,color:"#1e3e77",textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:600}}>Paid · {paid.length}</span>
                     </div>
                     <span style={{fontSize:13,color:"#34C759",fontWeight:600}}>{fmt(paidAmt)} total</span>
                   </div>
                   <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
                     {paid.map((b,i)=>(
-                      <div key={b.id} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:i<paid.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+                      <div key={b.id} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:i<paid.length-1?"0.5px solid rgba(0,0,0,0.1)":"none"}}>
                         {/* Green filled check — tap to undo */}
                         <button onClick={()=>unpay(b.id)}
                           style={{width:26,height:26,borderRadius:13,background:"#34C759",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}>
@@ -2663,12 +2697,12 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
                 {label:"Total Paid Out",val:fmt(paidAmt),color:"#E84D8A"},
                 pendAmt>0?{label:"Still Pending",val:fmt(pendAmt),color:"#FEB326"}:null,
               ].filter(Boolean).map((r,i,arr)=>(
-                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.1)":"none"}}>
                   <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{r.label}</span>
                   <span style={{fontSize:17,fontWeight:600,color:r.color,letterSpacing:"-0.3px"}}>{r.val}</span>
                 </div>
               ))}
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderTop:"0.5px solid rgba(0,0,0,0.08)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderTop:"0.5px solid rgba(0,0,0,0.1)"}}>
                 <span style={{fontSize:17,fontWeight:600,color:"#0c203c",letterSpacing:"-0.2px"}}>Remaining</span>
                 <span style={{fontSize:22,fontWeight:700,color:p.accent,letterSpacing:"-0.5px"}}>{fmt(month.balance)}</span>
               </div>
@@ -2678,13 +2712,13 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
               const tot=pi.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
               return(
                 <div key={cat} style={{marginBottom:20}}>
-                  <div style={{fontSize:13,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div style={{fontSize:13,color:"#1e3e77",textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:600,marginBottom:8,paddingLeft:4,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                     <span>{cat}</span>
                     <span style={{fontSize:15,fontWeight:600,color:p.accent}}>{fmt(tot)}</span>
                   </div>
                   <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
                     {pi.map((b,i)=>(
-                      <div key={b.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<pi.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+                      <div key={b.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<pi.length-1?"0.5px solid rgba(0,0,0,0.1)":"none"}}>
                         <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{b.vendorName}</span>
                         <span style={{fontSize:17,color:"#416cb3",letterSpacing:"-0.3px"}}>{fmt(b.paidAmount||b.amount||0)}</span>
                       </div>
@@ -3504,7 +3538,7 @@ function History({p,months,onView,onBack,onDelete}){
         {/* Stats */}
         <div style={{marginBottom:20}}>
           <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
-            <div style={{display:"flex",justifyContent:"space-between",padding:"13px 16px",borderBottom:"0.5px solid rgba(0,0,0,0.08)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",padding:"13px 16px",borderBottom:"0.5px solid rgba(0,0,0,0.1)"}}>
               <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>Months Archived</span>
               <span style={{fontSize:17,color:"#416cb3"}}>{months.length}</span>
             </div>
@@ -3524,7 +3558,7 @@ function History({p,months,onView,onBack,onDelete}){
               const paid=m.bills.filter(b=>b.status==="paid");
               const paidAmt=paid.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
               return(
-                <div key={m.id} style={{display:"flex",alignItems:"center",padding:"13px 16px",borderBottom:i<sorted.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+                <div key={m.id} style={{display:"flex",alignItems:"center",padding:"13px 16px",borderBottom:i<sorted.length-1?"0.5px solid rgba(0,0,0,0.1)":"none"}}>
                   <div className="ios-row" onClick={()=>onView(m.id)} style={{flex:1,display:"flex",alignItems:"center",cursor:"pointer"}}>
                     <div style={{flex:1}}>
                       <div style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{m.label}</div>
@@ -3566,7 +3600,7 @@ function History({p,months,onView,onBack,onDelete}){
                   Yes, Clear All
                 </button>
                 <button onClick={()=>setConfirmClear(false)}
-                  style={{flex:1,background:"#e7e7e7",border:"none",borderRadius:12,padding:"13px",fontSize:15,fontWeight:600,color:"#416cb3",cursor:"pointer",fontFamily:"inherit"}}>
+                  style={{flex:1,background:"#ffffff",border:"none",borderRadius:12,padding:"13px",fontSize:15,fontWeight:600,color:"#416cb3",cursor:"pointer",fontFamily:"inherit"}}>
                   Cancel
                 </button>
               </div>
@@ -3586,16 +3620,16 @@ function ViewMonth({p,month,onBack}){
       <div style={{padding:"0 16px"}}>
         <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden",marginBottom:24}}>
           {[{l:"Starting Balance",v:fmt(month.startingBalance),c:"#000"},{l:"Total Paid",v:fmt(paidAmt),c:p.accent},{l:"Remaining",v:fmt(month.balance),c:month.balance<0?"#FF3B30":p.accent}].map((r,i,a)=>(
-            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<a.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<a.length-1?"0.5px solid rgba(0,0,0,0.1)":"none"}}>
               <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{r.l}</span>
               <span style={{fontSize:17,fontWeight:600,color:r.c,letterSpacing:"-0.3px"}}>{r.v}</span>
             </div>
           ))}
         </div>
-        <div style={{fontSize:13,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4}}>Bills Paid</div>
+        <div style={{fontSize:13,color:"#1e3e77",textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:600,marginBottom:8,paddingLeft:4}}>Bills Paid</div>
         <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
           {paid.map((b,i)=>(
-            <div key={b.id} style={{display:"flex",alignItems:"center",padding:"13px 16px",borderBottom:i<paid.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+            <div key={b.id} style={{display:"flex",alignItems:"center",padding:"13px 16px",borderBottom:i<paid.length-1?"0.5px solid rgba(0,0,0,0.1)":"none"}}>
               <div style={{width:8,height:8,borderRadius:4,background:"#34C759",marginRight:12,flexShrink:0}}/>
               <div style={{flex:1}}>
                 <div style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{b.vendorName}</div>
@@ -3614,9 +3648,9 @@ function ViewMonth({p,month,onBack}){
 // ─── Shared Components ────────────────────────────────────────────────────────
 function AppleScreen({p,title,onBack,children}){
   return(
-    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
-      <div style={{background:"#e7e7e7",padding:"56px 20px 0",paddingBottom:12}}>
-        <button onClick={onBack} style={{background:"none",border:"none",color:p.accent,fontSize:17,cursor:"pointer",padding:"0 0 10px",display:"flex",alignItems:"center",gap:5,fontFamily:"inherit",fontWeight:400,letterSpacing:"-0.2px"}}>
+    <div style={{minHeight:"100vh",background:"#ffffff",paddingBottom:60}}>
+      <div style={{background:"#ffffff",padding:"56px 20px 0",paddingBottom:12}}>
+        <button onClick={onBack} style={{background:"none",border:"none",color:"#136ef6",fontSize:17,cursor:"pointer",padding:"0 0 10px",display:"flex",alignItems:"center",gap:5,fontFamily:"inherit",fontWeight:500,letterSpacing:"-0.2px"}}>
           <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1 8.5L9 16" stroke={p.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           {p.label}
         </button>
@@ -3628,7 +3662,7 @@ function AppleScreen({p,title,onBack,children}){
 }
 
 function SectionLabel({children,inline}){
-  return <div style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:inline?0:8,padding:"0 4px"}}>{children}</div>;
+  return <div style={{fontSize:13,fontWeight:400,color:"#1e3e77",textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:600,marginBottom:inline?0:8,padding:"0 4px"}}>{children}</div>;
 }
 
 function Chip({children,color,bg}){
@@ -3650,20 +3684,20 @@ function AppleFormGroup({children}){
 
 function AppleRow({label,children,last}){
   return(
-    <div className="ios-row" style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"13px 16px",borderBottom:last?"none":"0.5px solid rgba(0,0,0,0.08)"}}>
+    <div className="ios-row" style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"13px 16px",borderBottom:last?"none":"0.5px solid rgba(0,0,0,0.1)"}}>
       <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{label}</span>
       <div style={{flex:1,textAlign:"right"}}>{children}</div>
     </div>
   );
 }
 
-const sel={width:"100%",background:"#e7e7e7",border:"none",borderRadius:10,padding:"11px 14px",fontSize:17,color:"#0c203c",fontFamily:"inherit",outline:"none",appearance:"none",WebkitAppearance:"none"};
-const inp={width:"100%",background:"#e7e7e7",border:"none",borderRadius:10,padding:"11px 14px",fontSize:17,color:"#0c203c",fontFamily:"inherit",outline:"none",boxSizing:"border-box"};
+const sel={width:"100%",background:"#ffffff",border:"none",borderRadius:10,padding:"11px 14px",fontSize:17,color:"#0c203c",fontFamily:"inherit",outline:"none",appearance:"none",WebkitAppearance:"none"};
+const inp={width:"100%",background:"#ffffff",border:"none",borderRadius:10,padding:"11px 14px",fontSize:17,color:"#0c203c",fontFamily:"inherit",outline:"none",boxSizing:"border-box"};
 
 const CSS=`
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;margin:0;background:#e7e7e7;}
+  html,body{height:100%;margin:0;background:#ffffff;}
   #root{height:100%;}
   input,select,textarea{font-family:inherit;}
   input::placeholder,textarea::placeholder{color:rgba(0,0,0,0.25);}input,select,textarea{color:#0c203c;background:transparent;}
