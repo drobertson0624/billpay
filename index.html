@@ -2371,24 +2371,24 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
         {/* Balance card — iOS Wallet style */}
         <button onClick={()=>{setNewBal(month.startingBalance||"");setShowBal(true);}}
           style={{width:"100%",background:`linear-gradient(145deg, ${p.gradient[0]}, ${p.gradient[1]})`,borderRadius:20,padding:"20px 22px",marginBottom:12,border:"none",cursor:"pointer",textAlign:"left",fontFamily:"inherit",position:"relative",overflow:"hidden",boxShadow:`0 8px 32px ${p.accent}40`}}>
-          <div style={{position:"absolute",top:-30,right:-30,width:120,height:120,borderRadius:60,background:"rgba(0,0,0,0.06)"}}/>
-          <div style={{position:"absolute",bottom:-20,right:20,width:80,height:80,borderRadius:40,background:"rgba(0,0,0,0.03)"}}/>
-          <div style={{fontSize:13,color:"rgba(0,0,0,0.55)",fontWeight:500,letterSpacing:"0.02em",marginBottom:4,position:"relative"}}>
+          <div style={{position:"absolute",top:-30,right:-30,width:120,height:120,borderRadius:60,background:"rgba(255,255,255,0.06)"}}/>
+          <div style={{position:"absolute",bottom:-20,right:20,width:80,height:80,borderRadius:40,background:"rgba(255,255,255,0.04)"}}/>
+          <div style={{fontSize:13,color:"rgba(255,255,255,0.7)",fontWeight:500,letterSpacing:"0.02em",marginBottom:4,position:"relative"}}>
             Account Balance · tap to update
           </div>
           <div style={{fontSize:36,fontWeight:700,color:"#ffffff",letterSpacing:"-1px",lineHeight:1,position:"relative"}}>
-            {month.startingBalance ? fmt(month.startingBalance) : <span style={{color:"rgba(255,255,255,0.5)",fontSize:28}}>Tap to set</span>}
+            {month.startingBalance ? fmt(month.startingBalance) : <span style={{color:"rgba(255,255,255,0.45)",fontSize:28}}>Tap to set</span>}
           </div>
           <div style={{display:"flex",gap:24,marginTop:16,position:"relative"}}>
             <div>
-              <div style={{fontSize:11,color:"rgba(0,0,0,0.45)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Remaining</div>
-              <div style={{fontSize:18,fontWeight:700,color:liveRemaining<0?"#ff453a":"#ffffff",marginTop:1}}>{fmt(liveRemaining)}</div>
-              <div style={{fontSize:10,color:"rgba(0,0,0,0.25)",marginTop:1}}>after paid bills</div>
+              <div style={{fontSize:11,color:"rgba(255,255,255,0.65)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.08em"}}>Remaining</div>
+              <div style={{fontSize:18,fontWeight:700,color:(month.startingBalance||0)-pendAmt<0?"#ff6b6b":"#ffffff",marginTop:2}}>{fmt((month.startingBalance||0)-pendAmt)}</div>
+              <div style={{fontSize:10,color:"rgba(255,255,255,0.5)",marginTop:2}}>balance − pending</div>
             </div>
             <div>
-              <div style={{fontSize:11,color:"rgba(0,0,0,0.45)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Amount Pending</div>
-              <div style={{fontSize:18,fontWeight:700,color:"#ffffff",marginTop:1}}>{fmt(pendAmt)}</div>
-              <div style={{fontSize:10,color:"rgba(0,0,0,0.25)",marginTop:1}}>pending payments</div>
+              <div style={{fontSize:11,color:"rgba(255,255,255,0.65)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.08em"}}>Amount Pending</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#ffffff",marginTop:2}}>{fmt(pendAmt)}</div>
+              <div style={{fontSize:10,color:"rgba(255,255,255,0.5)",marginTop:2}}>bills not yet paid</div>
             </div>
           </div>
         </button>
