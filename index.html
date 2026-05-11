@@ -1418,7 +1418,7 @@ function PropAppDesktop({pk, onNav, startScreen}){
         {subScreen!=="home"&&<><span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span><span style={{fontSize:13,fontWeight:600,color:p.accent}}>{subScreen==="bills"?"Pay Bills":subScreen==="manage"?"Vendors":subScreen==="history"?"History":subScreen==="new"?"New Month":subScreen==="schedule"?"Schedule":"View"}</span></>}
       </div>
       <div style={{maxWidth:800,margin:"0 auto",padding:"16px 32px 48px"}}>
-        {subScreen==="home"     &&<PropHomeDesktop p={p} active={active} closed={closed} onOpen={id=>{setActiveId(id);setSubScreen("bills");}} onNew={()=>setSubScreen("new")} onManage={()=>setSubScreen("manage")} onHistory={()=>setSubScreen("history")} onDelete={deleteMonth}/>}
+        {subScreen==="home"     &&<PropHomeDesktop p={p} active={active} closed={closed} onOpen={id=>{setActiveId(id);setSubScreen("bills");}} onNew={()=>setSubScreen("new")} onManage={()=>setSubScreen("manage")} onHistory={()=>setSubScreen("history")} onDelete={deleteMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));}}/>}
         {subScreen==="schedule" &&<BillSchedule p={p} vendors={vendors} setVendors={saveVendors} months={months} updateMonth={updateMonth} onBack={goHome}/>}
         {subScreen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={goHome}/>}
         {subScreen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} months={months} onUpdate={updateMonth} onAddMonth={addMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));goHome();}} onBack={goHome}/>}
@@ -1431,7 +1431,7 @@ function PropAppDesktop({pk, onNav, startScreen}){
 }
 
 // ─── Desktop Property Home ────────────────────────────────────────────────────
-function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDelete,onSchedule}){
+function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDelete,onSchedule,onClose}){
   const [confirmId,setConfirmId]=useState(null);
   const confirmMonth=active.find(m=>m.id===confirmId);
   const allMonths=[...active,...closed];
@@ -1458,13 +1458,13 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
         <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 80% 30%,${p.accent}25,transparent 70%)`,pointerEvents:"none"}}/>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",position:"relative"}}>
           <div>
-            <div style={{fontSize:11,fontWeight:600,color:"rgba(0,0,0,0.45)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>{p.sub}</div>
+            <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.7)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>{p.sub}</div>
             <div style={{fontSize:32,fontWeight:800,color:"#fff",letterSpacing:"-0.5px"}}>{p.label}</div>
           </div>
           <div style={{display:"flex",gap:10}}>
             <button onClick={onNew} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.25)",borderRadius:10,padding:"8px 16px",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>＋ New Month</button>
-            <button onClick={onManage} style={{background:"rgba(0,0,0,0.08)",border:"1px solid rgba(0,0,0,0.15)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>Vendors</button>
-            <button onClick={onHistory} style={{background:"rgba(0,0,0,0.08)",border:"1px solid rgba(0,0,0,0.15)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>History</button>
+            <button onClick={onManage} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:10,padding:"8px 16px",color:"#fff",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>Vendors</button>
+            <button onClick={onHistory} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:10,padding:"8px 16px",color:"#fff",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>History</button>
           </div>
         </div>
         <div style={{display:"flex",gap:24,marginTop:20,position:"relative"}}>
@@ -1493,12 +1493,12 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
                       <div style={{cursor:"pointer"}} onClick={()=>onOpen(m.id)}>
                         <div style={{fontSize:16,fontWeight:700,color:"#0c203c"}}>{m.label}</div>
-                        <div style={{fontSize:12,color:"rgba(255,255,255,0.5)",marginTop:2}}>{paid.length}/{m.bills.length} bills · {fmt(paidAmt)} paid</div>
+                        <div style={{fontSize:12,color:"#416cb3",marginTop:2}}>{paid.length}/{m.bills.length} bills · {fmt(paidAmt)} paid</div>
                       </div>
                       <div style={{display:"flex",gap:8,alignItems:"flex-start"}}>
                         <div style={{textAlign:"right",cursor:"pointer"}} onClick={()=>onOpen(m.id)}>
                           <div style={{fontSize:20,fontWeight:800,color:p.accent}}>{fmt(m.balance)}</div>
-                          <div style={{fontSize:10,color:"rgba(0,0,0,0.35)"}}>remaining</div>
+                          <div style={{fontSize:10,color:"#416cb3",fontWeight:500}}>remaining</div>
                         </div>
                         <button onClick={()=>setConfirmId(m.id)} style={{background:"rgba(232,77,138,0.08)",border:"none",borderRadius:7,width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",marginTop:2}}>
                           <TrashIcon size={13} color="#E84D8A"/>
@@ -1509,8 +1509,15 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
                       <div style={{height:"100%",width:`${pct}%`,background:p.accent,borderRadius:3,transition:"width 0.5s"}}/>
                     </div>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                      <span style={{fontSize:11,color:"rgba(0,0,0,0.35)"}}>{pct}% complete · {pending.length} pending</span>
-                      <button onClick={()=>onOpen(m.id)} style={{background:p.accent,border:"none",borderRadius:8,padding:"5px 14px",fontSize:12,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Pay Bills →</button>
+                      <span style={{fontSize:11,color:"#416cb3"}}>{pct}% complete · {pending.length} pending</span>
+                      <div style={{display:"flex",gap:8}}>
+                        {pending.length===0&&(
+                          <button onClick={e=>{e.stopPropagation();onClose&&onClose(m.id);}} style={{background:"rgba(52,199,89,0.1)",border:"1px solid rgba(52,199,89,0.3)",borderRadius:8,padding:"5px 12px",fontSize:12,fontWeight:600,color:"#34C759",cursor:"pointer",fontFamily:"inherit"}}>
+                            ✓ Close Month
+                          </button>
+                        )}
+                        <button onClick={()=>onOpen(m.id)} style={{background:p.accent,border:"none",borderRadius:8,padding:"5px 14px",fontSize:12,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Pay Bills →</button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2505,20 +2512,24 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
                     }
                     {!isPaid&&!isSkipped&&(
                       <div style={{display:"flex",gap:4}}>
-                        <button onClick={e=>{e.stopPropagation();flagBill(b.id);}} title={b.flagged?"Unflag":"Flag"}
-                          style={{width:30,height:30,borderRadius:8,background:b.flagged?"rgba(255,59,48,0.12)":"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                          🚩
-                        </button>
+                        <Tip label={b.flagged?"Remove flag":"Flag for attention"}>
+                          <button onClick={e=>{e.stopPropagation();flagBill(b.id);}}
+                            style={{width:30,height:30,borderRadius:8,background:b.flagged?"rgba(255,59,48,0.12)":"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                            🚩
+                          </button>
+                        </Tip>
                         <Tip label="Roll to next month">
                           <button onClick={e=>{e.stopPropagation();rolloverBill(b.id);}}
                             style={{width:30,height:30,borderRadius:8,background:"rgba(19,110,246,0.1)",border:"none",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>
                             ↩
                           </button>
                         </Tip>
-                        <button onClick={e=>{e.stopPropagation();skipBill(b.id);}}
-                          style={{width:30,height:30,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",fontSize:11,color:"#416cb3",fontFamily:"inherit",fontWeight:500}}>
-                          Skip
-                        </button>
+                        <Tip label="Skip this bill">
+                          <button onClick={e=>{e.stopPropagation();skipBill(b.id);}}
+                            style={{width:30,height:30,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",fontSize:11,color:"#416cb3",fontFamily:"inherit",fontWeight:500}}>
+                            Skip
+                          </button>
+                        </Tip>
                       </div>
                     )}
                     {!isPaid&&!isSkipped&&<svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
