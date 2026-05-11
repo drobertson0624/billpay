@@ -2325,6 +2325,21 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
     { match: /CHASE\s*[·•]\s*(?!2675|6108)\d/i, label: "Chase"        },
   ];
 
+  // Color coding per card — left border accent on bill rows
+  const CARD_COLORS = {
+    "AMEX":         { border:"#136ef6", bg:"rgba(19,110,246,0.04)",  dot:"#136ef6"  }, // electric blue
+    "Chase · 2675": { border:"#1e3e77", bg:"rgba(30,62,119,0.05)",   dot:"#1e3e77"  }, // deep navy
+    "Chase · 6108": { border:"#416cb3", bg:"rgba(65,108,179,0.05)",  dot:"#416cb3"  }, // mid blue
+    "Apple Card":   { border:"#34C759", bg:"rgba(52,199,89,0.04)",   dot:"#34C759"  }, // green
+    "Chase":        { border:"#1e3e77", bg:"rgba(30,62,119,0.04)",   dot:"#1e3e77"  },
+  };
+
+  function getCardColor(account){
+    if(!account) return null;
+    const m = CREDIT_CARD_PATTERNS.find(p=>p.match.test(account));
+    return m ? CARD_COLORS[m.label] : null;
+  }
+
   const paymentMethods = {};
   bills.filter(b=>b.status==="pending"&&b.amount>0).forEach(b=>{
     const acct = b.account||"";
@@ -2436,6 +2451,7 @@ function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
             const isPaid   = b.status==="paid";
             const isSkipped= b.status==="skipped";
             const needsAmt = !b.amount||b.amount===0;
+            const cardColor= (!isPaid&&!isSkipped) ? getCardColor(b.account) : null;
             return(
               <div style={{borderBottom:isLast?"none":"0.5px solid rgba(0,0,0,0.1)",marginLeft:56}}>
                 <div style={{display:"flex",alignItems:"center",padding:"11px 16px 11px 0",gap:0,marginLeft:-56,paddingLeft:16,background:b.flagged?"rgba(255,59,48,0.03)":"transparent"}}>
