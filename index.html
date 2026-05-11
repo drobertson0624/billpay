@@ -8,12 +8,15 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
-    html,body,#root{height:100%;background:#F2F2F7;}
-    body{font-family:'Nunito',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;}
+    html,body,#root{height:100%;background:#e7e7e7;}
+    body{font-family:"Inter",-apple-system,"Helvetica Neue",system-ui,sans-serif;}
     input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+    input,select,textarea{color:#0c203c;}
+    input::placeholder,textarea::placeholder{color:rgba(0,0,0,0.3);}
+    select option{background:#ffffff;color:#0c203c;}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
   </style>
@@ -158,8 +161,8 @@ const MO = ["January","February","March","April","May","June","July","August","S
 const SW_CATS   = ["1ST","2ND","Tithes","Amazon","Chase United","Yearly","Home Services"];
 const SNAP_CATS = ["Monthly","Quarterly","Yearly"];
 const PROPERTIES = {
-  sw:  {key:"sw",   label:"Sir Walters", sub:"Primary Residence", emoji:"house",  gradient:["#5a3d80","#7F58AF"], accent:"#7F58AF", vendors:SW_VENDORS,   cats:SW_CATS,   seed:SW_MONTHS},
-  snap:{key:"snap", label:"Snapdragon",  sub:"Rental Property",   emoji:"leaf",   gradient:["#2d8faf","#64C5EB"], accent:"#64C5EB", vendors:SNAP_VENDORS, cats:SNAP_CATS, seed:SNAP_MONTHS},
+  sw:  {key:"sw",   label:"Sir Walters", sub:"Primary Residence", emoji:"house",  gradient:["#1e3e77","#136ef6"], accent:"#136ef6", vendors:SW_VENDORS,   cats:SW_CATS,   seed:SW_MONTHS},
+  snap:{key:"snap", label:"Snapdragon",  sub:"Rental Property",   emoji:"leaf",   gradient:["#102749","#416cb3"], accent:"#416cb3", vendors:SNAP_VENDORS, cats:SNAP_CATS, seed:SNAP_MONTHS},
 };
 
 // ─── Supabase ─────────────────────────────────────────────────────────────────
@@ -448,7 +451,7 @@ function AccountSelect({value, onChange, style}){
           <option key={a.value} value={a.value}>{a.label}{a.type==="card"?" 💳":a.type==="bank"?" 🏦":""}</option>
         ))}
       </select>
-      <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none",color:"#8E8E93",fontSize:12}}>▾</div>
+      <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none",color:"#416cb3",fontSize:12}}>▾</div>
     </div>
   );
 }
@@ -497,70 +500,64 @@ const CalIcon = ({size=18,color="#FEB326"}={}) => (
 );
 
 // Check circle icon
-const CheckCircleIcon = ({size=22,color="#64C5EB"}={}) => (
+const CheckCircleIcon = ({size=22,color="#416cb3"}={}) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
     <circle cx="12" cy="12" r="10"/>
     <path d="M7.5 12l3 3 6-6"/>
   </svg>
 );
 
-// Plus icon
-const PlusIcon = ({size=18,color="#7F58AF"}={}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" style={{display:"block"}}>
-    <line x1="12" y1="5" x2="12" y2="19"/>
-    <line x1="5" y1="12" x2="19" y2="12"/>
+// ── SpaceX-style icon set — thin strokes, geometric, aerospace ───────────────
+const PlusIcon = ({size=18,color="#136ef6"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block"}}>
+    <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
   </svg>
 );
 
-// Gear / settings icon
-const GearIcon = ({size=18,color="#636366"}={}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
-    <circle cx="12" cy="12" r="3"/>
-    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+const GearIcon = ({size=18,color="#e7e7e7"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block"}}>
+    <rect x="9" y="9" width="6" height="6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
   </svg>
 );
 
-// Folder icon
-const FolderIcon = ({size=18,color="#636366"}={}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
-    <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+const FolderIcon = ({size=18,color="#e7e7e7"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block"}}>
+    <path d="M2 6h8l2 3h10v11H2z"/><line x1="2" y1="9" x2="22" y2="9"/>
   </svg>
 );
 
-// Dollar / payment icon  
-const DollarIcon = ({size=16,color="#7F58AF"}={}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{display:"block"}}>
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M12 6v12M9 9.5A3 3 0 0112 8a3 3 0 010 6 3 3 0 000 6 3 3 0 003-1.5"/>
+const DollarIcon = ({size=16,color="#136ef6"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block"}}>
+    <line x1="12" y1="2" x2="12" y2="22"/><path d="M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
   </svg>
 );
 
-// Link icon
-const LinkIcon = ({size=14,color="#7F58AF"}={}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{display:"block",flexShrink:0}}>
-    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
-    <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+const LinkIcon = ({size=14,color="#136ef6"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block",flexShrink:0}}>
+    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
   </svg>
 );
 
-// Trash icon
-const TrashIcon = ({size=16,color="#E84D8A"}={}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{display:"block",flexShrink:0}}>
-    <polyline points="3 6 5 6 21 6"/>
-    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-    <path d="M10 11v6M14 11v6"/>
-    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+const TrashIcon = ({size=16,color="#ff3b30"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block",flexShrink:0}}>
+    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
   </svg>
 );
 
-// Phone icon
-const PhoneIcon = ({size=14,color="#7F58AF"}={}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{display:"block",flexShrink:0}}>
-    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.86 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012.77 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.09 6.09l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+const PhoneIcon = ({size=14,color="#136ef6"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block",flexShrink:0}}>
+    <rect x="5" y="2" width="14" height="20" rx="1"/><line x1="9" y1="7" x2="15" y2="7"/><circle cx="12" cy="17" r="1" fill={color}/>
   </svg>
 );
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
+const CalIcon = ({size=18,color="#136ef6"}={}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="square" style={{display:"block"}}>
+    <rect x="3" y="4" width="18" height="18"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="7" y1="14" x2="9" y2="14"/><line x1="11" y1="14" x2="13" y2="14"/><line x1="15" y1="14" x2="17" y2="14"/>
+  </svg>
+);
+
+// ─── Auth // ─── Auth ─────────────────────────────────────────────────────────────────────
 const GOOGLE_CLIENT_ID = "1003372732048-d29pha2o6s7e7mpma6jc0mstepsh351r.apps.googleusercontent.com";
 
 function useAuth() {
@@ -675,11 +672,11 @@ function SignInScreen({ onSignIn, denied }) {
   }, []);
 
   return (
-    <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#5a3d80 0%,#7F58AF 100%)",display:"flex",alignItems:"center",justifyContent:"center",padding:24,position:"relative",overflow:"hidden"}}>
+    <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#0c203c 0%,#1e3e77 100%)",display:"flex",alignItems:"center",justifyContent:"center",padding:24,position:"relative",overflow:"hidden"}}>
       <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 70% 20%,rgba(100,197,235,0.3),transparent 60%)",pointerEvents:"none"}}/>
       <div style={{background:"#ffffff",borderRadius:24,padding:"44px 40px",maxWidth:400,width:"100%",textAlign:"center",boxShadow:"0 32px 80px rgba(0,0,0,0.25)",position:"relative"}}>
         {/* Icon */}
-        <div style={{width:72,height:72,borderRadius:20,background:"linear-gradient(135deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:"0 8px 24px rgba(127,88,175,0.35)"}}>
+        <div style={{width:72,height:72,borderRadius:20,background:"linear-gradient(135deg,#102749,#1e3e77)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:"0 8px 24px rgba(127,88,175,0.35)"}}>
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="8" width="20" height="13" rx="2"/>
             <path d="M8 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/>
@@ -687,7 +684,7 @@ function SignInScreen({ onSignIn, denied }) {
             <circle cx="12" cy="13" r="1" fill="white" stroke="none"/>
           </svg>
         </div>
-        <div style={{fontSize:26,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.5px",marginBottom:6}}>Bill Pay</div>
+        <div style={{fontSize:26,fontWeight:800,color:"#0c203c",letterSpacing:"-0.5px",marginBottom:6}}>Bill Pay</div>
         <div style={{fontSize:14,color:"rgba(0,0,0,0.45)",marginBottom:32,lineHeight:1.5}}>Home Workbook · Family Finance<br/>Sign in to access your account</div>
 
         {denied ? (
@@ -727,14 +724,14 @@ function App(){
 
   // Loading — show blank app background, no login screen
   if (status === "loading") return (
-    <div style={{minHeight:"100vh",background:"#F2F2F7"}}/>
+    <div style={{minHeight:"100vh",background:"#e7e7e7"}}/>
   );
 
   // Checking credentials after Google sign-in
   if (status === "checking") return (
-    <div style={{minHeight:"100vh",background:"#F2F2F7",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
-      <div style={{width:32,height:32,border:"3px solid rgba(127,88,175,0.2)",borderTop:"3px solid #7F58AF",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
-      <div style={{fontSize:14,color:"#8E8E93"}}>Verifying access…</div>
+    <div style={{minHeight:"100vh",background:"#e7e7e7",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
+      <div style={{width:32,height:32,border:"3px solid rgba(19,110,246,0.2)",borderTop:"3px solid #136ef6",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
+      <div style={{fontSize:14,color:"#416cb3"}}>Verifying access…</div>
     </div>
   );
 
@@ -768,8 +765,8 @@ function MobileShell({user, onSignOut}){
 
   const navItems = [
     { id:"dashboard", label:"Overview",    icon:"grid", badge:null },
-    { id:"sw",        label:"Sir Walters", icon:"home", badge:swPending||null, accent:"#7F58AF" },
-    { id:"snap",      label:"Snapdragon",  icon:"leaf", badge:snPending||null, accent:"#64C5EB" },
+    { id:"sw",        label:"Sir Walters", icon:"home", badge:swPending||null, accent:"#136ef6" },
+    { id:"snap",      label:"Snapdragon",  icon:"leaf", badge:snPending||null, accent:"#416cb3" },
   ];
 
   function handleNav(id){
@@ -790,8 +787,8 @@ function MobileShell({user, onSignOut}){
           <div style={{position:"relative",width:260,background:"rgba(245,245,250,0.98)",height:"100%",display:"flex",flexDirection:"column",boxShadow:"4px 0 24px rgba(0,0,0,0.15)",animation:"slideInLeft 0.25s cubic-bezier(0.4,0,0.2,1)"}}>
             {/* Close button */}
             <button onClick={()=>setDrawerOpen(false)}
-              style={{position:"absolute",top:16,right:16,width:30,height:30,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2.5" strokeLinecap="round">
+              style={{position:"absolute",top:16,right:16,width:30,height:30,borderRadius:8,background:"rgba(0,0,0,0.05)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="1.5" strokeLinecap="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
@@ -799,7 +796,7 @@ function MobileShell({user, onSignOut}){
             {/* Logo */}
             <div style={{padding:"32px 20px 20px"}}>
               <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:4}}>Home Workbook</div>
-              <div style={{fontSize:22,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.5px"}}>Bill Pay</div>
+              <div style={{fontSize:22,fontWeight:800,color:"#0c203c",letterSpacing:"-0.5px"}}>Bill Pay</div>
             </div>
 
             {/* Nav */}
@@ -808,11 +805,11 @@ function MobileShell({user, onSignOut}){
                 const isActive = prop===null ? item.id==="dashboard" : item.id===prop;
                 return(
                   <button key={item.id} onClick={()=>handleNav(item.id)}
-                    style={{width:"100%",display:"flex",alignItems:"center",gap:12,padding:"11px 12px",borderRadius:10,border:"none",background:isActive?"rgba(127,88,175,0.12)":"transparent",cursor:"pointer",fontFamily:"inherit",marginBottom:4,textAlign:"left"}}>
-                    <div style={{width:32,height:32,borderRadius:8,background:isActive?(item.accent||"#7F58AF"):"rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
-                      {item.icon==="grid" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isActive?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>}
-                      {item.icon==="home" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isActive?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>}
-                      {item.icon==="leaf" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isActive?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>}
+                    style={{width:"100%",display:"flex",alignItems:"center",gap:12,padding:"11px 12px",borderRadius:10,border:"none",background:isActive?"rgba(19,110,246,0.08)":"transparent",cursor:"pointer",fontFamily:"inherit",marginBottom:4,textAlign:"left"}}>
+                    <div style={{width:32,height:32,borderRadius:8,background:isActive?(item.accent||"#136ef6"):"rgba(0,0,0,0.05)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                      {item.icon==="grid" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isActive?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>}
+                      {item.icon==="home" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isActive?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="1.5" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>}
+                      {item.icon==="leaf" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isActive?"#fff":"rgba(0,0,0,0.45)"} strokeWidth="1.5" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>}
                     </div>
                     <span style={{fontSize:15,fontWeight:isActive?700:500,color:isActive?"#1C1C1E":"rgba(0,0,0,0.55)",flex:1}}>{item.label}</span>
                     {item.badge>0 && <span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"2px 8px",fontSize:12,fontWeight:700}}>{item.badge}</span>}
@@ -822,14 +819,14 @@ function MobileShell({user, onSignOut}){
             </div>
 
             {/* User + sign out */}
-            <div style={{padding:"16px 16px 48px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+            <div style={{padding:"16px 16px 48px",borderTop:"1px solid rgba(0,0,0,0.05)"}}>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
                 {user?.picture
                   ? <img src={user.picture} style={{width:36,height:36,borderRadius:18,flexShrink:0}} alt=""/>
-                  : <div style={{width:36,height:36,borderRadius:18,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:14,fontWeight:700,flexShrink:0}}>{user?.name?.[0]||"?"}</div>
+                  : <div style={{width:36,height:36,borderRadius:18,background:"#136ef6",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:14,fontWeight:700,flexShrink:0}}>{user?.name?.[0]||"?"}</div>
                 }
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:"#0c203c",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
                   <div style={{fontSize:11,color:"rgba(0,0,0,0.35)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.email||""}</div>
                 </div>
                 <button onClick={onSignOut}
@@ -857,7 +854,7 @@ function PropAppWithMenu({pk, onBack, onMenu}){
       {/* Floating hamburger */}
       <button onClick={onMenu}
         style={{position:"fixed",top:16,left:16,zIndex:100,width:36,height:36,borderRadius:10,background:"rgba(255,255,255,0.9)",backdropFilter:"blur(10px)",border:"1px solid rgba(0,0,0,0.08)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.1)"}}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="2.5" strokeLinecap="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="1.5" strokeLinecap="round">
           <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
       </button>
@@ -882,35 +879,35 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
   if(insights.length===0) insights.push({icon:"✅",text:"All caught up. Balance looks healthy."});
 
   return(
-    <div style={{minHeight:"100vh",background:"#F2F2F7",paddingBottom:60}}>
+    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
       {/* Hero */}
-      <div style={{background:"linear-gradient(160deg,#5a3d80 0%,#7F58AF 100%)",padding:"52px 22px 28px",position:"relative",overflow:"hidden"}}>
+      <div style={{background:"linear-gradient(160deg,#0c203c 0%,#1e3e77 100%)",padding:"52px 22px 28px",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 80% 20%,rgba(100,197,235,0.3),transparent 60%)",pointerEvents:"none"}}/>
         <div style={{position:"relative"}}>
           {/* Top bar: hamburger + greeting + avatar */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
             <button onClick={onMenu}
-              style={{width:36,height:36,borderRadius:10,background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.2)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2.5" strokeLinecap="round">
+              style={{width:36,height:36,borderRadius:10,background:"rgba(255,255,255,0.15)",border:"1px solid rgba(0,0,0,0.15)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round">
                 <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
               </svg>
             </button>
             <div style={{fontSize:13,color:"rgba(255,255,255,0.7)"}}>{greeting}, {user?.name?.split(" ")[0]||"David"}</div>
             {user?.picture
               ? <img src={user.picture} style={{width:32,height:32,borderRadius:16}} alt=""/>
-              : <div style={{width:32,height:32,borderRadius:16,background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:700}}>{user?.name?.[0]||"?"}</div>
+              : <div style={{width:32,height:32,borderRadius:16,background:"rgba(0,0,0,0.15)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:700}}>{user?.name?.[0]||"?"}</div>
             }
           </div>
-          <div style={{fontSize:28,fontWeight:800,color:"#ffffff",letterSpacing:"-0.5px",lineHeight:1.15,marginBottom:2}}>Home Workbook</div>
+          <div style={{fontSize:28,fontWeight:800,color:"#0c203c",letterSpacing:"-0.5px",lineHeight:1.15,marginBottom:2}}>Home Workbook</div>
           <div style={{fontSize:14,color:"rgba(255,255,255,0.5)",marginBottom:24}}>{MO_SHORT[now.getMonth()]} {now.getFullYear()} · Financial Overview</div>
           {/* Stat pills */}
           <div style={{display:"flex",gap:10}}>
             {[
-              {label:"This Month",val:fmt(thisMonthSpend),sub:spendDelta!==null?`${spendDelta>0?"↑":"↓"} ${Math.abs(spendDelta).toFixed(0)}%`:null,subColor:spendDelta>0?"#FEB326":"#64C5EB"},
+              {label:"This Month",val:fmt(thisMonthSpend),sub:spendDelta!==null?`${spendDelta>0?"↑":"↓"} ${Math.abs(spendDelta).toFixed(0)}%`:null,subColor:spendDelta>0?"#FEB326":"#416cb3"},
               {label:"YTD Paid",val:fmt(ytd),sub:`Jan ${now.getFullYear()}`,subColor:"rgba(255,255,255,0.4)"},
               {label:"Balance",val:hc.label,sub:fmt(totalBalance),subColor:"rgba(255,255,255,0.4)",valColor:hc.color},
             ].map((s,i)=>(
-              <div key={i} style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:14,padding:"12px 10px",border:"1px solid rgba(255,255,255,0.1)"}}>
+              <div key={i} style={{flex:1,background:"rgba(0,0,0,0.06)",borderRadius:14,padding:"12px 10px",border:"1px solid rgba(0,0,0,0.08)"}}>
                 <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>{s.label}</div>
                 <div style={{fontSize:15,fontWeight:700,color:s.valColor||"#ffffff",letterSpacing:"-0.3px"}}>{s.val}</div>
                 {s.sub&&<div style={{fontSize:10,marginTop:2,fontWeight:600,color:s.subColor}}>{s.sub}</div>}
@@ -925,13 +922,13 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
         <RemindersWidget/>
 
         {/* Advisor insights */}
-        <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+        <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px",marginBottom:16,border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 2px 10px rgba(0,0,0,0.04)"}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-            <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>💼</div>
-            <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E"}}>Advisor Insights</div>
+            <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#102749,#1e3e77)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>💼</div>
+            <div style={{fontSize:13,fontWeight:700,color:"#0c203c"}}>Advisor Insights</div>
           </div>
           {insights.map((ins,i)=>(
-            <div key={i} style={{display:"flex",gap:8,padding:"8px 0",borderTop:i>0?"1px solid rgba(0,0,0,0.05)":"none",alignItems:"flex-start"}}>
+            <div key={i} style={{display:"flex",gap:8,padding:"8px 0",borderTop:i>0?"1px solid rgba(0,0,0,0.04)":"none",alignItems:"flex-start"}}>
               <span style={{fontSize:14,flexShrink:0}}>{ins.icon}</span>
               <span style={{fontSize:13,color:"rgba(0,0,0,0.6)",lineHeight:1.45}}>{ins.text}</span>
             </div>
@@ -939,9 +936,9 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
         </div>
 
         {/* Bar chart */}
-        <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px 12px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+        <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px 12px",marginBottom:16,border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 2px 10px rgba(0,0,0,0.04)"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:12}}>
-            <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Monthly Spending</div>
+            <div style={{fontSize:14,fontWeight:700,color:"#0c203c"}}>Monthly Spending</div>
             <div style={{fontSize:12,color:"rgba(0,0,0,0.38)"}}>6 months</div>
           </div>
           <SpendingBarChart data={monthHistory} currentMonth={now.getMonth()} currentYear={now.getFullYear()}/>
@@ -952,18 +949,18 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
           {[{p:PROPERTIES.sw,st:swStats},{p:PROPERTIES.snap,st:snStats}].map(({p,st})=>(
             <div key={p.key} className="prop-card" onClick={()=>onSelect(p.key)}
-              style={{background:"#ffffff",borderRadius:18,overflow:"hidden",cursor:"pointer",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+              style={{background:"#ffffff",borderRadius:18,overflow:"hidden",cursor:"pointer",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 2px 10px rgba(0,0,0,0.04)"}}>
               <div style={{background:`linear-gradient(140deg,${p.gradient[0]},${p.gradient[1]})`,padding:"14px 12px",position:"relative",overflow:"hidden"}}>
                 <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 80% 30%,${p.accent}30,transparent 70%)`,pointerEvents:"none"}}/>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",position:"relative"}}>
                   <div>
                     <div style={{fontSize:9,fontWeight:600,color:"rgba(255,255,255,0.5)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:2}}>{p.sub}</div>
-                    <div style={{fontSize:14,fontWeight:700,color:"#ffffff"}}>{p.label}</div>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0c203c"}}>{p.label}</div>
                   </div>
                   <div style={{fontSize:18}}>{p.key==="sw"?<HomeIcon size={18}/>:<LeafIcon size={18}/>}</div>
                 </div>
                 <div style={{marginTop:10}}>
-                  <div style={{height:3,background:"rgba(255,255,255,0.2)",borderRadius:2,overflow:"hidden"}}>
+                  <div style={{height:3,background:"rgba(0,0,0,0.15)",borderRadius:2,overflow:"hidden"}}>
                     <div style={{height:"100%",width:`${st.pct}%`,background:p.accent,borderRadius:2}}/>
                   </div>
                   <div style={{fontSize:10,color:"rgba(255,255,255,0.5)",marginTop:3}}>{st.pct}% this month</div>
@@ -971,15 +968,15 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
               </div>
               <div style={{padding:"10px 12px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                  <span style={{fontSize:10,color:"rgba(0,0,0,0.4)"}}>Remaining</span>
+                  <span style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>Remaining</span>
                   <span style={{fontSize:12,fontWeight:700,color:st.bal<0?"#E84D8A":p.accent}}>{fmt(st.bal)}</span>
                 </div>
                 <div style={{display:"flex",justifyContent:"space-between"}}>
-                  <span style={{fontSize:10,color:"rgba(0,0,0,0.4)"}}>Pending</span>
-                  <span style={{fontSize:12,fontWeight:600,color:st.pending>0?"#FEB326":"#64C5EB"}}>{st.pending>0?`${st.pending} bills`:"Clear ✓"}</span>
+                  <span style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>Pending</span>
+                  <span style={{fontSize:12,fontWeight:600,color:st.pending>0?"#FEB326":"#416cb3"}}>{st.pending>0?`${st.pending} bills`:"Clear ✓"}</span>
                 </div>
               </div>
-              <div style={{borderTop:"1px solid rgba(0,0,0,0.05)",padding:"8px 12px",display:"flex",justifyContent:"flex-end"}}>
+              <div style={{borderTop:"1px solid rgba(0,0,0,0.04)",padding:"8px 12px",display:"flex",justifyContent:"flex-end"}}>
                 <span style={{fontSize:11,fontWeight:700,color:p.accent}}>Open →</span>
               </div>
             </div>
@@ -1028,18 +1025,18 @@ function DesktopShell({user, onSignOut}){
   const snPending = snM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
 
   const MenuIcon = () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2.5" strokeLinecap="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="1.5" strokeLinecap="round">
       <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
     </svg>
   );
 
   const NavIcon = ({icon, active}) => {
     const s = active ? "#fff" : "rgba(0,0,0,0.45)";
-    if(icon==="grid")    return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>;
-    if(icon==="home")    return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>;
-    if(icon==="leaf")    return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>;
-    if(icon==="vendors") return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M19 8v6M22 11h-6"/></svg>;
-    if(icon==="schedule") return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+    if(icon==="grid")    return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>;
+    if(icon==="home")    return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="1.5" strokeLinecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>;
+    if(icon==="leaf")    return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="1.5" strokeLinecap="round"><path d="M12 2C6 2 3 7 3 12c0 4 2.5 7.5 7 9l2-3"/><path d="M12 2c6 0 9 5 9 10 0 4-2.5 7.5-7 9l-2-3"/><line x1="12" y1="21" x2="12" y2="9"/></svg>;
+    if(icon==="vendors") return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="1.5" strokeLinecap="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M19 8v6M22 11h-6"/></svg>;
+    if(icon==="schedule") return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={s} strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
     return null;
   };
 
@@ -1056,21 +1053,21 @@ function DesktopShell({user, onSignOut}){
 
   // Nav structure
   const sections = [
-    { id:"dashboard", label:"Overview", icon:"grid", badge:null, accent:"#7F58AF", sub:[], tooltip:[] },
+    { id:"dashboard", label:"Overview", icon:"grid", badge:null, accent:"#136ef6", sub:[], tooltip:[] },
     {
-      id:"sw", label:"Sir Walters", icon:"home", badge:swPending||null, accent:"#7F58AF",
+      id:"sw", label:"Sir Walters", icon:"home", badge:swPending||null, accent:"#136ef6",
       tooltip: buildTooltip(swM),
       sub:[
-        {id:"sw-vendors",  label:"Vendors",  icon:"vendors",  accent:"#7F58AF"},
-        {id:"sw-schedule", label:"Schedule", icon:"schedule", accent:"#7F58AF"},
+        {id:"sw-vendors",  label:"Vendors",  icon:"vendors",  accent:"#136ef6"},
+        {id:"sw-schedule", label:"Schedule", icon:"schedule", accent:"#136ef6"},
       ]
     },
     {
-      id:"snap", label:"Snapdragon", icon:"leaf", badge:snPending||null, accent:"#64C5EB",
+      id:"snap", label:"Snapdragon", icon:"leaf", badge:snPending||null, accent:"#416cb3",
       tooltip: buildTooltip(snM),
       sub:[
-        {id:"snap-vendors",  label:"Vendors",  icon:"vendors",  accent:"#64C5EB"},
-        {id:"snap-schedule", label:"Schedule", icon:"schedule", accent:"#64C5EB"},
+        {id:"snap-vendors",  label:"Vendors",  icon:"vendors",  accent:"#416cb3"},
+        {id:"snap-schedule", label:"Schedule", icon:"schedule", accent:"#416cb3"},
       ]
     },
   ];
@@ -1094,12 +1091,12 @@ function DesktopShell({user, onSignOut}){
             gap: collapsed ? 0 : 9,
             padding: collapsed ? "5px 0" : isTop ? "7px 10px" : "5px 10px 5px 16px",
             borderRadius:8, border:"none",
-            background: active ? `${item.accent||"#7F58AF"}18` : "transparent",
+            background: active ? `${item.accent||"#136ef6"}18` : "transparent",
             cursor:"pointer", fontFamily:"inherit", marginBottom:1,
           }}>
           <div style={{
             width: isTop?32:26, height: isTop?32:26, borderRadius: isTop?8:7, flexShrink:0,
-            background: active ? (item.accent||"#7F58AF") : isTop?"rgba(0,0,0,0.06)":"transparent",
+            background: active ? (item.accent||"#136ef6") : isTop?"rgba(0,0,0,0.05)":"transparent",
             display:"flex", alignItems:"center", justifyContent:"center",
             position:"relative", transition:"background 0.15s"
           }}>
@@ -1110,7 +1107,7 @@ function DesktopShell({user, onSignOut}){
           </div>
           {!collapsed && (
             <>
-              <span style={{fontSize:isTop?13:12,fontWeight:active?700:isTop?500:400,color:active?(item.accent||"#7F58AF"):"rgba(0,0,0,0.55)",flex:1,textAlign:"left",whiteSpace:"nowrap"}}>
+              <span style={{fontSize:isTop?13:12,fontWeight:active?700:isTop?500:400,color:active?(item.accent||"#136ef6"):"rgba(0,0,0,0.55)",flex:1,textAlign:"left",whiteSpace:"nowrap"}}>
                 {item.label}
               </span>
               {item.badge>0&&<span style={{background:"#E84D8A",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:11,fontWeight:700}}>{item.badge}</span>}
@@ -1141,7 +1138,7 @@ function DesktopShell({user, onSignOut}){
               </div>
             ))}
             {item.tooltip.length>1&&(
-              <div style={{borderTop:"1px solid rgba(255,255,255,0.1)",marginTop:10,paddingTop:10,display:"flex",justifyContent:"space-between"}}>
+              <div style={{borderTop:"1px solid rgba(0,0,0,0.08)",marginTop:10,paddingTop:10,display:"flex",justifyContent:"space-between"}}>
                 <span style={{fontSize:12,color:"rgba(255,255,255,0.4)"}}>Total pending</span>
                 <span style={{fontSize:13,fontWeight:700,color:"#fff"}}>{fmt(item.tooltip.reduce((s,t)=>s+t.amount,0))}</span>
               </div>
@@ -1158,8 +1155,8 @@ function DesktopShell({user, onSignOut}){
       {/* ── Sidebar ── */}
       <div style={{
         width: collapsed ? 52 : 220,
-        background:"rgba(245,245,250,0.97)",
-        borderRight:"1px solid rgba(0,0,0,0.08)",
+        background:"#f0f4ff",
+        borderRight:"1px solid rgba(0,0,0,0.06)",
         display:"flex", flexDirection:"column",
         flexShrink:0,
         transition:"width 0.22s cubic-bezier(0.4,0,0.2,1)",
@@ -1168,13 +1165,13 @@ function DesktopShell({user, onSignOut}){
         {/* Top bar */}
         <div style={{display:"flex",alignItems:"center",padding:collapsed?"18px 0 14px":"18px 12px 14px",justifyContent:collapsed?"center":"flex-start",gap:10,flexShrink:0}}>
           <button onClick={()=>setCollapsed(c=>!c)}
-            style={{width:32,height:32,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            style={{width:32,height:32,borderRadius:8,background:"rgba(0,0,0,0.05)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
             <MenuIcon/>
           </button>
           {!collapsed && (
             <div style={{overflow:"hidden"}}>
               <div style={{fontSize:10,fontWeight:700,color:"rgba(0,0,0,0.32)",letterSpacing:"0.08em",textTransform:"uppercase",whiteSpace:"nowrap"}}>Home Workbook</div>
-              <div style={{fontSize:17,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.3px",whiteSpace:"nowrap"}}>Bill Pay</div>
+              <div style={{fontSize:17,fontWeight:800,color:"#0c203c",letterSpacing:"-0.3px",whiteSpace:"nowrap"}}>Bill Pay</div>
             </div>
           )}
         </div>
@@ -1197,27 +1194,27 @@ function DesktopShell({user, onSignOut}){
         </div>
 
         {/* User row */}
-        <div style={{padding:collapsed?"10px 0 24px":"12px 12px 24px",borderTop:"1px solid rgba(0,0,0,0.07)",display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:collapsed?0:10,flexShrink:0,flexDirection:collapsed?"column":"row"}}>
+        <div style={{padding:collapsed?"10px 0 24px":"12px 12px 24px",borderTop:"1px solid rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:collapsed?0:10,flexShrink:0,flexDirection:collapsed?"column":"row"}}>
           {/* Avatar — click to upload family photo */}
           <input ref={picInputRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>upload(e.target.files[0])}/>
           <button onClick={()=>picInputRef.current?.click()} title="Upload family photo"
             style={{background:"none",border:"none",padding:0,cursor:"pointer",flexShrink:0,position:"relative"}}>
             {(pic||user?.picture)
               ? <img src={pic||user.picture} style={{width:30,height:30,borderRadius:15,objectFit:"cover",display:"block"}} alt=""/>
-              : <div style={{width:30,height:30,borderRadius:15,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:12,fontWeight:700}}>{user?.name?.[0]||"?"}</div>
+              : <div style={{width:30,height:30,borderRadius:15,background:"#136ef6",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:12,fontWeight:700}}>{user?.name?.[0]||"?"}</div>
             }
             <div style={{position:"absolute",bottom:-1,right:-1,width:12,height:12,borderRadius:6,background:"#34C759",border:"2px solid #F5F5F7",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <svg width="6" height="6" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="2" x2="5" y2="8"/><line x1="2" y1="5" x2="8" y2="5"/></svg>
+              <svg width="6" height="6" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><line x1="5" y1="2" x2="5" y2="8"/><line x1="2" y1="5" x2="8" y2="5"/></svg>
             </div>
           </button>
           {!collapsed && (
             <>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:12,fontWeight:700,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
+                <div style={{fontSize:12,fontWeight:700,color:"#0c203c",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.name||"User"}</div>
                 <div style={{fontSize:10,color:"rgba(0,0,0,0.35)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.email||""}</div>
               </div>
               <button onClick={onSignOut} title="Sign out" style={{background:"none",border:"none",cursor:"pointer",padding:4,borderRadius:6,flexShrink:0}}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
               </button>
@@ -1227,7 +1224,7 @@ function DesktopShell({user, onSignOut}){
       </div>
 
       {/* ── Main Content ── */}
-      <div style={{flex:1,overflow:"auto",background:"#f0f0f5"}}>
+      <div style={{flex:1,overflow:"auto",background:"#e7e7e7"}}>
         {panel==="dashboard"    && <DashboardDesktop onNav={setPanel}/>}
         {panel==="sw"           && <PropAppDesktop pk="sw"   onNav={setPanel}/>}
         {panel==="snap"         && <PropAppDesktop pk="snap" onNav={setPanel}/>}
@@ -1261,20 +1258,20 @@ function DashboardDesktop({onNav}){
     <div style={{padding:"32px 32px 48px",maxWidth:1100}}>
       {/* Header */}
       <div style={{marginBottom:28}}>
-        <div style={{fontSize:13,color:"rgba(0,0,0,0.4)",marginBottom:4}}>{greeting}</div>
-        <div style={{fontSize:32,fontWeight:800,color:"#1C1C1E",letterSpacing:"-0.5px"}}>Financial Overview</div>
-        <div style={{fontSize:14,color:"rgba(0,0,0,0.4)",marginTop:4}}>{MO_SHORT[now.getMonth()]} {now.getFullYear()}</div>
+        <div style={{fontSize:13,color:"rgba(255,255,255,0.5)",marginBottom:4}}>{greeting}</div>
+        <div style={{fontSize:32,fontWeight:800,color:"#0c203c",letterSpacing:"-0.5px"}}>Financial Overview</div>
+        <div style={{fontSize:14,color:"rgba(255,255,255,0.5)",marginTop:4}}>{MO_SHORT[now.getMonth()]} {now.getFullYear()}</div>
       </div>
 
       {/* Top stat cards */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:24}}>
         {[
-          {label:"This Month",val:fmt(thisMonthSpend),sub:spendDelta!==null?`${spendDelta>0?"↑":"↓"} ${Math.abs(spendDelta).toFixed(0)}% vs last mo`:null,subColor:spendDelta>0?"#E84D8A":"#64C5EB",accent:"#7F58AF"},
-          {label:"YTD Paid",val:fmt(ytd),sub:`Since Jan ${now.getFullYear()}`,subColor:"rgba(0,0,0,0.38)",accent:"#64C5EB"},
+          {label:"This Month",val:fmt(thisMonthSpend),sub:spendDelta!==null?`${spendDelta>0?"↑":"↓"} ${Math.abs(spendDelta).toFixed(0)}% vs last mo`:null,subColor:spendDelta>0?"#E84D8A":"#416cb3",accent:"#136ef6"},
+          {label:"YTD Paid",val:fmt(ytd),sub:`Since Jan ${now.getFullYear()}`,subColor:"rgba(0,0,0,0.38)",accent:"#416cb3"},
           {label:"Pending Bills",val:pendingBills.length,sub:fmt(totalPending)+" due",subColor:"rgba(0,0,0,0.38)",accent:"#FEB326"},
           {label:"Balance Health",val:hc.label,sub:fmt(totalBalance)+" remaining",subColor:"rgba(0,0,0,0.38)",accent:hc.color},
         ].map((c,i)=>(
-          <div key={i} style={{background:"#fff",borderRadius:16,padding:"18px 20px",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+          <div key={i} style={{background:"#ffffff",borderRadius:16,padding:"18px 20px",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
             <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>{c.label}</div>
             <div style={{fontSize:26,fontWeight:800,color:c.accent,letterSpacing:"-0.5px",lineHeight:1}}>{c.val}</div>
             {c.sub&&<div style={{fontSize:12,color:c.subColor,marginTop:6,fontWeight:600}}>{c.sub}</div>}
@@ -1287,17 +1284,17 @@ function DashboardDesktop({onNav}){
 
         {/* Charts */}
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
-          <div style={{background:"#fff",borderRadius:16,padding:"20px 22px",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+          <div style={{background:"#ffffff",borderRadius:16,padding:"20px 22px",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:16}}>
-              <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Monthly Spending</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#0c203c"}}>Monthly Spending</div>
               <div style={{fontSize:12,color:"rgba(0,0,0,0.38)"}}>Last 6 months</div>
             </div>
             <SpendingBarChart data={monthHistory} currentMonth={now.getMonth()} currentYear={now.getFullYear()}/>
           </div>
-          <div style={{background:"#fff",borderRadius:16,padding:"20px 22px",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+          <div style={{background:"#ffffff",borderRadius:16,padding:"20px 22px",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
-              <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Spending Trend</div>
-              {spendDelta!==null&&<div style={{fontSize:12,fontWeight:700,color:spendDelta>0?"#E84D8A":"#64C5EB"}}>{spendDelta>0?"↑":"↓"} {Math.abs(spendDelta).toFixed(0)}% vs last month</div>}
+              <div style={{fontSize:14,fontWeight:700,color:"#0c203c"}}>Spending Trend</div>
+              {spendDelta!==null&&<div style={{fontSize:12,fontWeight:700,color:spendDelta>0?"#E84D8A":"#416cb3"}}>{spendDelta>0?"↑":"↓"} {Math.abs(spendDelta).toFixed(0)}% vs last month</div>}
             </div>
             <SpendingTrendLine data={monthHistory}/>
           </div>
@@ -1310,13 +1307,13 @@ function DashboardDesktop({onNav}){
           <RemindersWidget/>
 
           {/* Advisor insights */}
-          <div style={{background:"#fff",borderRadius:16,padding:"18px 20px",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+          <div style={{background:"#ffffff",borderRadius:16,padding:"18px 20px",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
             <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-              <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>💼</div>
-              <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E"}}>Advisor Insights</div>
+              <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#102749,#1e3e77)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>💼</div>
+              <div style={{fontSize:13,fontWeight:700,color:"#0c203c"}}>Advisor Insights</div>
             </div>
             {insights.map((ins,i)=>(
-              <div key={i} style={{display:"flex",gap:8,padding:"8px 0",borderTop:i>0?"1px solid rgba(0,0,0,0.05)":"none",alignItems:"flex-start"}}>
+              <div key={i} style={{display:"flex",gap:8,padding:"8px 0",borderTop:i>0?"1px solid rgba(0,0,0,0.04)":"none",alignItems:"flex-start"}}>
                 <span style={{fontSize:14,flexShrink:0}}>{ins.icon}</span>
                 <span style={{fontSize:13,color:"rgba(0,0,0,0.6)",lineHeight:1.45}}>{ins.text}</span>
               </div>
@@ -1325,11 +1322,11 @@ function DashboardDesktop({onNav}){
 
           {/* Property mini-cards */}
           {[{p:PROPERTIES.sw,st:swStats},{p:PROPERTIES.snap,st:snStats}].map(({p,st})=>(
-            <div key={p.key} style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",cursor:"pointer"}} onClick={()=>onNav(p.key)}>
+            <div key={p.key} style={{background:"#ffffff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 1px 4px rgba(0,0,0,0.04)",cursor:"pointer"}} onClick={()=>onNav(p.key)}>
               <div style={{background:`linear-gradient(135deg,${p.gradient[0]},${p.gradient[1]})`,padding:"14px 16px",position:"relative"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div>
-                    <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.55)",textTransform:"uppercase",letterSpacing:"0.08em"}}>{p.sub}</div>
+                    <div style={{fontSize:10,fontWeight:600,color:"rgba(0,0,0,0.45)",textTransform:"uppercase",letterSpacing:"0.08em"}}>{p.sub}</div>
                     <div style={{fontSize:16,fontWeight:700,color:"#fff"}}>{p.label}</div>
                   </div>
                   <div style={{textAlign:"right"}}>
@@ -1337,7 +1334,7 @@ function DashboardDesktop({onNav}){
                     <div style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>remaining</div>
                   </div>
                 </div>
-                <div style={{marginTop:10,height:3,background:"rgba(255,255,255,0.2)",borderRadius:2,overflow:"hidden"}}>
+                <div style={{marginTop:10,height:3,background:"rgba(0,0,0,0.15)",borderRadius:2,overflow:"hidden"}}>
                   <div style={{height:"100%",width:`${st.pct}%`,background:p.accent,borderRadius:2}}/>
                 </div>
               </div>
@@ -1380,25 +1377,25 @@ function PropAppDesktop({pk, onNav, startScreen}){
 
   if(!synced) return(
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",flexDirection:"column",gap:16}}>
-      <div style={{width:40,height:40,border:"3px solid #f0f0f5",borderTop:"3px solid #7F58AF",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
-      <div style={{fontSize:14,color:"rgba(0,0,0,0.4)"}}>Connecting to database…</div>
+      <div style={{width:40,height:40,border:"3px solid rgba(19,110,246,0.2)",borderTop:"3px solid #136ef6",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
+      <div style={{fontSize:14,color:"rgba(255,255,255,0.5)"}}>Connecting to database…</div>
       {error&&<div style={{fontSize:12,color:"#E84D8A",maxWidth:300,textAlign:"center"}}>{error}</div>}
     </div>
   );
 
   return(
-    <div style={{padding:"0",minHeight:"100vh",background:"#f0f0f5"}}>
+    <div style={{padding:"0",minHeight:"100vh",background:"#e7e7e7"}}>
       <div style={{padding:"20px 32px 0",display:"flex",alignItems:"center",gap:8}}>
         <span style={{fontSize:13,color:"rgba(0,0,0,0.35)",cursor:"pointer"}} onClick={()=>onNav("dashboard")}>Overview</span>
         <span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span>
-        <span style={{fontSize:13,fontWeight:600,color:"#1C1C1E",cursor:"pointer"}} onClick={goHome}>{p.label}</span>
+        <span style={{fontSize:13,fontWeight:600,color:"#0c203c",cursor:"pointer"}} onClick={goHome}>{p.label}</span>
         {subScreen!=="home"&&<><span style={{fontSize:13,color:"rgba(0,0,0,0.25)"}}>›</span><span style={{fontSize:13,fontWeight:600,color:p.accent}}>{subScreen==="bills"?"Pay Bills":subScreen==="manage"?"Vendors":subScreen==="history"?"History":subScreen==="new"?"New Month":subScreen==="schedule"?"Schedule":"View"}</span></>}
       </div>
       <div style={{maxWidth:800,margin:"0 auto",padding:"16px 32px 48px"}}>
         {subScreen==="home"     &&<PropHomeDesktop p={p} active={active} closed={closed} onOpen={id=>{setActiveId(id);setSubScreen("bills");}} onNew={()=>setSubScreen("new")} onManage={()=>setSubScreen("manage")} onHistory={()=>setSubScreen("history")} onDelete={deleteMonth}/>}
         {subScreen==="schedule" &&<BillSchedule p={p} vendors={vendors} setVendors={saveVendors} months={months} updateMonth={updateMonth} onBack={goHome}/>}
         {subScreen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={goHome}/>}
-        {subScreen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));goHome();}} onBack={goHome}/>}
+        {subScreen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} months={months} onUpdate={updateMonth} onAddMonth={addMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));goHome();}} onBack={goHome}/>}
         {subScreen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} allMonths={months} updateMonth={updateMonth} onBack={goHome}/>}
         {subScreen==="history" &&<History p={p} months={closed} onView={id=>{setViewId(id);setSubScreen("view");}} onBack={goHome} onDelete={deleteMonth}/>}
         {subScreen==="view"    &&view&&<ViewMonth p={p} month={view} onBack={()=>setSubScreen("history")}/>}
@@ -1419,11 +1416,11 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
       {/* Delete confirm */}
       {confirmId&&confirmMonth&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.35)",backdropFilter:"blur(12px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:300}} onClick={()=>setConfirmId(null)}>
-          <div style={{background:"#fff",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,0.2)"}} onClick={e=>e.stopPropagation()}>
-            <div style={{fontSize:18,fontWeight:700,color:"#1C1C1E",marginBottom:8}}>Delete {confirmMonth.label}?</div>
+          <div style={{background:"#ffffff",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,0.2)"}} onClick={e=>e.stopPropagation()}>
+            <div style={{fontSize:18,fontWeight:700,color:"#0c203c",marginBottom:8}}>Delete {confirmMonth.label}?</div>
             <div style={{fontSize:14,color:"rgba(0,0,0,0.5)",marginBottom:24,lineHeight:1.5}}>This will permanently remove this month and all its bill data.</div>
             <div style={{display:"flex",gap:10}}>
-              <button onClick={()=>setConfirmId(null)} style={{flex:1,background:"rgba(0,0,0,0.06)",border:"none",borderRadius:12,padding:"12px",fontSize:14,fontWeight:600,color:"rgba(0,0,0,0.6)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+              <button onClick={()=>setConfirmId(null)} style={{flex:1,background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"12px",fontSize:14,fontWeight:600,color:"rgba(0,0,0,0.6)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
               <button onClick={()=>{onDelete(confirmId);setConfirmId(null);}} style={{flex:1,background:"#E84D8A",border:"none",borderRadius:12,padding:"12px",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Delete Month</button>
             </div>
           </div>
@@ -1435,13 +1432,13 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
         <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 80% 30%,${p.accent}25,transparent 70%)`,pointerEvents:"none"}}/>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",position:"relative"}}>
           <div>
-            <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.55)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>{p.sub}</div>
+            <div style={{fontSize:11,fontWeight:600,color:"rgba(0,0,0,0.45)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>{p.sub}</div>
             <div style={{fontSize:32,fontWeight:800,color:"#fff",letterSpacing:"-0.5px"}}>{p.label}</div>
           </div>
           <div style={{display:"flex",gap:10}}>
             <button onClick={onNew} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.25)",borderRadius:10,padding:"8px 16px",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>＋ New Month</button>
-            <button onClick={onManage} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>Vendors</button>
-            <button onClick={onHistory} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>History</button>
+            <button onClick={onManage} style={{background:"rgba(0,0,0,0.08)",border:"1px solid rgba(0,0,0,0.15)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>Vendors</button>
+            <button onClick={onHistory} style={{background:"rgba(0,0,0,0.08)",border:"1px solid rgba(0,0,0,0.15)",borderRadius:10,padding:"8px 16px",color:"rgba(255,255,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>History</button>
           </div>
         </div>
         <div style={{display:"flex",gap:24,marginTop:20,position:"relative"}}>
@@ -1465,12 +1462,12 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
               const paidAmt=paid.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
               const pending=m.bills.filter(b=>b.status==="pending");
               return(
-                <div key={m.id} style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
+                <div key={m.id} style={{background:"#ffffff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}>
                   <div style={{padding:"16px 18px"}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
                       <div style={{cursor:"pointer"}} onClick={()=>onOpen(m.id)}>
-                        <div style={{fontSize:16,fontWeight:700,color:"#1C1C1E"}}>{m.label}</div>
-                        <div style={{fontSize:12,color:"rgba(0,0,0,0.4)",marginTop:2}}>{paid.length}/{m.bills.length} bills · {fmt(paidAmt)} paid</div>
+                        <div style={{fontSize:16,fontWeight:700,color:"#0c203c"}}>{m.label}</div>
+                        <div style={{fontSize:12,color:"rgba(255,255,255,0.5)",marginTop:2}}>{paid.length}/{m.bills.length} bills · {fmt(paidAmt)} paid</div>
                       </div>
                       <div style={{display:"flex",gap:8,alignItems:"flex-start"}}>
                         <div style={{textAlign:"right",cursor:"pointer"}} onClick={()=>onOpen(m.id)}>
@@ -1482,7 +1479,7 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
                         </button>
                       </div>
                     </div>
-                    <div style={{height:5,background:"rgba(0,0,0,0.06)",borderRadius:3,overflow:"hidden",marginBottom:6}}>
+                    <div style={{height:5,background:"rgba(0,0,0,0.05)",borderRadius:3,overflow:"hidden",marginBottom:6}}>
                       <div style={{height:"100%",width:`${pct}%`,background:p.accent,borderRadius:3,transition:"width 0.5s"}}/>
                     </div>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -1504,13 +1501,13 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
             <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em"}}>Recent History</div>
             <button onClick={onHistory} style={{background:"none",border:"none",color:p.accent,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>View All →</button>
           </div>
-          <div style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)"}}>
+          <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.06)"}}>
             {[...closed].sort((a,b)=>(b.closedAt||0)-(a.closedAt||0)).slice(0,4).map((m,i,arr)=>{
               const paid=m.bills.filter(b=>b.status==="paid");
               const paidAmt=paid.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
               return(
-                <div key={m.id} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.05)":"none"}}>
-                  <div style={{flex:1}}><div style={{fontSize:14,fontWeight:500,color:"#1C1C1E"}}>{m.label}</div><div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:1}}>{paid.length} bills · {fmt(paidAmt)} paid</div></div>
+                <div key={m.id} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none"}}>
+                  <div style={{flex:1}}><div style={{fontSize:14,fontWeight:500,color:"#0c203c"}}>{m.label}</div><div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:1}}>{paid.length} bills · {fmt(paidAmt)} paid</div></div>
                   <div style={{fontSize:14,fontWeight:700,color:p.accent}}>{fmt(m.balance)}</div>
                   <span style={{color:"rgba(0,0,0,0.2)",fontSize:16,marginLeft:8}}>›</span>
                 </div>
@@ -1539,32 +1536,32 @@ function RemindersWidget(){
   const overdueCount = visible.filter(r=>r.status.days < 0).length;
 
   return(
-    <div style={{background:"#fff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+    <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 2px 10px rgba(0,0,0,0.04)"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px 10px"}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#FEB326,#E84D8A)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>🔔</div>
-          <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E"}}>Reminders</div>
+          <div style={{fontSize:13,fontWeight:700,color:"#0c203c"}}>Reminders</div>
         </div>
         {overdueCount > 0 && (
           <span style={{background:"rgba(232,77,138,0.1)",color:"#E84D8A",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:700}}>{overdueCount} overdue</span>
         )}
       </div>
       {visible.map((r,i)=>(
-        <div key={r.id} style={{borderTop:"1px solid rgba(0,0,0,0.05)"}}>
+        <div key={r.id} style={{borderTop:"1px solid rgba(0,0,0,0.04)"}}>
           {/* Row */}
           <div style={{display:"flex",alignItems:"center",padding:"10px 16px"}}>
             <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:13,fontWeight:600,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.vendorName}</div>
+              <div style={{fontSize:13,fontWeight:600,color:"#0c203c",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.vendorName}</div>
               <div style={{fontSize:11,color:"rgba(0,0,0,0.45)",marginTop:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.note} · {FREQ_LABELS[r.frequency]}</div>
             </div>
             <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0,marginLeft:8}}>
               <span style={{background:r.status.bg,color:r.status.color,borderRadius:20,padding:"2px 8px",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>
                 {r.status.days<0?"Overdue":r.status.days===0?"Today":`${r.status.days}d`}
               </span>
-              {r.snoozedUntil&&<span style={{background:"rgba(100,197,235,0.12)",color:"#2d8faf",borderRadius:20,padding:"2px 8px",fontSize:11,fontWeight:700}}>Snoozed</span>}
+              {r.snoozedUntil&&<span style={{background:"rgba(100,197,235,0.12)",color:"#102749",borderRadius:20,padding:"2px 8px",fontSize:11,fontWeight:700}}>Snoozed</span>}
               {/* Quick actions */}
               <button onClick={()=>dismissReminder(r.id)} title="Mark done"
-                style={{background:"rgba(100,197,235,0.1)",border:"none",borderRadius:7,padding:"4px 8px",fontSize:11,fontWeight:700,color:"#2d8faf",cursor:"pointer",fontFamily:"inherit"}}>✓</button>
+                style={{background:"rgba(100,197,235,0.1)",border:"none",borderRadius:7,padding:"4px 8px",fontSize:11,fontWeight:700,color:"#102749",cursor:"pointer",fontFamily:"inherit"}}>✓</button>
               <button onClick={()=>{setSnoozeId(snoozeId===r.id?null:r.id);setSnoozeDate("");}} title="Snooze"
                 style={{background:"rgba(254,179,38,0.1)",border:"none",borderRadius:7,padding:"4px 8px",fontSize:11,fontWeight:700,color:"#b8860b",cursor:"pointer",fontFamily:"inherit"}}>⏰</button>
             </div>
@@ -1574,9 +1571,9 @@ function RemindersWidget(){
             <div style={{padding:"0 16px 12px",display:"flex",gap:8,alignItems:"center"}} className="slide-in">
               <input type="date" value={snoozeDate} onChange={e=>setSnoozeDate(e.target.value)}
                 min={new Date().toISOString().slice(0,10)}
-                style={{flex:1,background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:10,padding:"8px 12px",fontSize:13,color:"#1C1C1E",fontFamily:"inherit",outline:"none"}}/>
+                style={{flex:1,background:"rgba(0,0,0,0.06)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:10,padding:"8px 12px",fontSize:13,color:"#0c203c",fontFamily:"inherit",outline:"none"}}/>
               <button onClick={()=>{if(snoozeDate){snoozeReminder(r.id,snoozeDate);setSnoozeId(null);}}}
-                style={{background:"#7F58AF",border:"none",borderRadius:10,padding:"8px 14px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+                style={{background:"#136ef6",border:"none",borderRadius:10,padding:"8px 14px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
                 Set
               </button>
             </div>
@@ -1608,7 +1605,7 @@ function SpendingBarChart({ data, currentMonth, currentYear }) {
       {yTicks.map((t,i) => (
         <g key={i}>
           <line x1={PAD_L} y1={t.y} x2={W - PAD_R} y2={t.y}
-            stroke="rgba(0,0,0,0.06)" strokeWidth="1" strokeDasharray={i>0?"4 4":""}/>
+            stroke="rgba(0,0,0,0.05)" strokeWidth="1" strokeDasharray={i>0?"4 4":""}/>
           <text x={PAD_L - 5} y={t.y + 4} textAnchor="end"
             style={{fontSize:9,fill:"rgba(0,0,0,0.3)",fontFamily:"inherit"}}>{t.label}</text>
         </g>
@@ -1628,19 +1625,19 @@ function SpendingBarChart({ data, currentMonth, currentYear }) {
             {/* Bar fill */}
             {d.spent > 0 && (
               <rect x={x} y={y} width={barW} height={barH} rx="4"
-                fill={isCurrent ? "#7F58AF" : "rgba(127,88,175,0.25)"}
+                fill={isCurrent ? "#136ef6" : "rgba(127,88,175,0.25)"}
                 style={{transition:"height 0.5s ease, y 0.5s ease"}}/>
             )}
             {/* Amount label on current bar */}
             {isCurrent && d.spent > 0 && (
               <text x={x + barW/2} y={y - 5} textAnchor="middle"
-                style={{fontSize:9,fontWeight:"bold",fill:"#7F58AF",fontFamily:"inherit"}}>
+                style={{fontSize:9,fontWeight:"bold",fill:"#136ef6",fontFamily:"inherit"}}>
                 {fmt(d.spent).replace(".00","")}
               </text>
             )}
             {/* Month label */}
             <text x={x + barW/2} y={H - 4} textAnchor="middle"
-              style={{fontSize:10,fill:isCurrent?"#7F58AF":"rgba(0,0,0,0.38)",fontWeight:isCurrent?"700":"400",fontFamily:"inherit"}}>
+              style={{fontSize:10,fill:isCurrent?"#136ef6":"rgba(0,0,0,0.38)",fontWeight:isCurrent?"700":"400",fontFamily:"inherit"}}>
               {d.label}
             </text>
           </g>
@@ -1685,8 +1682,8 @@ function SpendingTrendLine({ data }) {
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{overflow:"visible"}}>
       <defs>
         <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#7F58AF" stopOpacity="0.18"/>
-          <stop offset="100%" stopColor="#7F58AF" stopOpacity="0.02"/>
+          <stop offset="0%" stopColor="#136ef6" stopOpacity="0.18"/>
+          <stop offset="100%" stopColor="#136ef6" stopOpacity="0.02"/>
         </linearGradient>
       </defs>
 
@@ -1694,7 +1691,7 @@ function SpendingTrendLine({ data }) {
       {yTicks.map((t,i) => (
         <g key={i}>
           <line x1={PAD_L} y1={t.y} x2={W - PAD_R} y2={t.y}
-            stroke="rgba(0,0,0,0.06)" strokeWidth="1" strokeDasharray={i>0?"4 4":""}/>
+            stroke="rgba(0,0,0,0.05)" strokeWidth="1" strokeDasharray={i>0?"4 4":""}/>
           <text x={PAD_L - 5} y={t.y + 4} textAnchor="end"
             style={{fontSize:9,fill:"rgba(0,0,0,0.3)",fontFamily:"inherit"}}>{t.label}</text>
         </g>
@@ -1704,7 +1701,7 @@ function SpendingTrendLine({ data }) {
       <path d={areaD} fill="url(#trendGrad)"/>
 
       {/* Trend line */}
-      <path d={pathD} fill="none" stroke="#7F58AF" strokeWidth="2.5"
+      <path d={pathD} fill="none" stroke="#136ef6" strokeWidth="1.5"
         strokeLinecap="round" strokeLinejoin="round"/>
 
       {/* Data points */}
@@ -1714,16 +1711,16 @@ function SpendingTrendLine({ data }) {
         return (
           <g key={i}>
             <circle cx={pt.x} cy={pt.y} r={isLast ? 5 : 3.5}
-              fill={isLast ? "#7F58AF" : "#ffffff"}
-              stroke="#7F58AF" strokeWidth={isLast ? 0 : 2}/>
+              fill={isLast ? "#136ef6" : "#ffffff"}
+              stroke="#136ef6" strokeWidth={isLast ? 0 : 2}/>
             {(isLast || isHigh) && pt.spent > 0 && (
               <text x={pt.x} y={pt.y - 9} textAnchor="middle"
-                style={{fontSize:9,fontWeight:"bold",fill:"#7F58AF",fontFamily:"inherit"}}>
+                style={{fontSize:9,fontWeight:"bold",fill:"#136ef6",fontFamily:"inherit"}}>
                 {fmt(pt.spent).replace(".00","")}
               </text>
             )}
             <text x={pt.x} y={H - 4} textAnchor="middle"
-              style={{fontSize:10,fill:isLast?"#7F58AF":"rgba(0,0,0,0.35)",fontWeight:isLast?"700":"400",fontFamily:"inherit"}}>
+              style={{fontSize:10,fill:isLast?"#136ef6":"rgba(0,0,0,0.35)",fontWeight:isLast?"700":"400",fontFamily:"inherit"}}>
               {pt.label}
             </text>
           </g>
@@ -1817,7 +1814,7 @@ function calcDashStats(swM, snM) {
 }
 
 function healthConfig(h) {
-  if (h==="good")  return { color:"#64C5EB", bg:"rgba(100,197,235,0.12)",  label:"Healthy",    icon:"✓" };
+  if (h==="good")  return { color:"#416cb3", bg:"rgba(100,197,235,0.12)",  label:"Healthy",    icon:"✓" };
   if (h==="fair")  return { color:"#FEB326", bg:"rgba(254,179,38,0.12)",  label:"Fair",       icon:"~" };
   if (h==="watch") return { color:"#FEB326", bg:"rgba(254,179,38,0.12)",  label:"Watch",      icon:"⚠" };
   return                   { color:"#E84D8A", bg:"rgba(232,77,138,0.1)", label:"Low",        icon:"!" };
@@ -1848,36 +1845,36 @@ function Dashboard({onSelect}){
     insights.push({ icon:"✅", text:"All caught up. No pending bills and your balance looks healthy." });
 
   return(
-    <div style={{minHeight:"100vh",background:"#F2F2F7",paddingBottom:60}}>
+    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
 
       {/* ── Hero Header ── */}
-      <div style={{background:"linear-gradient(160deg,#5a3d80 0%,#7F58AF 100%)",padding:"52px 22px 28px",position:"relative",overflow:"hidden"}}>
+      <div style={{background:"linear-gradient(160deg,#0c203c 0%,#1e3e77 100%)",padding:"52px 22px 28px",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 80% 20%,rgba(100,197,235,0.3),transparent 60%)",pointerEvents:"none"}}/>
         <div style={{position:"relative"}}>
           <div style={{fontSize:13,fontWeight:500,color:"rgba(255,255,255,0.5)",letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:6}}>{greeting}</div>
-          <div style={{fontSize:30,fontWeight:700,color:"#ffffff",letterSpacing:"-0.5px",lineHeight:1.15,marginBottom:2}}>Home Workbook</div>
+          <div style={{fontSize:30,fontWeight:700,color:"#0c203c",letterSpacing:"-0.5px",lineHeight:1.15,marginBottom:2}}>Home Workbook</div>
           <div style={{fontSize:14,color:"rgba(255,255,255,0.5)",marginBottom:24}}>{MO_SHORT[now.getMonth()]} {now.getFullYear()} · Financial Overview</div>
 
           {/* ── Top 3 stat pills ── */}
           <div style={{display:"flex",gap:10}}>
             {/* Monthly spend */}
-            <div style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:14,padding:"12px 14px",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.1)"}}>
+            <div style={{flex:1,background:"rgba(0,0,0,0.06)",borderRadius:14,padding:"12px 14px",backdropFilter:"blur(10px)",border:"1px solid rgba(0,0,0,0.08)"}}>
               <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>This Month</div>
-              <div style={{fontSize:19,fontWeight:700,color:"#ffffff",letterSpacing:"-0.3px"}}>{fmt(thisMonthSpend)}</div>
+              <div style={{fontSize:19,fontWeight:700,color:"#0c203c",letterSpacing:"-0.3px"}}>{fmt(thisMonthSpend)}</div>
               {spendDelta!==null&&(
-                <div style={{fontSize:11,marginTop:3,fontWeight:600,color:spendDelta>0?"#FEB326":"#64C5EB"}}>
+                <div style={{fontSize:11,marginTop:3,fontWeight:600,color:spendDelta>0?"#FEB326":"#416cb3"}}>
                   {spendDelta>0?"↑":"↓"} {Math.abs(spendDelta).toFixed(0)}% vs last mo
                 </div>
               )}
             </div>
             {/* YTD */}
-            <div style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:14,padding:"12px 14px",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.1)"}}>
+            <div style={{flex:1,background:"rgba(0,0,0,0.06)",borderRadius:14,padding:"12px 14px",backdropFilter:"blur(10px)",border:"1px solid rgba(0,0,0,0.08)"}}>
               <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>YTD Paid</div>
-              <div style={{fontSize:19,fontWeight:700,color:"#ffffff",letterSpacing:"-0.3px"}}>{fmt(ytd)}</div>
+              <div style={{fontSize:19,fontWeight:700,color:"#0c203c",letterSpacing:"-0.3px"}}>{fmt(ytd)}</div>
               <div style={{fontSize:11,marginTop:3,color:"rgba(255,255,255,0.4)"}}>since Jan {now.getFullYear()}</div>
             </div>
             {/* Health */}
-            <div style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:14,padding:"12px 14px",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.1)"}}>
+            <div style={{flex:1,background:"rgba(0,0,0,0.06)",borderRadius:14,padding:"12px 14px",backdropFilter:"blur(10px)",border:"1px solid rgba(0,0,0,0.08)"}}>
               <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Balance</div>
               <div style={{fontSize:19,fontWeight:700,color:hc.color,letterSpacing:"-0.3px"}}>{hc.label}</div>
               <div style={{fontSize:11,marginTop:3,color:"rgba(255,255,255,0.4)"}}>{fmt(totalBalance)} left</div>
@@ -1889,13 +1886,13 @@ function Dashboard({onSelect}){
       <div style={{padding:"20px 16px 0"}}>
 
         {/* ── Advisor Insight Card ── */}
-        <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+        <div style={{background:"#ffffff",borderRadius:18,padding:"16px 18px",marginBottom:16,border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 2px 10px rgba(0,0,0,0.04)"}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-            <div style={{width:28,height:28,borderRadius:8,background:"linear-gradient(135deg,#5a3d80,#7F58AF)",display:"flex",alignItems:"center",justifyContent:"center"}}><BriefcaseIcon/></div>
-            <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E",letterSpacing:"0.01em"}}>Advisor Insights</div>
+            <div style={{width:28,height:28,borderRadius:8,background:"linear-gradient(135deg,#102749,#1e3e77)",display:"flex",alignItems:"center",justifyContent:"center"}}><BriefcaseIcon/></div>
+            <div style={{fontSize:13,fontWeight:700,color:"#0c203c",letterSpacing:"0.01em"}}>Advisor Insights</div>
           </div>
           {insights.map((ins,i)=>(
-            <div key={i} style={{display:"flex",gap:10,padding:"9px 0",borderTop:i>0?"1px solid rgba(0,0,0,0.05)":"none",alignItems:"flex-start"}}>
+            <div key={i} style={{display:"flex",gap:10,padding:"9px 0",borderTop:i>0?"1px solid rgba(0,0,0,0.04)":"none",alignItems:"flex-start"}}>
               <span style={{fontSize:15,flexShrink:0,marginTop:1}}>{ins.icon}</span>
               <span style={{fontSize:14,color:"rgba(0,0,0,0.65)",lineHeight:1.45}}>{ins.text}</span>
             </div>
@@ -1903,20 +1900,20 @@ function Dashboard({onSelect}){
         </div>
 
         {/* ── Bar Chart: 6-month spending history ── */}
-        <div style={{background:"#ffffff",borderRadius:18,padding:"18px 18px 14px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+        <div style={{background:"#ffffff",borderRadius:18,padding:"18px 18px 14px",marginBottom:16,border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 2px 10px rgba(0,0,0,0.04)"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:16}}>
-            <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Monthly Spending</div>
+            <div style={{fontSize:14,fontWeight:700,color:"#0c203c"}}>Monthly Spending</div>
             <div style={{fontSize:12,color:"rgba(0,0,0,0.38)"}}>Last 6 months</div>
           </div>
           <SpendingBarChart data={monthHistory} currentMonth={now.getMonth()} currentYear={now.getFullYear()}/>
         </div>
 
         {/* ── Trend Line: spending trajectory ── */}
-        <div style={{background:"#ffffff",borderRadius:18,padding:"18px 18px 14px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+        <div style={{background:"#ffffff",borderRadius:18,padding:"18px 18px 14px",marginBottom:16,border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 2px 10px rgba(0,0,0,0.04)"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
-            <div style={{fontSize:14,fontWeight:700,color:"#1C1C1E"}}>Spending Trend</div>
+            <div style={{fontSize:14,fontWeight:700,color:"#0c203c"}}>Spending Trend</div>
             {spendDelta!==null&&(
-              <div style={{fontSize:12,fontWeight:700,color:spendDelta>0?"#E84D8A":"#64C5EB"}}>
+              <div style={{fontSize:12,fontWeight:700,color:spendDelta>0?"#E84D8A":"#416cb3"}}>
                 {spendDelta>0?"↑":"↓"} {Math.abs(spendDelta).toFixed(0)}% vs last month
               </div>
             )}
@@ -1946,20 +1943,20 @@ function Dashboard({onSelect}){
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
           {[{p:PROPERTIES.sw,st:swStats},{p:PROPERTIES.snap,st:snStats}].map(({p,st})=>(
             <div key={p.key} className="prop-card" onClick={()=>onSelect(p.key)}
-              style={{background:"#ffffff",borderRadius:18,overflow:"hidden",cursor:"pointer",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+              style={{background:"#ffffff",borderRadius:18,overflow:"hidden",cursor:"pointer",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 2px 10px rgba(0,0,0,0.04)"}}>
               {/* Gradient top */}
               <div style={{background:`linear-gradient(140deg,${p.gradient[0]},${p.gradient[1]})`,padding:"16px 14px 14px",position:"relative",overflow:"hidden"}}>
                 <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 80% 30%,${p.accent}30,transparent 70%)`,pointerEvents:"none"}}/>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",position:"relative"}}>
                   <div>
                     <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.5)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3}}>{p.sub}</div>
-                    <div style={{fontSize:16,fontWeight:700,color:"#ffffff",letterSpacing:"-0.2px"}}>{p.label}</div>
+                    <div style={{fontSize:16,fontWeight:700,color:"#0c203c",letterSpacing:"-0.2px"}}>{p.label}</div>
                   </div>
                   <div style={{fontSize:20}}>{p.key==="sw"?<HomeIcon/>:<LeafIcon/>}</div>
                 </div>
                 {/* Mini progress */}
                 <div style={{marginTop:12}}>
-                  <div style={{height:3,background:"rgba(255,255,255,0.2)",borderRadius:2,overflow:"hidden"}}>
+                  <div style={{height:3,background:"rgba(0,0,0,0.15)",borderRadius:2,overflow:"hidden"}}>
                     <div style={{height:"100%",width:`${st.pct}%`,background:p.accent,borderRadius:2}}/>
                   </div>
                   <div style={{fontSize:10,color:"rgba(255,255,255,0.5)",marginTop:4}}>{st.pct}% this month</div>
@@ -1968,19 +1965,19 @@ function Dashboard({onSelect}){
               {/* Stats */}
               <div style={{padding:"12px 14px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
-                  <span style={{fontSize:11,color:"rgba(0,0,0,0.4)"}}>Remaining</span>
+                  <span style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>Remaining</span>
                   <span style={{fontSize:13,fontWeight:700,color:st.bal<0?"#E84D8A":p.accent}}>{fmt(st.bal)}</span>
                 </div>
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
-                  <span style={{fontSize:11,color:"rgba(0,0,0,0.4)"}}>Paid out</span>
-                  <span style={{fontSize:13,fontWeight:600,color:"#1C1C1E"}}>{fmt(st.paidAmt)}</span>
+                  <span style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>Paid out</span>
+                  <span style={{fontSize:13,fontWeight:600,color:"#0c203c"}}>{fmt(st.paidAmt)}</span>
                 </div>
                 <div style={{display:"flex",justifyContent:"space-between"}}>
-                  <span style={{fontSize:11,color:"rgba(0,0,0,0.4)"}}>Pending</span>
-                  <span style={{fontSize:13,fontWeight:600,color:st.pending>0?"#FEB326":"#64C5EB"}}>{st.pending>0?`${st.pending} bills`:"Clear ✓"}</span>
+                  <span style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>Pending</span>
+                  <span style={{fontSize:13,fontWeight:600,color:st.pending>0?"#FEB326":"#416cb3"}}>{st.pending>0?`${st.pending} bills`:"Clear ✓"}</span>
                 </div>
               </div>
-              <div style={{borderTop:"1px solid rgba(0,0,0,0.05)",padding:"10px 14px",display:"flex",justifyContent:"flex-end"}}>
+              <div style={{borderTop:"1px solid rgba(0,0,0,0.04)",padding:"10px 14px",display:"flex",justifyContent:"flex-end"}}>
                 <span style={{fontSize:12,fontWeight:600,color:p.accent}}>Open →</span>
               </div>
             </div>
@@ -2014,8 +2011,8 @@ function PropApp({pk,onBack}){
 
   if(!synced) return(
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",flexDirection:"column",gap:16,background:"#f7f7f7"}}>
-      <div style={{width:36,height:36,border:"3px solid #f0f0f5",borderTop:"3px solid #7F58AF",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
-      <div style={{fontSize:14,color:"rgba(0,0,0,0.4)"}}>Syncing…</div>
+      <div style={{width:36,height:36,border:"3px solid rgba(19,110,246,0.2)",borderTop:"3px solid #136ef6",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
+      <div style={{fontSize:14,color:"rgba(255,255,255,0.5)"}}>Syncing…</div>
     </div>
   );
 
@@ -2025,7 +2022,7 @@ function PropApp({pk,onBack}){
       {screen==="home"     &&<PropHome p={p} active={active} closed={closed} onBack={onBack} onOpen={id=>{setActiveId(id);go("bills");}} onNew={()=>go("new")} onManage={()=>go("manage")} onHistory={()=>go("history")} onDelete={deleteMonth}/>}
       {screen==="schedule" &&<BillSchedule p={p} vendors={vendors} setVendors={saveVendors} months={months} updateMonth={updateMonth} onBack={()=>go("home")}/>}
       {screen==="new"     &&<NewMonth p={p} months={months} onStart={startNew} onBack={()=>go("home")}/>}
-      {screen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} onUpdate={updateMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));go("home");}} onBack={()=>go("home")}/>}
+      {screen==="bills"   &&cur&&<Bills p={p} month={cur} vendors={vendors} months={months} onUpdate={updateMonth} onAddMonth={addMonth} onClose={id=>{updateMonth(id,()=>({status:"closed",closedAt:Date.now()}));go("home");}} onBack={()=>go("home")}/>}
       {screen==="manage"  &&<ManageVendors p={p} vendors={vendors} setVendors={saveVendors} allMonths={months} updateMonth={updateMonth} onBack={()=>go("home")}/>}
       {screen==="history" &&<History p={p} months={closed} onView={id=>{setViewId(id);go("view");}} onBack={()=>go("home")} onDelete={deleteMonth}/>}
       {screen==="view"    &&view&&<ViewMonth p={p} month={view} onBack={()=>go("history")}/>}
@@ -2038,23 +2035,23 @@ function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDele
   const [confirmId, setConfirmId] = useState(null);
   const confirmMonth = active.find(m=>m.id===confirmId);
   return(
-    <div style={{minHeight:"100vh",background:"#F2F2F7",paddingBottom:60}}>
+    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
 
       {/* ── Delete Confirm Modal ── */}
       {confirmId&&confirmMonth&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(12px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:300,padding:0}} onClick={()=>setConfirmId(null)}>
-          <div style={{background:"#F2F2F7",borderRadius:"20px 20px 0 0",padding:"8px 16px 48px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
-            <div style={{width:36,height:4,background:"rgba(60,60,67,0.3)",borderRadius:2,margin:"10px auto 20px"}}/>
-            <div style={{background:"#fff",borderRadius:14,padding:"16px",marginBottom:8,textAlign:"center"}}>
-              <div style={{fontSize:17,fontWeight:600,color:"#000",marginBottom:4,letterSpacing:"-0.2px"}}>Delete {confirmMonth.label}?</div>
-              <div style={{fontSize:13,color:"#8E8E93",lineHeight:1.5}}>This will permanently remove this month and all its bill data.</div>
+          <div style={{background:"#e7e7e7",borderRadius:"20px 20px 0 0",padding:"8px 16px 48px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
+            <div style={{width:36,height:4,background:"rgba(0,0,0,0.15)",borderRadius:2,margin:"10px auto 20px"}}/>
+            <div style={{background:"#ffffff",borderRadius:14,padding:"16px",marginBottom:8,textAlign:"center"}}>
+              <div style={{fontSize:17,fontWeight:600,color:"#0c203c",marginBottom:4,letterSpacing:"-0.2px"}}>Delete {confirmMonth.label}?</div>
+              <div style={{fontSize:13,color:"#416cb3",lineHeight:1.5}}>This will permanently remove this month and all its bill data.</div>
             </div>
             <button onClick={()=>{onDelete(confirmId);setConfirmId(null);}} className="ios-btn"
               style={{width:"100%",background:"#FF3B30",border:"none",borderRadius:14,padding:"16px",fontSize:17,fontWeight:600,color:"#fff",cursor:"pointer",fontFamily:"inherit",marginBottom:8,display:"block"}}>
               Delete Month
             </button>
             <button onClick={()=>setConfirmId(null)} className="ios-btn"
-              style={{width:"100%",background:"#fff",border:"none",borderRadius:14,padding:"16px",fontSize:17,fontWeight:600,color:"#007AFF",cursor:"pointer",fontFamily:"inherit",display:"block"}}>
+              style={{width:"100%",background:"#ffffff",border:"none",borderRadius:14,padding:"16px",fontSize:17,fontWeight:600,color:"#007AFF",cursor:"pointer",fontFamily:"inherit",display:"block"}}>
               Cancel
             </button>
           </div>
@@ -2066,13 +2063,13 @@ function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDele
         <div style={{position:"absolute",inset:0,background:`radial-gradient(ellipse at 70% 30%,${p.accent}22,transparent 60%)`,pointerEvents:"none"}}/>
         <div style={{padding:"52px 24px 0",position:"relative"}}>
           <button onClick={onBack} style={{background:"none",border:"none",color:"rgba(255,255,255,0.8)",fontSize:17,cursor:"pointer",padding:"0 0 16px",display:"flex",alignItems:"center",gap:5,fontFamily:"inherit",fontWeight:400,letterSpacing:"-0.2px"}}>
-            <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1 8.5L9 16" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1 8.5L9 16" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             Properties
           </button>
-          <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.55)",letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:6}}>{p.sub}</div>
-          <div style={{fontSize:38,fontWeight:700,color:"#ffffff",letterSpacing:"-0.5px",lineHeight:1}}>{p.label}</div>
+          <div style={{fontSize:11,fontWeight:600,color:"rgba(0,0,0,0.45)",letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:6}}>{p.sub}</div>
+          <div style={{fontSize:38,fontWeight:700,color:"#0c203c",letterSpacing:"-0.5px",lineHeight:1}}>{p.label}</div>
           {active.length>0&&(
-            <div style={{marginTop:20,background:"rgba(255,255,255,0.12)",backdropFilter:"blur(20px)",borderRadius:16,padding:"16px 18px",border:"1px solid rgba(255,255,255,0.2)"}}>
+            <div style={{marginTop:20,background:"rgba(0,0,0,0.08)",backdropFilter:"blur(20px)",borderRadius:16,padding:"16px 18px",border:"1px solid rgba(0,0,0,0.15)"}}>
               {active.map((m,idx)=>{
                 const paid=m.bills.filter(b=>b.status==="paid");
                 const pct=m.bills.length?Math.round(paid.length/m.bills.length*100):0;
@@ -2081,13 +2078,13 @@ function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDele
                   <div key={m.id} style={{paddingTop:idx>0?16:0,marginTop:idx>0?16:0,borderTop:idx>0?"1px solid rgba(255,255,255,0.15)":"none"}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
                       <div style={{cursor:"pointer",flex:1}} onClick={()=>onOpen(m.id)}>
-                        <div style={{fontSize:16,fontWeight:600,color:"#ffffff"}}>{m.label}</div>
-                        <div style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginTop:2}}>{paid.length}/{m.bills.length} bills · {fmt(paidAmt)} out</div>
+                        <div style={{fontSize:16,fontWeight:600,color:"#0c203c"}}>{m.label}</div>
+                        <div style={{fontSize:13,color:"rgba(0,0,0,0.45)",marginTop:2}}>{paid.length}/{m.bills.length} bills · {fmt(paidAmt)} out</div>
                       </div>
                       <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
                         <div style={{textAlign:"right",cursor:"pointer"}} onClick={()=>onOpen(m.id)}>
                           <div style={{fontSize:22,fontWeight:700,color:p.accent}}>{fmt(m.balance)}</div>
-                          <div style={{fontSize:11,color:"rgba(255,255,255,0.45)"}}>remaining</div>
+                          <div style={{fontSize:11,color:"rgba(0,0,0,0.35)"}}>remaining</div>
                         </div>
                         <button
                           onClick={e=>{e.stopPropagation();setConfirmId(m.id);}}
@@ -2115,30 +2112,30 @@ function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDele
 
       {/* iOS grouped action list */}
       <div style={{padding:"20px 16px 0"}}>
-        <div style={{fontSize:13,fontWeight:400,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4}}>Actions</div>
-        <div style={{background:"#fff",borderRadius:12,overflow:"hidden",marginBottom:24}}>
-          <div className="ios-row" onClick={onNew} style={{display:"flex",alignItems:"center",padding:"14px 16px",cursor:"pointer",borderBottom:"0.5px solid rgba(60,60,67,0.18)"}}>
+        <div style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4}}>Actions</div>
+        <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden",marginBottom:24}}>
+          <div className="ios-row" onClick={onNew} style={{display:"flex",alignItems:"center",padding:"14px 16px",cursor:"pointer",borderBottom:"0.5px solid rgba(0,0,0,0.08)"}}>
             <div style={{width:30,height:30,borderRadius:8,background:p.accent,display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
-            <span style={{flex:1,fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>New Month</span>
-            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#C7C7CC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span style={{flex:1,fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>New Month</span>
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
-          <div className="ios-row" onClick={onManage} style={{display:"flex",alignItems:"center",padding:"14px 16px",cursor:"pointer",borderBottom:"0.5px solid rgba(60,60,67,0.18)"}}>
+          <div className="ios-row" onClick={onManage} style={{display:"flex",alignItems:"center",padding:"14px 16px",cursor:"pointer",borderBottom:"0.5px solid rgba(0,0,0,0.08)"}}>
             <div style={{width:30,height:30,borderRadius:8,background:"#636366",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}>
               <GearIcon size={15} color="white"/>
             </div>
-            <span style={{flex:1,fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>Vendors</span>
-            <span style={{fontSize:15,color:"#8E8E93",marginRight:6}}>{p.vendors?p.vendors.length:0}</span>
-            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#C7C7CC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span style={{flex:1,fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>Vendors</span>
+            <span style={{fontSize:15,color:"#416cb3",marginRight:6}}>{p.vendors?p.vendors.length:0}</span>
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
           <div className="ios-row" onClick={onHistory} style={{display:"flex",alignItems:"center",padding:"14px 16px",cursor:"pointer"}}>
             <div style={{width:30,height:30,borderRadius:8,background:"#636366",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}>
               <FolderIcon size={15} color="white"/>
             </div>
-            <span style={{flex:1,fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>History</span>
-            <span style={{fontSize:15,color:"#8E8E93",marginRight:6}}>{closed.length} archived</span>
-            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#C7C7CC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span style={{flex:1,fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>History</span>
+            <span style={{fontSize:15,color:"#416cb3",marginRight:6}}>{closed.length} archived</span>
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
         </div>
       </div>
@@ -2147,7 +2144,7 @@ function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDele
 }
 
 function ActionCard({icon,label,sub,accent,onClick,wide}){
-  const bg = accent==="#636366" ? "#F2F2F7" : accent+"20";
+  const bg = accent==="#636366" ? "#0c203c" : accent+"20";
   const fg = accent==="#636366" ? "#636366" : accent;
   const iconMap={
     plus:   <PlusIcon color={fg}/>,
@@ -2157,15 +2154,15 @@ function ActionCard({icon,label,sub,accent,onClick,wide}){
   };
   return(
     <div className="action-card ios-row" onClick={onClick}
-      style={{background:"#fff",borderRadius:12,padding:"14px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:14}}>
+      style={{background:"#ffffff",borderRadius:12,padding:"14px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:14}}>
       <div style={{width:36,height:36,borderRadius:9,background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
         {iconMap[icon]}
       </div>
       <div style={{flex:1}}>
-        <div style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>{label}</div>
-        {sub&&<div style={{fontSize:13,color:"#8E8E93",marginTop:1}}>{sub}</div>}
+        <div style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{label}</div>
+        {sub&&<div style={{fontSize:13,color:"#416cb3",marginTop:1}}>{sub}</div>}
       </div>
-      <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#C7C7CC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
     </div>
   );
 }
@@ -2194,7 +2191,7 @@ function NewMonth({p,months,onStart,onBack}){
 }
 
 // ─── Bills ────────────────────────────────────────────────────────────────────
-function Bills({p,month,vendors,onUpdate,onClose,onBack}){
+function Bills({p,month,vendors,months,onUpdate,onAddMonth,onClose,onBack}){
   const[tab,setTab]=useState("pay");
   const[editing,setEditing]=useState(null);
   const[editAmt,setEditAmt]=useState("");
@@ -2203,6 +2200,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
   const[newBal,setNewBal]=useState("");
   const[addingBill,setAddingBill]=useState(false);
   const[selectedVIds,setSelectedVIds]=useState(new Set());
+  const[rolledOver,setRolledOver]=useState(new Set());
 
   function toggleVendor(id){ setSelectedVIds(prev=>{ const s=new Set(prev); s.has(id)?s.delete(id):s.add(id); return s; }); }
 
@@ -2246,6 +2244,39 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
   }
   function flagBill(id){onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===id?{...b,flagged:!b.flagged}:b)}));}
   function skipBill(id){onUpdate(month.id,m=>({bills:m.bills.map(b=>b.id===id?{...b,status:"skipped"}:b)}));}
+
+  function rolloverBill(id){
+    const b = bills.find(x=>x.id===id);
+    if(!b) return;
+
+    // Find next month's date
+    const nextMo  = month.month===11 ? 0 : month.month+1;
+    const nextYr  = month.month===11 ? month.year+1 : month.year;
+    const MO_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const nextLabel = `${MO_NAMES[nextMo]} ${nextYr}`;
+
+    // Find or create next month session
+    const existing = months && months.find(m=>m.year===nextYr&&m.month===nextMo&&m.status!=="closed");
+    const rolledBill = {id:uid(), vendorId:b.vendorId, vendorName:b.vendorName,
+      amount:b.amount||0, status:"pending", account:b.account,
+      dueDate:b.dueDate, note:b.note||"", rolledFrom:month.label};
+
+    if(existing){
+      // Add to existing next month — avoid duplicates
+      const alreadyThere = existing.bills.some(x=>x.vendorId===b.vendorId&&x.status==="pending");
+      if(!alreadyThere) onUpdate(existing.id, m=>({bills:[...m.bills, rolledBill]}));
+    } else if(onAddMonth){
+      // Create next month session with this bill pre-loaded
+      const nm = {id:uid(), year:nextYr, month:nextMo, label:nextLabel,
+        status:"inprogress", startingBalance:0, balance:0,
+        bills:[rolledBill], closedAt:null};
+      onAddMonth(nm);
+    }
+
+    // Mark current bill as skipped (it's been rolled over)
+    onUpdate(month.id, m=>({bills:m.bills.map(x=>x.id===id?{...x,status:"skipped",note:`Rolled to ${nextLabel}`}:x)}));
+    setRolledOver(prev=>new Set([...prev, id]));
+  }
   function unpay(id){
     const b=bills.find(x=>x.id===id);
     const restoreAmt = b?.paidAmount||b?.amount||0;
@@ -2284,24 +2315,24 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
   if(uncat.length)catGroups["Other"]=uncat;
 
   return(
-    <div style={{minHeight:"100vh",background:"#F2F2F7",paddingBottom:60}}>
+    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
 
       {/* iOS-style large title header */}
-      <div style={{background:"#F2F2F7",padding:"56px 20px 0"}}>
+      <div style={{background:"#e7e7e7",padding:"56px 20px 0"}}>
         <button onClick={onBack} style={{background:"none",border:"none",color:p.accent,fontSize:17,cursor:"pointer",padding:"0 0 8px",display:"flex",alignItems:"center",gap:4,fontFamily:"inherit",fontWeight:400,letterSpacing:"-0.2px"}}>
-          <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1 8.5L9 16" stroke={p.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1 8.5L9 16" stroke={p.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           {p.label}
         </button>
 
         {/* Large title */}
-        <div style={{fontSize:34,fontWeight:700,color:"#000",letterSpacing:"-0.5px",lineHeight:1.1,marginBottom:20}}>{month.label}</div>
+        <div style={{fontSize:34,fontWeight:700,color:"#0c203c",letterSpacing:"-0.5px",lineHeight:1.1,marginBottom:20}}>{month.label}</div>
 
         {/* Balance card — iOS Wallet style */}
         <button onClick={()=>{setNewBal(month.startingBalance||"");setShowBal(true);}}
           style={{width:"100%",background:`linear-gradient(145deg, ${p.gradient[0]}, ${p.gradient[1]})`,borderRadius:20,padding:"20px 22px",marginBottom:12,border:"none",cursor:"pointer",textAlign:"left",fontFamily:"inherit",position:"relative",overflow:"hidden",boxShadow:`0 8px 32px ${p.accent}40`}}>
-          <div style={{position:"absolute",top:-30,right:-30,width:120,height:120,borderRadius:60,background:"rgba(255,255,255,0.08)"}}/>
-          <div style={{position:"absolute",bottom:-20,right:20,width:80,height:80,borderRadius:40,background:"rgba(255,255,255,0.05)"}}/>
-          <div style={{fontSize:13,color:"rgba(255,255,255,0.65)",fontWeight:500,letterSpacing:"0.02em",marginBottom:4,position:"relative"}}>
+          <div style={{position:"absolute",top:-30,right:-30,width:120,height:120,borderRadius:60,background:"rgba(0,0,0,0.06)"}}/>
+          <div style={{position:"absolute",bottom:-20,right:20,width:80,height:80,borderRadius:40,background:"rgba(0,0,0,0.03)"}}/>
+          <div style={{fontSize:13,color:"rgba(0,0,0,0.55)",fontWeight:500,letterSpacing:"0.02em",marginBottom:4,position:"relative"}}>
             Account Balance · tap to update
           </div>
           <div style={{fontSize:36,fontWeight:700,color:"#fff",letterSpacing:"-1px",lineHeight:1,position:"relative"}}>
@@ -2309,35 +2340,35 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
           </div>
           <div style={{display:"flex",gap:24,marginTop:16,position:"relative"}}>
             <div>
-              <div style={{fontSize:11,color:"rgba(255,255,255,0.55)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Remaining</div>
-              <div style={{fontSize:18,fontWeight:700,color:liveRemaining<0?"#FF453A":"rgba(255,255,255,0.9)",marginTop:1}}>{fmt(liveRemaining)}</div>
-              <div style={{fontSize:10,color:"rgba(255,255,255,0.35)",marginTop:1}}>after paid bills</div>
+              <div style={{fontSize:11,color:"rgba(0,0,0,0.45)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Remaining</div>
+              <div style={{fontSize:18,fontWeight:700,color:liveRemaining<0?"#ff453a":"#ffffff",marginTop:1}}>{fmt(liveRemaining)}</div>
+              <div style={{fontSize:10,color:"rgba(0,0,0,0.25)",marginTop:1}}>after paid bills</div>
             </div>
             <div>
-              <div style={{fontSize:11,color:"rgba(255,255,255,0.55)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Amount Pending</div>
+              <div style={{fontSize:11,color:"rgba(0,0,0,0.45)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Amount Pending</div>
               <div style={{fontSize:18,fontWeight:700,color:"rgba(255,255,255,0.9)",marginTop:1}}>{fmt(pendAmt)}</div>
-              <div style={{fontSize:10,color:"rgba(255,255,255,0.35)",marginTop:1}}>pending payments</div>
+              <div style={{fontSize:10,color:"rgba(0,0,0,0.25)",marginTop:1}}>pending payments</div>
             </div>
           </div>
         </button>
 
         {/* Flagged alert — iOS notification style */}
         {flaggedBills.length>0&&(
-          <div style={{background:"#fff",borderRadius:14,padding:"12px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 0 rgba(0,0,0,0.06)"}}>
+          <div style={{background:"#ffffff",borderRadius:14,padding:"12px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 0 rgba(0,0,0,0.05)"}}>
             <div style={{width:36,height:36,borderRadius:10,background:"#FF3B30",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:18}}>🚩</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:14,fontWeight:600,color:"#000"}}>{flaggedBills.length} bill{flaggedBills.length>1?"s":""} need attention</div>
-              <div style={{fontSize:12,color:"#8E8E93",marginTop:1,lineHeight:1.4}}>{flaggedBills.map(b=>b.vendorName).join(" · ")}</div>
+              <div style={{fontSize:14,fontWeight:600,color:"#0c203c"}}>{flaggedBills.length} bill{flaggedBills.length>1?"s":""} need attention</div>
+              <div style={{fontSize:12,color:"#416cb3",marginTop:1,lineHeight:1.4}}>{flaggedBills.map(b=>b.vendorName).join(" · ")}</div>
             </div>
-            <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="#C7C7CC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
         )}
 
         {/* iOS segmented control */}
-        <div style={{display:"flex",background:"rgba(118,118,128,0.12)",borderRadius:10,padding:2,marginBottom:0}}>
+        <div style={{display:"flex",background:"rgba(0,0,0,0.06)",borderRadius:10,padding:2,marginBottom:0}}>
           {[["pay","Bills"],["summary","Summary"]].map(([t,l])=>(
             <button key={t} onClick={()=>setTab(t)}
-              style={{flex:1,padding:"6px 0",borderRadius:9,border:"none",background:tab===t?"#fff":"transparent",color:tab===t?"#000":"rgba(60,60,67,0.6)",fontWeight:tab===t?600:400,fontSize:13,cursor:"pointer",fontFamily:"inherit",transition:"all 0.2s",boxShadow:tab===t?"0 1px 3px rgba(0,0,0,0.12)":""}}>{l}</button>
+              style={{flex:1,padding:"6px 0",borderRadius:9,border:"none",background:tab===t?"#ffffff":"transparent",color:tab===t?"#ffffff":"rgba(0,0,0,0.35)",fontWeight:tab===t?600:400,fontSize:13,cursor:"pointer",fontFamily:"inherit",transition:"all 0.2s",boxShadow:tab===t?"0 1px 3px rgba(0,0,0,0.12)":""}}>{l}</button>
           ))}
         </div>
       </div>
@@ -2345,13 +2376,13 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
       {/* Balance Modal */}
       {showBal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(20px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:200}} onClick={()=>setShowBal(false)}>
-          <div style={{background:"#F2F2F7",borderRadius:"20px 20px 0 0",padding:"8px 20px 48px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
-            <div style={{width:36,height:4,background:"rgba(60,60,67,0.3)",borderRadius:2,margin:"10px auto 20px"}}/>
-            <div style={{fontSize:22,fontWeight:700,color:"#000",marginBottom:20,letterSpacing:"-0.5px"}}>Account Balance</div>
-            <div style={{background:"#fff",borderRadius:12,display:"flex",alignItems:"center",padding:"4px 16px",marginBottom:16}}>
-              <span style={{fontSize:24,color:"#C7C7CC",marginRight:8,fontWeight:300}}>$</span>
+          <div style={{background:"#e7e7e7",borderRadius:"20px 20px 0 0",padding:"8px 20px 48px",width:"100%",maxWidth:430}} onClick={e=>e.stopPropagation()}>
+            <div style={{width:36,height:4,background:"rgba(0,0,0,0.15)",borderRadius:2,margin:"10px auto 20px"}}/>
+            <div style={{fontSize:22,fontWeight:700,color:"#0c203c",marginBottom:20,letterSpacing:"-0.5px"}}>Account Balance</div>
+            <div style={{background:"#ffffff",borderRadius:12,display:"flex",alignItems:"center",padding:"4px 16px",marginBottom:16}}>
+              <span style={{fontSize:24,color:"rgba(0,0,0,0.3)",marginRight:8,fontWeight:300}}>$</span>
               <input autoFocus type="number" value={newBal} onChange={e=>setNewBal(e.target.value)}
-                style={{flex:1,background:"none",border:"none",outline:"none",fontSize:32,fontWeight:600,color:"#000",padding:"12px 0",fontFamily:"inherit",letterSpacing:"-0.5px"}}/>
+                style={{flex:1,background:"none",border:"none",outline:"none",fontSize:32,fontWeight:600,color:"#0c203c",padding:"12px 0",fontFamily:"inherit",letterSpacing:"-0.5px"}}/>
             </div>
             <AppleButton accent={p.accent} onClick={saveBalance}>Save Balance</AppleButton>
           </div>
@@ -2380,7 +2411,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
             const isSkipped= b.status==="skipped";
             const needsAmt = !b.amount||b.amount===0;
             return(
-              <div style={{borderBottom:isLast?"none":"0.5px solid rgba(60,60,67,0.18)",marginLeft:56}}>
+              <div style={{borderBottom:isLast?"none":"0.5px solid rgba(0,0,0,0.08)",marginLeft:56}}>
                 <div style={{display:"flex",alignItems:"center",padding:"11px 16px 11px 0",gap:0,marginLeft:-56,paddingLeft:16,background:b.flagged?"rgba(255,59,48,0.03)":"transparent"}}>
 
                   {/* iOS-style checkbox */}
@@ -2388,17 +2419,17 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                     {isPaid?(
                       <button onClick={()=>unpay(b.id)}
                         style={{width:26,height:26,borderRadius:13,background:"#34C759",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       </button>
                     ):isSkipped?(
                       <button onClick={()=>unpay(b.id)}
                         style={{width:26,height:26,borderRadius:13,border:"2px solid #C7C7CC",background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        <div style={{width:10,height:2,background:"#C7C7CC",borderRadius:1}}/>
+                        <div style={{width:10,height:2,background:"rgba(0,0,0,0.3)",borderRadius:1}}/>
                       </button>
                     ):(
                       <button onClick={()=>{ if(needsAmt){startEdit(b);}else{setEditAmt(b.amount);setEditNote(b.note||"");setEditing(b.id);confirmPay();} }}
                         style={{width:26,height:26,borderRadius:13,border:`2px solid ${b.flagged?"#FF3B30":p.accent}`,background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"}}>
-                        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke={`${b.flagged?"#FF3B30":p.accent}50`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke={`${b.flagged?"#FF3B30":p.accent}50`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       </button>
                     )}
                   </div>
@@ -2407,10 +2438,10 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                   <div style={{flex:1,minWidth:0,cursor:isPaid||isSkipped?"default":"pointer"}} onClick={()=>{ if(isPaid||isSkipped) return; isOpen?setEditing(null):startEdit(b); }}>
                     <div style={{display:"flex",alignItems:"center",gap:6}}>
                       {b.flagged&&!isPaid&&<span style={{fontSize:12}}>🚩</span>}
-                      <span style={{fontSize:17,letterSpacing:"-0.2px",color:isPaid?"#8E8E93":isSkipped?"#C7C7CC":"#000",textDecoration:isPaid?"line-through":"none",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</span>
+                      <span style={{fontSize:17,letterSpacing:"-0.2px",color:isPaid?"#8E8E93":isSkipped?"rgba(0,0,0,0.3)":"#000",textDecoration:isPaid?"line-through":"none",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</span>
                     </div>
                     {!isPaid&&!isSkipped&&(
-                      <div style={{fontSize:13,color:"#8E8E93",marginTop:1}}>{b.account}{b.dueDate&&b.dueDate!=="—"?` · Due ${b.dueDate}`:""}</div>
+                      <div style={{fontSize:13,color:"#416cb3",marginTop:1}}>{b.account}{b.dueDate&&b.dueDate!=="—"?` · Due ${b.dueDate}`:""}</div>
                     )}
                     {!isPaid&&!isSkipped&&(vendor?.url||vendor?.phone)&&(
                       <div style={{display:"flex",gap:12,marginTop:4}} onClick={e=>e.stopPropagation()}>
@@ -2423,43 +2454,48 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                   {/* Right side */}
                   <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0,marginLeft:8}}>
                     {isPaid
-                      ? <span style={{fontSize:17,fontWeight:400,color:"#8E8E93",letterSpacing:"-0.3px"}}>{fmt(b.amount)}</span>
+                      ? <span style={{fontSize:17,fontWeight:400,color:"#416cb3",letterSpacing:"-0.3px"}}>{fmt(b.amount)}</span>
                       : isSkipped
-                        ? <span style={{fontSize:13,color:"#C7C7CC"}}>–</span>
+                        ? <span style={{fontSize:13,color:"rgba(0,0,0,0.3)"}}>–</span>
                         : b.amount>0
-                          ? <span style={{fontSize:17,fontWeight:400,color:"#000",letterSpacing:"-0.3px"}}>{fmt(b.amount)}</span>
+                          ? <span style={{fontSize:17,fontWeight:400,color:"#0c203c",letterSpacing:"-0.3px"}}>{fmt(b.amount)}</span>
                           : <span style={{fontSize:13,color:p.accent,fontWeight:400}}>Add amt</span>
                     }
                     {!isPaid&&!isSkipped&&(
                       <div style={{display:"flex",gap:4}}>
                         <button onClick={e=>{e.stopPropagation();flagBill(b.id);}} title={b.flagged?"Unflag":"Flag"}
-                          style={{width:30,height:30,borderRadius:8,background:b.flagged?"rgba(255,59,48,0.12)":"rgba(60,60,67,0.08)",border:"none",cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          style={{width:30,height:30,borderRadius:8,background:b.flagged?"rgba(255,59,48,0.12)":"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}>
                           🚩
                         </button>
+                        <button onClick={e=>{e.stopPropagation();rolloverBill(b.id);}} title="Roll over to next month"
+                          style={{width:30,height:30,borderRadius:8,background:"rgba(100,197,235,0.12)",border:"none",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}
+                          >
+                          ↩
+                        </button>
                         <button onClick={e=>{e.stopPropagation();skipBill(b.id);}}
-                          style={{width:30,height:30,borderRadius:8,background:"rgba(60,60,67,0.08)",border:"none",cursor:"pointer",fontSize:11,color:"#8E8E93",fontFamily:"inherit",fontWeight:500}}>
+                          style={{width:30,height:30,borderRadius:8,background:"rgba(0,0,0,0.06)",border:"none",cursor:"pointer",fontSize:11,color:"#416cb3",fontFamily:"inherit",fontWeight:500}}>
                           Skip
                         </button>
                       </div>
                     )}
-                    {!isPaid&&!isSkipped&&<svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#C7C7CC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    {!isPaid&&!isSkipped&&<svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                   </div>
                 </div>
 
                 {/* Inline amount input — iOS sheet style */}
                 {isOpen&&(
                   <div style={{padding:"14px 16px",borderTop:"0.5px solid rgba(60,60,67,0.12)",background:"#FAFAFA"}} className="slide-in">
-                    <div style={{display:"flex",alignItems:"center",background:"#F2F2F7",borderRadius:10,padding:"4px 14px",marginBottom:10}}>
-                      <span style={{fontSize:20,color:"#C7C7CC",marginRight:8,fontWeight:300}}>$</span>
+                    <div style={{display:"flex",alignItems:"center",background:"#e7e7e7",borderRadius:10,padding:"4px 14px",marginBottom:10}}>
+                      <span style={{fontSize:20,color:"rgba(0,0,0,0.3)",marginRight:8,fontWeight:300}}>$</span>
                       <input autoFocus type="number" value={editAmt} onChange={e=>setEditAmt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&confirmPay()}
-                        style={{flex:1,background:"none",border:"none",outline:"none",fontSize:24,fontWeight:600,color:"#000",padding:"8px 0",fontFamily:"inherit",letterSpacing:"-0.5px"}}/>
+                        style={{flex:1,background:"none",border:"none",outline:"none",fontSize:24,fontWeight:600,color:"#0c203c",padding:"8px 0",fontFamily:"inherit",letterSpacing:"-0.5px"}}/>
                     </div>
                     <input type="text" value={editNote} onChange={e=>setEditNote(e.target.value)} placeholder="Confirmation #"
-                      style={{width:"100%",background:"#F2F2F7",border:"none",borderRadius:10,padding:"10px 14px",fontSize:15,color:"#000",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
+                      style={{width:"100%",background:"#e7e7e7",border:"none",borderRadius:10,padding:"10px 14px",fontSize:15,color:"#0c203c",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
                     <div style={{display:"flex",gap:8}}>
                       <button onClick={confirmPay} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:"13px",fontSize:15,fontWeight:600,color:"#fff",cursor:"pointer",fontFamily:"inherit",letterSpacing:"-0.2px"}}>Mark Paid</button>
-                      <button onClick={saveAmount} style={{flex:"0 0 auto",background:"#F2F2F7",border:"none",borderRadius:12,padding:"13px 16px",fontSize:14,fontWeight:500,color:p.accent,cursor:"pointer",fontFamily:"inherit"}}>Save</button>
-                      <button onClick={()=>setEditing(null)} style={{flex:"0 0 auto",background:"#F2F2F7",border:"none",borderRadius:12,padding:"13px",fontSize:14,color:"#8E8E93",cursor:"pointer",fontFamily:"inherit"}}>✕</button>
+                      <button onClick={saveAmount} style={{flex:"0 0 auto",background:"#e7e7e7",border:"none",borderRadius:12,padding:"13px 16px",fontSize:14,fontWeight:500,color:p.accent,cursor:"pointer",fontFamily:"inherit"}}>Save</button>
+                      <button onClick={()=>setEditing(null)} style={{flex:"0 0 auto",background:"#e7e7e7",border:"none",borderRadius:12,padding:"13px",fontSize:14,color:"#416cb3",cursor:"pointer",fontFamily:"inherit"}}>✕</button>
                     </div>
                   </div>
                 )}
@@ -2476,12 +2512,12 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:8,paddingLeft:4,paddingRight:4}}>
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
                     <div style={{width:8,height:8,borderRadius:4,background:accentColor}}/>
-                    <span style={{fontSize:13,fontWeight:400,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em"}}>{title}</span>
+                    <span style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em"}}>{title}</span>
                     {secPending>0&&<span style={{fontSize:12,color:accentColor,fontWeight:600}}>{secPending} left</span>}
                   </div>
                   {secPaid>0&&<span style={{fontSize:13,color:"#34C759",fontWeight:600}}>{fmt(secPaid)} paid</span>}
                 </div>
-                <div style={{background:"#fff",borderRadius:12,overflow:"hidden"}}>
+                <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
                   {items.map((b,i)=>(
                     <div key={b.id}>
                       <BillCard b={b} isLast={i===items.length-1}/>
@@ -2495,42 +2531,42 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
           return(
             <div>
               {allDone&&(
-                <div style={{background:"#fff",borderRadius:16,padding:"20px 20px",marginBottom:24,display:"flex",alignItems:"center",gap:16,boxShadow:"0 2px 12px rgba(52,199,89,0.15)"}}>
+                <div style={{background:"#ffffff",borderRadius:16,padding:"20px 20px",marginBottom:24,display:"flex",alignItems:"center",gap:16,boxShadow:"0 2px 12px rgba(52,199,89,0.15)"}}>
                   <div style={{width:48,height:48,borderRadius:14,background:"#34C759",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0}}>✓</div>
                   <div style={{flex:1}}>
-                    <div style={{fontSize:17,fontWeight:600,color:"#000",letterSpacing:"-0.2px"}}>All done!</div>
-                    <div style={{fontSize:14,color:"#8E8E93",marginTop:2}}>Every bill taken care of.</div>
+                    <div style={{fontSize:17,fontWeight:600,color:"#0c203c",letterSpacing:"-0.2px"}}>All done!</div>
+                    <div style={{fontSize:14,color:"#416cb3",marginTop:2}}>Every bill taken care of.</div>
                   </div>
-                  <button onClick={()=>setTab("summary")} style={{background:"#F2F2F7",border:"none",borderRadius:10,padding:"8px 14px",fontSize:14,fontWeight:500,color:p.accent,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>Summary</button>
+                  <button onClick={()=>setTab("summary")} style={{background:"#e7e7e7",border:"none",borderRadius:10,padding:"8px 14px",fontSize:14,fontWeight:500,color:p.accent,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>Summary</button>
                 </div>
               )}
               {/* ── Payment Method Totals — iOS grouped inset list ── */}
               {Object.keys(paymentMethods).length>0&&(
                 <div style={{marginBottom:24}}>
-                  <div style={{fontSize:13,fontWeight:400,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:4,paddingLeft:4}}>Card Payment Calculator</div>
-                  <div style={{fontSize:12,color:"#8E8E93",marginBottom:8,paddingLeft:4}}>Breakdown of pending card bills — already included in Amount Pending above</div>
-                  <div style={{background:"#fff",borderRadius:12,overflow:"hidden"}}>
+                  <div style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:4,paddingLeft:4}}>Card Payment Calculator</div>
+                  <div style={{fontSize:12,color:"#416cb3",marginBottom:8,paddingLeft:4}}>Breakdown of pending card bills — already included in Amount Pending above</div>
+                  <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
                     {Object.entries(paymentMethods).map(([label,total],i,arr)=>(
-                      <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
+                      <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
                         <div style={{display:"flex",alignItems:"center",gap:12}}>
                           <div style={{width:30,height:30,borderRadius:8,background:p.accent,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
                           </div>
-                          <span style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>{label}</span>
+                          <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{label}</span>
                         </div>
-                        <span style={{fontSize:17,fontWeight:600,color:"#000",letterSpacing:"-0.3px"}}>{fmt(total)}</span>
+                        <span style={{fontSize:17,fontWeight:600,color:"#0c203c",letterSpacing:"-0.3px"}}>{fmt(total)}</span>
                       </div>
                     ))}
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",background:"rgba(60,60,67,0.04)"}}>
-                      <span style={{fontSize:15,fontWeight:600,color:"#6C6C70"}}>Card Total</span>
+                      <span style={{fontSize:15,fontWeight:600,color:"#416cb3"}}>Card Total</span>
                       <span style={{fontSize:17,fontWeight:700,color:p.accent,letterSpacing:"-0.3px"}}>{fmt(Object.values(paymentMethods).reduce((s,v)=>s+v,0))}</span>
                     </div>
                   </div>
                 </div>
               )}
 
-              <Section title="1st Half · 1st–15th"  accentColor="#7F58AF" items={firstHalf}/>
-              <Section title="2nd Half · 16th–31st" accentColor="#64C5EB" items={secondHalf}/>
+              <Section title="1st Half · 1st–15th"  accentColor="#136ef6" items={firstHalf}/>
+              <Section title="2nd Half · 16th–31st" accentColor="#416cb3" items={secondHalf}/>
               <Section title="Yearly & As Needed"   accentColor="#FEB326" items={asNeeded}/>
 
               {/* ── Paid section ── */}
@@ -2539,24 +2575,24 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:8,paddingLeft:4,paddingRight:4}}>
                     <div style={{display:"flex",alignItems:"center",gap:6}}>
                       <div style={{width:8,height:8,borderRadius:4,background:"#34C759"}}/>
-                      <span style={{fontSize:13,fontWeight:400,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em"}}>Paid · {paid.length}</span>
+                      <span style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em"}}>Paid · {paid.length}</span>
                     </div>
                     <span style={{fontSize:13,color:"#34C759",fontWeight:600}}>{fmt(paidAmt)} total</span>
                   </div>
-                  <div style={{background:"#fff",borderRadius:12,overflow:"hidden"}}>
+                  <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
                     {paid.map((b,i)=>(
-                      <div key={b.id} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:i<paid.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
+                      <div key={b.id} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:i<paid.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
                         {/* Green filled check — tap to undo */}
                         <button onClick={()=>unpay(b.id)}
                           style={{width:26,height:26,borderRadius:13,background:"#34C759",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}>
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         </button>
                         <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontSize:16,color:"#8E8E93",textDecoration:"line-through",letterSpacing:"-0.2px",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</div>
-                          {b.note&&<div style={{fontSize:12,color:"#C7C7CC",marginTop:1}}>{b.note}</div>}
+                          <div style={{fontSize:16,color:"#416cb3",textDecoration:"line-through",letterSpacing:"-0.2px",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.vendorName}</div>
+                          {b.note&&<div style={{fontSize:12,color:"rgba(0,0,0,0.3)",marginTop:1}}>{b.note}</div>}
                         </div>
                         <div style={{textAlign:"right",flexShrink:0,marginLeft:12}}>
-                          <div style={{fontSize:16,color:"#C7C7CC",letterSpacing:"-0.3px"}}>$0.00</div>
+                          <div style={{fontSize:16,color:"rgba(0,0,0,0.3)",letterSpacing:"-0.3px"}}>$0.00</div>
                           <div style={{fontSize:11,color:"#34C759",marginTop:1}}>{fmt(b.paidAmount||b.amount||0)} paid</div>
                         </div>
                       </div>
@@ -2568,7 +2604,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
               {/* ── Add Vendor to this month ── */}
               <div style={{marginBottom:32,marginTop:8}}>
                 {addingBill?(
-                  <div style={{background:"#fff",borderRadius:16,padding:16,border:"1px solid rgba(0,0,0,0.07)"}}>
+                  <div style={{background:"#ffffff",borderRadius:16,padding:16,border:"1px solid rgba(0,0,0,0.06)"}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                       <div style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em"}}>Add Vendors</div>
                       {selectedVIds.size>0&&<span style={{background:p.accent,color:"#fff",borderRadius:20,padding:"2px 10px",fontSize:12,fontWeight:700}}>{selectedVIds.size} selected</span>}
@@ -2581,17 +2617,17 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                         <div style={{maxHeight:300,overflowY:"auto",marginBottom:14,borderRadius:12,border:"1px solid rgba(0,0,0,0.08)"}}>
                           {cats.map((cat,ci)=>(
                             <div key={cat}>
-                              <div style={{padding:"7px 14px 3px",background:"rgba(0,0,0,0.02)",borderTop:ci>0?"1px solid rgba(0,0,0,0.06)":"none"}}>
+                              <div style={{padding:"7px 14px 3px",background:"rgba(0,0,0,0.02)",borderTop:ci>0?"1px solid rgba(0,0,0,0.05)":"none"}}>
                                 <span style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em"}}>{cat}</span>
                               </div>
                               {available.filter(v=>v.category===cat).map(v=>(
                                 <div key={v.id} onClick={()=>toggleVendor(v.id)}
                                   style={{display:"flex",alignItems:"center",padding:"10px 14px",borderTop:"1px solid rgba(0,0,0,0.04)",cursor:"pointer",background:selectedVIds.has(v.id)?`${p.accent}08`:"transparent"}}>
                                   <div style={{width:20,height:20,borderRadius:6,border:selectedVIds.has(v.id)?`2px solid ${p.accent}`:"2px solid rgba(0,0,0,0.2)",background:selectedVIds.has(v.id)?p.accent:"transparent",display:"flex",alignItems:"center",justifyContent:"center",marginRight:12,flexShrink:0,transition:"all 0.15s"}}>
-                                    {selectedVIds.has(v.id)&&<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                                    {selectedVIds.has(v.id)&&<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                                   </div>
                                   <div style={{flex:1,minWidth:0}}>
-                                    <div style={{fontSize:14,fontWeight:selectedVIds.has(v.id)?600:400,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{v.name}</div>
+                                    <div style={{fontSize:14,fontWeight:selectedVIds.has(v.id)?600:400,color:"#0c203c",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{v.name}</div>
                                     {v.dueDate&&v.dueDate!=="—"&&<div style={{fontSize:11,color:"rgba(0,0,0,0.35)",marginTop:1}}>Due {v.dueDate}</div>}
                                   </div>
                                 </div>
@@ -2607,16 +2643,16 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                         Add {selectedVIds.size>0?`${selectedVIds.size} Vendor${selectedVIds.size>1?"s":""}`:"Vendors"}
                       </button>
                       <button onClick={()=>{setAddingBill(false);setSelectedVIds(new Set());}}
-                        style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>
+                        style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>
                         Cancel
                       </button>
                     </div>
                   </div>
                 ):(
                   <button onClick={()=>setAddingBill(true)}
-                    style={{width:"100%",background:"#fff",borderRadius:12,padding:"14px 16px",fontSize:17,fontWeight:400,color:p.accent,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:10,border:"none",letterSpacing:"-0.2px"}}>
+                    style={{width:"100%",background:"#ffffff",borderRadius:12,padding:"14px 16px",fontSize:17,fontWeight:400,color:p.accent,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:10,border:"none",letterSpacing:"-0.2px"}}>
                     <div style={{width:28,height:28,borderRadius:8,background:p.accent,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     </div>
                     Add Vendor
                   </button>
@@ -2628,19 +2664,19 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
         {/* SUMMARY TAB */}
         {tab==="summary"&&(
           <div style={{padding:"16px"}}>
-            <div style={{background:"#fff",borderRadius:12,overflow:"hidden",marginBottom:24}}>
+            <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden",marginBottom:24}}>
               {[
                 {label:"Starting Balance",val:fmt(month.startingBalance),color:"rgba(0,0,0,0.85)"},
                 {label:"Total Paid Out",val:fmt(paidAmt),color:"#E84D8A"},
                 pendAmt>0?{label:"Still Pending",val:fmt(pendAmt),color:"#FEB326"}:null,
               ].filter(Boolean).map((r,i,arr)=>(
-                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
-                  <span style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>{r.label}</span>
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+                  <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{r.label}</span>
                   <span style={{fontSize:17,fontWeight:600,color:r.color,letterSpacing:"-0.3px"}}>{r.val}</span>
                 </div>
               ))}
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderTop:"0.5px solid rgba(60,60,67,0.18)"}}>
-                <span style={{fontSize:17,fontWeight:600,color:"#000",letterSpacing:"-0.2px"}}>Remaining</span>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderTop:"0.5px solid rgba(0,0,0,0.08)"}}>
+                <span style={{fontSize:17,fontWeight:600,color:"#0c203c",letterSpacing:"-0.2px"}}>Remaining</span>
                 <span style={{fontSize:22,fontWeight:700,color:p.accent,letterSpacing:"-0.5px"}}>{fmt(month.balance)}</span>
               </div>
             </div>
@@ -2649,15 +2685,15 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
               const tot=pi.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
               return(
                 <div key={cat} style={{marginBottom:20}}>
-                  <div style={{fontSize:13,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div style={{fontSize:13,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                     <span>{cat}</span>
                     <span style={{fontSize:15,fontWeight:600,color:p.accent}}>{fmt(tot)}</span>
                   </div>
-                  <div style={{background:"#fff",borderRadius:12,overflow:"hidden"}}>
+                  <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
                     {pi.map((b,i)=>(
-                      <div key={b.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<pi.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
-                        <span style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>{b.vendorName}</span>
-                        <span style={{fontSize:17,color:"#8E8E93",letterSpacing:"-0.3px"}}>{fmt(b.paidAmount||b.amount||0)}</span>
+                      <div key={b.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<pi.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+                        <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{b.vendorName}</span>
+                        <span style={{fontSize:17,color:"#416cb3",letterSpacing:"-0.3px"}}>{fmt(b.paidAmount||b.amount||0)}</span>
                       </div>
                     ))}
                   </div>
@@ -2746,7 +2782,7 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
         {/* Search bar */}
         <div style={{position:"relative",marginBottom:14}}>
           <div style={{position:"absolute",left:13,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="2" strokeLinecap="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
           </div>
@@ -2756,12 +2792,12 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
             value={search}
             onChange={e=>setSearch(e.target.value)}
             placeholder={`Search ${vendors.length} vendors…`}
-            style={{width:"100%",background:"rgba(0,0,0,0.05)",border:"1px solid rgba(0,0,0,0.08)",borderRadius:12,padding:"10px 36px 10px 36px",fontSize:14,color:"#1C1C1E",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}
+            style={{width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.08)",borderRadius:12,padding:"10px 36px 10px 36px",fontSize:14,color:"#0c203c",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}
           />
           {search&&(
             <button onClick={()=>setSearch("")}
               style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",background:"rgba(0,0,0,0.12)",border:"none",borderRadius:50,width:18,height:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2" strokeLinecap="round">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="1.5" strokeLinecap="round">
                 <line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/>
               </svg>
             </button>
@@ -2792,8 +2828,8 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
           {filtered.length===0&&search&&(
             <div style={{padding:"32px 20px",textAlign:"center"}}>
               <div style={{fontSize:28,marginBottom:10}}>🔍</div>
-              <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E",marginBottom:6}}>No results for "{search}"</div>
-              <div style={{fontSize:13,color:"rgba(0,0,0,0.4)"}}>Try a different name, account, or phone number</div>
+              <div style={{fontSize:15,fontWeight:600,color:"#0c203c",marginBottom:6}}>No results for "{search}"</div>
+              <div style={{fontSize:13,color:"rgba(255,255,255,0.5)"}}>Try a different name, account, or phone number</div>
             </div>
           )}
           {filtered.map((v,i)=>{
@@ -2808,10 +2844,10 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
             <div key={v.id}>
               {/* Vendor row */}
               <div className="bill-row" onClick={()=>editing!==v.id&&setSelected(v.id)}
-                style={{borderBottom:editing===v.id||i<filtered.length-1?"1px solid rgba(0,0,0,0.06)":"none",padding:"14px 16px",cursor:editing===v.id?"default":"pointer"}}>
+                style={{borderBottom:editing===v.id||i<filtered.length-1?"1px solid rgba(0,0,0,0.05)":"none",padding:"14px 16px",cursor:editing===v.id?"default":"pointer"}}>
                 <div style={{display:"flex",alignItems:"center"}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{highlight(v.name)}</div>
+                    <div style={{fontSize:15,fontWeight:600,color:"#0c203c"}}>{highlight(v.name)}</div>
                     <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:2}}>
                       {v.category}{v.account?` · ${v.account}`:""}{v.dueDate?` · Due ${v.dueDate}`:""}
                     </div>
@@ -2820,15 +2856,15 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
                         {v.url&&<a href={v.url} target="_blank" rel="noopener noreferrer" style={{fontSize:12,fontWeight:700,color:p.accent,textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
                           <LinkIcon size={12} color={p.accent}/> Pay Online
                         </a>}
-                        {v.phone&&<a href={`tel:${v.phone.replace(/[^0-9+]/g,"")}`} style={{fontSize:12,fontWeight:700,color:"#7F58AF",textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
-                          <PhoneIcon size={12} color="#7F58AF"/> {v.phone}
+                        {v.phone&&<a href={`tel:${v.phone.replace(/[^0-9+]/g,"")}`} style={{fontSize:12,fontWeight:700,color:"#136ef6",textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
+                          <PhoneIcon size={12} color="#136ef6"/> {v.phone}
                         </a>}
                       </div>
                     )}
                   </div>
                   <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0,marginLeft:12}}>
                     <button onClick={e=>startEdit(e,v)}
-                      style={{background:"rgba(127,88,175,0.08)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"#7F58AF",cursor:"pointer",fontFamily:"inherit",fontWeight:600}}>
+                      style={{background:"rgba(19,110,246,0.08)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"#136ef6",cursor:"pointer",fontFamily:"inherit",fontWeight:600}}>
                       Edit
                     </button>
                     <button onClick={e=>{e.stopPropagation(); setVendors(vendors.filter(x=>x.id!==v.id));}}
@@ -2842,7 +2878,7 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
 
               {/* Inline edit form */}
               {editing===v.id&&(
-                <div style={{background:"rgba(127,88,175,0.04)",padding:"16px",borderBottom:i<filtered.length-1?"1px solid rgba(0,0,0,0.06)":"none"}} className="slide-in">
+                <div style={{background:"rgba(127,88,175,0.04)",padding:"16px",borderBottom:i<filtered.length-1?"1px solid rgba(0,0,0,0.05)":"none"}} className="slide-in">
                   <div style={{fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:12}}>Edit {v.name}</div>
                   {[
                     {label:"Name",        field:"name",    type:"text", ph:"Vendor name"},
@@ -2869,7 +2905,7 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
                   </div>
                   <div style={{display:"flex",gap:8}}>
                     <button onClick={saveEdit} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:12,fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Save Changes</button>
-                    <button onClick={()=>setEditing(null)} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"12px 16px",fontSize:14,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+                    <button onClick={()=>setEditing(null)} style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:12,padding:"12px 16px",fontSize:14,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
                   </div>
                 </div>
               )}
@@ -2879,7 +2915,7 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
 
         {/* Add vendor form */}
         {adding?(
-          <div style={{background:"#ffffff",borderRadius:16,padding:16,marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
+          <div style={{background:"#ffffff",borderRadius:16,padding:16,marginBottom:16,border:"1px solid rgba(0,0,0,0.06)"}}>
             <div style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.38)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:14}}>New Vendor</div>
             {[
               {label:"Name",        field:"name",    ph:"Vendor name",        type:"text"},
@@ -2903,11 +2939,11 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
             </div>
             <div style={{display:"flex",gap:8}}>
               <button onClick={add} style={{flex:1,background:p.accent,border:"none",borderRadius:12,padding:13,fontSize:15,fontWeight:600,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Add Vendor</button>
-              <button onClick={()=>setAdding(false)} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+              <button onClick={()=>setAdding(false)} style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:12,padding:"13px 18px",fontSize:15,color:"rgba(0,0,0,0.5)",cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
             </div>
           </div>
         ):(
-          <button onClick={()=>setAdding(true)} style={{width:"100%",background:"rgba(0,0,0,0.04)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:14,padding:14,fontSize:15,color:"rgba(0,0,0,0.45)",cursor:"pointer",fontFamily:"inherit"}}>＋ Add New Vendor</button>
+          <button onClick={()=>setAdding(true)} style={{width:"100%",background:"rgba(0,0,0,0.06)",border:"1px solid rgba(0,0,0,0.09)",borderRadius:14,padding:14,fontSize:15,color:"rgba(0,0,0,0.45)",cursor:"pointer",fontFamily:"inherit"}}>＋ Add New Vendor</button>
         )}
       </div>
     </AppleScreen>
@@ -2940,8 +2976,8 @@ function reminderStatus(reminder){
   if(days < 0)  return {label:"Overdue",    color:"#E84D8A", bg:"rgba(232,77,138,0.1)",  days};
   if(days === 0) return {label:"Due today",  color:"#E84D8A", bg:"rgba(232,77,138,0.1)",  days};
   if(days <= 7)  return {label:`${days}d`,   color:"#FEB326", bg:"rgba(254,179,38,0.12)", days};
-  if(days <= 30) return {label:`${days}d`,   color:"#7F58AF", bg:"rgba(127,88,175,0.1)",  days};
-  return              {label:`${days}d`,     color:"rgba(0,0,0,0.35)", bg:"rgba(0,0,0,0.05)", days};
+  if(days <= 30) return {label:`${days}d`,   color:"#136ef6", bg:"rgba(19,110,246,0.08)",  days};
+  return              {label:`${days}d`,     color:"rgba(0,0,0,0.35)", bg:"rgba(0,0,0,0.04)", days};
 }
 
 function useReminders(){
@@ -3012,7 +3048,7 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
           <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
             <button onClick={onEdit}
               style={{background:`${p.accent}15`,border:`1px solid ${p.accent}30`,borderRadius:10,padding:"7px 16px",fontSize:13,fontWeight:700,color:p.accent,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
                 <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
               </svg>
@@ -3022,30 +3058,30 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
         )}
 
         {/* Vendor details card */}
-        <div style={{background:"#fff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
+        <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.06)"}}>
           {[
             vendor.account  && {label:"Account",  val:vendor.account},
             vendor.category && {label:"Category", val:vendor.category},
             vendor.dueDate  && {label:"Due Date",  val:`Due ${vendor.dueDate}`},
           ].filter(Boolean).map((row,i,arr)=>(
-            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.05)":"none"}}>
               <span style={{fontSize:14,color:"rgba(0,0,0,0.45)"}}>{row.label}</span>
-              <span style={{fontSize:14,fontWeight:600,color:"#1C1C1E"}}>{row.val}</span>
+              <span style={{fontSize:14,fontWeight:600,color:"#0c203c"}}>{row.val}</span>
             </div>
           ))}
           {vendor.notes&&(
-            <div style={{padding:"12px 16px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+            <div style={{padding:"12px 16px",borderTop:"1px solid rgba(0,0,0,0.05)"}}>
               <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4}}>Notes</div>
               <div style={{fontSize:14,color:"rgba(0,0,0,0.6)",lineHeight:1.5}}>{vendor.notes}</div>
             </div>
           )}
           {(vendor.url||vendor.phone)&&(
-            <div style={{display:"flex",gap:12,padding:"12px 16px",borderTop:"1px solid rgba(0,0,0,0.06)",flexWrap:"wrap"}}>
+            <div style={{display:"flex",gap:12,padding:"12px 16px",borderTop:"1px solid rgba(0,0,0,0.05)",flexWrap:"wrap"}}>
               {vendor.url&&<a href={vendor.url} target="_blank" rel="noopener noreferrer" style={{fontSize:13,fontWeight:700,color:p.accent,textDecoration:"none",display:"flex",alignItems:"center",gap:5}}>
                 <LinkIcon size={13} color={p.accent}/> Pay Online
               </a>}
-              {vendor.phone&&<a href={`tel:${vendor.phone.replace(/[^0-9+]/g,"")}`} style={{fontSize:13,fontWeight:700,color:"#7F58AF",textDecoration:"none",display:"flex",alignItems:"center",gap:5}}>
-                <PhoneIcon size={13} color="#7F58AF"/> {vendor.phone}
+              {vendor.phone&&<a href={`tel:${vendor.phone.replace(/[^0-9+]/g,"")}`} style={{fontSize:13,fontWeight:700,color:"#136ef6",textDecoration:"none",display:"flex",alignItems:"center",gap:5}}>
+                <PhoneIcon size={13} color="#136ef6"/> {vendor.phone}
               </a>}
             </div>
           )}
@@ -3064,7 +3100,7 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
 
         {/* Add reminder form */}
         {showAddReminder&&(
-          <div style={{background:"#fff",borderRadius:16,padding:16,marginBottom:12,border:`1px solid ${p.accent}25`}} className="slide-in">
+          <div style={{background:"#ffffff",borderRadius:16,padding:16,marginBottom:12,border:`1px solid ${p.accent}25`}} className="slide-in">
             <div style={{marginBottom:10}}>
               <div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginBottom:4,fontWeight:600}}>What to check</div>
               <input type="text" value={rForm.note} onChange={e=>setRForm(f=>({...f,note:e.target.value}))}
@@ -3098,30 +3134,30 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
 
         {/* Reminder list */}
         {vendorReminders.length > 0 ? (
-          <div style={{background:"#fff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
+          <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden",marginBottom:16,border:"1px solid rgba(0,0,0,0.06)"}}>
             {vendorReminders.map((r,i)=>{
               const st  = reminderStatus(r);
               const due = nextDueDate(r);
               const isSnoozed = !!r.snoozedUntil;
               return(
-                <div key={r.id} style={{borderBottom:i<vendorReminders.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+                <div key={r.id} style={{borderBottom:i<vendorReminders.length-1?"1px solid rgba(0,0,0,0.05)":"none"}}>
                   {/* Row */}
                   <div style={{display:"flex",alignItems:"flex-start",padding:"14px 16px"}}>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                        <div style={{fontSize:14,fontWeight:600,color:"#1C1C1E"}}>{r.note}</div>
+                        <div style={{fontSize:14,fontWeight:600,color:"#0c203c"}}>{r.note}</div>
                         <span style={{background:st.bg,color:st.color,borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>
                           {st.days<0?"Overdue":st.days===0?"Today":`${st.days}d`}
                         </span>
-                        {isSnoozed&&<span style={{background:"rgba(100,197,235,0.12)",color:"#2d8faf",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:700}}>Snoozed</span>}
+                        {isSnoozed&&<span style={{background:"rgba(100,197,235,0.12)",color:"#102749",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:700}}>Snoozed</span>}
                       </div>
-                      <div style={{fontSize:12,color:"rgba(0,0,0,0.4)",marginTop:3}}>
+                      <div style={{fontSize:12,color:"rgba(255,255,255,0.5)",marginTop:3}}>
                         {FREQ_LABELS[r.frequency]} · Due {due.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
                       </div>
                       {/* Action buttons */}
                       <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
                         <button onClick={()=>dismissReminder(r.id)}
-                          style={{background:"rgba(100,197,235,0.1)",border:"1px solid rgba(100,197,235,0.25)",borderRadius:8,padding:"5px 12px",fontSize:12,fontWeight:700,color:"#2d8faf",cursor:"pointer",fontFamily:"inherit"}}>
+                          style={{background:"rgba(100,197,235,0.1)",border:"1px solid rgba(100,197,235,0.25)",borderRadius:8,padding:"5px 12px",fontSize:12,fontWeight:700,color:"#102749",cursor:"pointer",fontFamily:"inherit"}}>
                           ✓ {r.frequency==="once"?"Dismiss":"Done, next cycle"}
                         </button>
                         <button onClick={()=>{setSnoozeId(snoozeId===r.id?null:r.id);setSnoozeDate("");}}
@@ -3162,11 +3198,11 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
             {[
               {label:"Total Paid",   val:fmt(totalPaid), color:p.accent},
-              {label:"Times Paid",   val:count,          color:"#1C1C1E"},
-              {label:"Average",      val:fmt(avg),       color:"#1C1C1E"},
-              {label:"Last Payment", val:lastPayment?`${MO_S[lastPayment.month]} ${lastPayment.year}`:"—", color:"#1C1C1E"},
+              {label:"Times Paid",   val:count,          color:"#0c203c"},
+              {label:"Average",      val:fmt(avg),       color:"#0c203c"},
+              {label:"Last Payment", val:lastPayment?`${MO_S[lastPayment.month]} ${lastPayment.year}`:"—", color:"#0c203c"},
             ].map((s,i)=>(
-              <div key={i} style={{background:"#fff",borderRadius:14,padding:"14px 16px",border:"1px solid rgba(0,0,0,0.07)"}}>
+              <div key={i} style={{background:"#ffffff",borderRadius:14,padding:"14px 16px",border:"1px solid rgba(0,0,0,0.06)"}}>
                 <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:6}}>{s.label}</div>
                 <div style={{fontSize:20,fontWeight:800,color:s.color,letterSpacing:"-0.3px"}}>{s.val}</div>
               </div>
@@ -3179,30 +3215,30 @@ function VendorProfile({p, vendor, allMonths, onBack, onEdit}){
           Payment History {count>0&&`· ${count} payments`}
         </div>
         {count === 0 ? (
-          <div style={{background:"#fff",borderRadius:16,padding:"32px 20px",textAlign:"center",border:"1px solid rgba(0,0,0,0.07)"}}>
+          <div style={{background:"#ffffff",borderRadius:16,padding:"32px 20px",textAlign:"center",border:"1px solid rgba(0,0,0,0.06)"}}>
             <div style={{fontSize:32,marginBottom:10}}>📋</div>
-            <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E",marginBottom:6}}>No payments yet</div>
-            <div style={{fontSize:13,color:"rgba(0,0,0,0.4)",lineHeight:1.5}}>Once you mark a bill as paid for {vendor.name}, it will appear here.</div>
+            <div style={{fontSize:15,fontWeight:600,color:"#0c203c",marginBottom:6}}>No payments yet</div>
+            <div style={{fontSize:13,color:"rgba(255,255,255,0.5)",lineHeight:1.5}}>Once you mark a bill as paid for {vendor.name}, it will appear here.</div>
           </div>
         ) : (
-          <div style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)",marginBottom:32}}>
+          <div style={{background:"#ffffff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.06)",marginBottom:32}}>
             {payments.map((pay,i)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<payments.length-1?"1px solid rgba(0,0,0,0.06)":"none"}}>
+              <div key={i} style={{display:"flex",alignItems:"center",padding:"14px 16px",borderBottom:i<payments.length-1?"1px solid rgba(0,0,0,0.05)":"none"}}>
                 <div style={{width:8,height:8,borderRadius:4,background:p.accent,marginRight:12,flexShrink:0}}/>
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:15,fontWeight:600,color:"#1C1C1E"}}>{pay.monthLabel}</div>
+                  <div style={{fontSize:15,fontWeight:600,color:"#0c203c"}}>{pay.monthLabel}</div>
                   {pay.note&&<div style={{fontSize:12,color:"rgba(0,0,0,0.45)",marginTop:2}}>{pay.note}</div>}
                 </div>
                 <div style={{textAlign:"right",flexShrink:0}}>
-                  <div style={{fontSize:16,fontWeight:700,color:pay.amount===highest&&count>1?"#E84D8A":pay.amount===lowest&&count>1?"#64C5EB":"#1C1C1E"}}>
+                  <div style={{fontSize:16,fontWeight:700,color:pay.amount===highest&&count>1?"#E84D8A":pay.amount===lowest&&count>1?"#416cb3":"#1C1C1E"}}>
                     {fmt(pay.amount)}
                   </div>
                   {pay.amount===highest&&count>1&&<div style={{fontSize:10,color:"#E84D8A",fontWeight:600}}>highest</div>}
-                  {pay.amount===lowest&&count>1&&pay.amount!==highest&&<div style={{fontSize:10,color:"#64C5EB",fontWeight:600}}>lowest</div>}
+                  {pay.amount===lowest&&count>1&&pay.amount!==highest&&<div style={{fontSize:10,color:"#416cb3",fontWeight:600}}>lowest</div>}
                 </div>
               </div>
             ))}
-            <div style={{display:"flex",justifyContent:"space-between",padding:"14px 16px",background:"rgba(0,0,0,0.02)",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",padding:"14px 16px",background:"rgba(0,0,0,0.02)",borderTop:"1px solid rgba(0,0,0,0.05)"}}>
               <span style={{fontSize:13,fontWeight:700,color:"rgba(0,0,0,0.5)"}}>All-time total</span>
               <span style={{fontSize:15,fontWeight:800,color:p.accent}}>{fmt(totalPaid)}</span>
             </div>
@@ -3324,9 +3360,9 @@ function BillSchedule({p, vendors, setVendors, months, onBack, updateMonth}){
 
   function statusColor(st){
     if(!st) return {dot:"rgba(0,0,0,0.15)", badge:null};
-    if(st.status==="paid")    return {dot:"#64C5EB", badge:{label:"Paid",    bg:"rgba(100,197,235,0.12)",color:"#2d8faf"}};
+    if(st.status==="paid")    return {dot:"#416cb3", badge:{label:"Paid",    bg:"rgba(100,197,235,0.12)",color:"#102749"}};
     if(st.status==="pending") return {dot:"#FEB326", badge:{label:"Pending", bg:"rgba(254,179,38,0.12)", color:"#b8860b"}};
-    if(st.status==="skipped") return {dot:"rgba(0,0,0,0.2)", badge:{label:"Skipped",bg:"rgba(0,0,0,0.06)",color:"rgba(0,0,0,0.4)"}};
+    if(st.status==="skipped") return {dot:"rgba(0,0,0,0.2)", badge:{label:"Skipped",bg:"rgba(0,0,0,0.05)",color:"rgba(255,255,255,0.5)"}};
     return {dot:"rgba(0,0,0,0.15)", badge:null};
   }
 
@@ -3336,16 +3372,16 @@ function BillSchedule({p, vendors, setVendors, months, onBack, updateMonth}){
     return(
       <div>
         <div className="bill-row" onClick={()=>setSelectedVendor(v.id)}
-          style={{display:"flex",alignItems:"center",padding:"11px 16px",borderBottom:"1px solid rgba(0,0,0,0.05)",cursor:"pointer"}}>
+          style={{display:"flex",alignItems:"center",padding:"11px 16px",borderBottom:"1px solid rgba(0,0,0,0.04)",cursor:"pointer"}}>
           <div style={{width:8,height:8,borderRadius:4,background:sc.dot,marginRight:12,flexShrink:0}}/>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:14,fontWeight:500,color:"#1C1C1E",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{v.name}</div>
+            <div style={{fontSize:14,fontWeight:500,color:"#0c203c",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{v.name}</div>
             <div style={{fontSize:11,color:"rgba(0,0,0,0.38)",marginTop:1}}>{v.account||v.category}{v.dueDate&&v.dueDate!=="—"?` · Due ${v.dueDate}`:""}</div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0,marginLeft:8}}>
-            {bs?.amount>0&&<span style={{fontSize:13,fontWeight:600,color:"#1C1C1E"}}>{fmt(bs.amount)}</span>}
+            {bs?.amount>0&&<span style={{fontSize:13,fontWeight:600,color:"#0c203c"}}>{fmt(bs.amount)}</span>}
             {sc.badge&&<span style={{background:sc.badge.bg,color:sc.badge.color,borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>{sc.badge.label}</span>}
-            {!activeMonth&&!sc.badge&&<span style={{background:"rgba(0,0,0,0.05)",color:"rgba(0,0,0,0.35)",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:600}}>No session</span>}
+            {!activeMonth&&!sc.badge&&<span style={{background:"rgba(0,0,0,0.04)",color:"rgba(0,0,0,0.35)",borderRadius:20,padding:"2px 9px",fontSize:11,fontWeight:600}}>No session</span>}
             <span style={{color:"rgba(0,0,0,0.2)",fontSize:16,marginLeft:2}}>›</span>
           </div>
         </div>
@@ -3370,7 +3406,7 @@ function BillSchedule({p, vendors, setVendors, months, onBack, updateMonth}){
         {/* Progress bar for this half */}
         {activeMonth&&items.length>0&&(
           <div style={{marginBottom:10}}>
-            <div style={{height:4,background:"rgba(0,0,0,0.06)",borderRadius:2,overflow:"hidden"}}>
+            <div style={{height:4,background:"rgba(0,0,0,0.05)",borderRadius:2,overflow:"hidden"}}>
               <div style={{height:"100%",width:`${Math.round(paid.length/items.length*100)}%`,background:p.accent,borderRadius:2,transition:"width 0.4s"}}/>
             </div>
             <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
@@ -3379,7 +3415,7 @@ function BillSchedule({p, vendors, setVendors, months, onBack, updateMonth}){
             </div>
           </div>
         )}
-        <div style={{background:"#fff",borderRadius:14,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)"}}>
+        <div style={{background:"#ffffff",borderRadius:14,overflow:"hidden",border:"1px solid rgba(0,0,0,0.06)"}}>
           {items.map(v=><VendorRow key={v.id} v={v}/>)}
           {items.length===0&&<div style={{padding:"16px",textAlign:"center",fontSize:13,color:"rgba(0,0,0,0.35)"}}>No vendors in this half</div>}
         </div>
@@ -3399,40 +3435,40 @@ function BillSchedule({p, vendors, setVendors, months, onBack, updateMonth}){
       <div style={{padding:"0 16px"}}>
 
         {/* Month picker */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#fff",borderRadius:14,padding:"12px 16px",marginBottom:16,border:"1px solid rgba(0,0,0,0.07)"}}>
-          <button onClick={prevMonth} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:8,width:32,height:32,cursor:"pointer",fontSize:16,color:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#ffffff",borderRadius:14,padding:"12px 16px",marginBottom:16,border:"1px solid rgba(0,0,0,0.06)"}}>
+          <button onClick={prevMonth} style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:8,width:32,height:32,cursor:"pointer",fontSize:16,color:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
           <div style={{textAlign:"center"}}>
-            <div style={{fontSize:16,fontWeight:700,color:"#1C1C1E"}}>{MO[viewMo]} {viewYr}</div>
+            <div style={{fontSize:16,fontWeight:700,color:"#0c203c"}}>{MO[viewMo]} {viewYr}</div>
             <div style={{fontSize:11,color:"rgba(0,0,0,0.38)",marginTop:2}}>
               {activeMonth?`${activeMonth.bills.filter(b=>b.status==="paid").length}/${activeMonth.bills.length} bills paid`:"No active session"}
             </div>
           </div>
-          <button onClick={nextMonth} style={{background:"rgba(0,0,0,0.05)",border:"none",borderRadius:8,width:32,height:32,cursor:"pointer",fontSize:16,color:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
+          <button onClick={nextMonth} style={{background:"rgba(0,0,0,0.04)",border:"none",borderRadius:8,width:32,height:32,cursor:"pointer",fontSize:16,color:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
         </div>
 
         {/* Summary pills */}
         {activeMonth&&(
           <div style={{display:"flex",gap:10,marginBottom:16}}>
-            <div style={{flex:1,background:"#fff",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,0,0,0.07)",textAlign:"center"}}>
+            <div style={{flex:1,background:"#ffffff",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,0,0,0.06)",textAlign:"center"}}>
               <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Paid Out</div>
               <div style={{fontSize:18,fontWeight:800,color:p.accent}}>{fmt(totalPaid)}</div>
             </div>
-            <div style={{flex:1,background:"#fff",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,0,0,0.07)",textAlign:"center"}}>
+            <div style={{flex:1,background:"#ffffff",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,0,0,0.06)",textAlign:"center"}}>
               <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Pending</div>
               <div style={{fontSize:18,fontWeight:800,color:"#FEB326"}}>{fmt(totalPending)}</div>
             </div>
-            <div style={{flex:1,background:"#fff",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,0,0,0.07)",textAlign:"center"}}>
+            <div style={{flex:1,background:"#ffffff",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,0,0,0.06)",textAlign:"center"}}>
               <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.35)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Remaining</div>
-              <div style={{fontSize:18,fontWeight:800,color:"#1C1C1E"}}>{fmt(activeMonth.balance)}</div>
+              <div style={{fontSize:18,fontWeight:800,color:"#0c203c"}}>{fmt(activeMonth.balance)}</div>
             </div>
           </div>
         )}
 
         {/* 1st Half */}
-        <HalfSection title="1st Half · 1st–15th" color="#7F58AF" items={firstHalf}/>
+        <HalfSection title="1st Half · 1st–15th" color="#136ef6" items={firstHalf}/>
 
         {/* 2nd Half */}
-        <HalfSection title="2nd Half · 16th–31st" color="#64C5EB" items={secondHalf}/>
+        <HalfSection title="2nd Half · 16th–31st" color="#416cb3" items={secondHalf}/>
 
         {/* As Needed / Yearly / Home Services */}
         {asNeeded.length>0&&(
@@ -3444,7 +3480,7 @@ function BillSchedule({p, vendors, setVendors, months, onBack, updateMonth}){
               return(
                 <div key={cat} style={{marginBottom:12}}>
                   <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,0.3)",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:6,padding:"0 4px"}}>{cat}</div>
-                  <div style={{background:"#fff",borderRadius:14,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)"}}>
+                  <div style={{background:"#ffffff",borderRadius:14,overflow:"hidden",border:"1px solid rgba(0,0,0,0.06)"}}>
                     {catVendors.map(v=><VendorRow key={v.id} v={v}/>)}
                   </div>
                 </div>
@@ -3474,38 +3510,38 @@ function History({p,months,onView,onBack,onDelete}){
 
         {/* Stats */}
         <div style={{marginBottom:20}}>
-          <div style={{background:"#fff",borderRadius:12,overflow:"hidden"}}>
-            <div style={{display:"flex",justifyContent:"space-between",padding:"13px 16px",borderBottom:"0.5px solid rgba(60,60,67,0.18)"}}>
-              <span style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>Months Archived</span>
-              <span style={{fontSize:17,color:"#8E8E93"}}>{months.length}</span>
+          <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
+            <div style={{display:"flex",justifyContent:"space-between",padding:"13px 16px",borderBottom:"0.5px solid rgba(0,0,0,0.08)"}}>
+              <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>Months Archived</span>
+              <span style={{fontSize:17,color:"#416cb3"}}>{months.length}</span>
             </div>
             <div style={{display:"flex",justifyContent:"space-between",padding:"13px 16px"}}>
-              <span style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>All-Time Paid</span>
+              <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>All-Time Paid</span>
               <span style={{fontSize:17,color:p.accent,fontWeight:600}}>{fmt(totalPaid)}</span>
             </div>
           </div>
         </div>
 
-        {sorted.length===0&&<div style={{textAlign:"center",color:"#8E8E93",padding:"40px 0",fontSize:17}}>No archived months yet</div>}
+        {sorted.length===0&&<div style={{textAlign:"center",color:"#416cb3",padding:"40px 0",fontSize:17}}>No archived months yet</div>}
 
         {/* Month list */}
         {sorted.length>0&&(
-          <div style={{background:"#fff",borderRadius:12,overflow:"hidden",marginBottom:20}}>
+          <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden",marginBottom:20}}>
             {sorted.map((m,i)=>{
               const paid=m.bills.filter(b=>b.status==="paid");
               const paidAmt=paid.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
               return(
-                <div key={m.id} style={{display:"flex",alignItems:"center",padding:"13px 16px",borderBottom:i<sorted.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
+                <div key={m.id} style={{display:"flex",alignItems:"center",padding:"13px 16px",borderBottom:i<sorted.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
                   <div className="ios-row" onClick={()=>onView(m.id)} style={{flex:1,display:"flex",alignItems:"center",cursor:"pointer"}}>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>{m.label}</div>
-                      <div style={{fontSize:13,color:"#8E8E93",marginTop:2}}>{paid.length} bills · {fmt(paidAmt)} paid</div>
+                      <div style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{m.label}</div>
+                      <div style={{fontSize:13,color:"#416cb3",marginTop:2}}>{paid.length} bills · {fmt(paidAmt)} paid</div>
                     </div>
                     <div style={{textAlign:"right",marginRight:8}}>
                       <div style={{fontSize:17,fontWeight:600,color:p.accent}}>{fmt(m.balance)}</div>
-                      <div style={{fontSize:12,color:"#8E8E93"}}>remaining</div>
+                      <div style={{fontSize:12,color:"#416cb3"}}>remaining</div>
                     </div>
-                    <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#C7C7CC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#416cb3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </div>
                   {/* Per-row delete */}
                   {onDelete&&(
@@ -3528,16 +3564,16 @@ function History({p,months,onView,onBack,onDelete}){
               Clear All History
             </button>
           ) : (
-            <div style={{background:"#fff",borderRadius:14,padding:"18px 16px",marginBottom:32,textAlign:"center"}}>
-              <div style={{fontSize:16,fontWeight:600,color:"#000",marginBottom:6}}>Clear all {months.length} months?</div>
-              <div style={{fontSize:13,color:"#8E8E93",marginBottom:16}}>This permanently deletes all archived months and their bills. This cannot be undone.</div>
+            <div style={{background:"#ffffff",borderRadius:14,padding:"18px 16px",marginBottom:32,textAlign:"center"}}>
+              <div style={{fontSize:16,fontWeight:600,color:"#0c203c",marginBottom:6}}>Clear all {months.length} months?</div>
+              <div style={{fontSize:13,color:"#416cb3",marginBottom:16}}>This permanently deletes all archived months and their bills. This cannot be undone.</div>
               <div style={{display:"flex",gap:8}}>
                 <button onClick={clearAll}
                   style={{flex:1,background:"#FF3B30",border:"none",borderRadius:12,padding:"13px",fontSize:15,fontWeight:600,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
                   Yes, Clear All
                 </button>
                 <button onClick={()=>setConfirmClear(false)}
-                  style={{flex:1,background:"#F2F2F7",border:"none",borderRadius:12,padding:"13px",fontSize:15,fontWeight:600,color:"#8E8E93",cursor:"pointer",fontFamily:"inherit"}}>
+                  style={{flex:1,background:"#e7e7e7",border:"none",borderRadius:12,padding:"13px",fontSize:15,fontWeight:600,color:"#416cb3",cursor:"pointer",fontFamily:"inherit"}}>
                   Cancel
                 </button>
               </div>
@@ -3555,27 +3591,27 @@ function ViewMonth({p,month,onBack}){
   return(
     <AppleScreen p={p} title={month.label} onBack={onBack}>
       <div style={{padding:"0 16px"}}>
-        <div style={{background:"#fff",borderRadius:12,overflow:"hidden",marginBottom:24}}>
+        <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden",marginBottom:24}}>
           {[{l:"Starting Balance",v:fmt(month.startingBalance),c:"#000"},{l:"Total Paid",v:fmt(paidAmt),c:p.accent},{l:"Remaining",v:fmt(month.balance),c:month.balance<0?"#FF3B30":p.accent}].map((r,i,a)=>(
-            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<a.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
-              <span style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>{r.l}</span>
+            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<a.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
+              <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{r.l}</span>
               <span style={{fontSize:17,fontWeight:600,color:r.c,letterSpacing:"-0.3px"}}>{r.v}</span>
             </div>
           ))}
         </div>
-        <div style={{fontSize:13,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4}}>Bills Paid</div>
-        <div style={{background:"#fff",borderRadius:12,overflow:"hidden"}}>
+        <div style={{fontSize:13,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4}}>Bills Paid</div>
+        <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden"}}>
           {paid.map((b,i)=>(
-            <div key={b.id} style={{display:"flex",alignItems:"center",padding:"13px 16px",borderBottom:i<paid.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
+            <div key={b.id} style={{display:"flex",alignItems:"center",padding:"13px 16px",borderBottom:i<paid.length-1?"0.5px solid rgba(0,0,0,0.08)":"none"}}>
               <div style={{width:8,height:8,borderRadius:4,background:"#34C759",marginRight:12,flexShrink:0}}/>
               <div style={{flex:1}}>
-                <div style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>{b.vendorName}</div>
-                {b.note&&<div style={{fontSize:13,color:"#8E8E93",marginTop:1}}>{b.note}</div>}
+                <div style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{b.vendorName}</div>
+                {b.note&&<div style={{fontSize:13,color:"#416cb3",marginTop:1}}>{b.note}</div>}
               </div>
               <span style={{fontSize:17,fontWeight:500,color:p.accent,letterSpacing:"-0.3px"}}>{fmt(b.amount)}</span>
             </div>
           ))}
-          {paid.length===0&&<div style={{padding:"20px 16px",fontSize:17,color:"#8E8E93"}}>No bills recorded</div>}
+          {paid.length===0&&<div style={{padding:"20px 16px",fontSize:17,color:"#416cb3"}}>No bills recorded</div>}
         </div>
       </div>
     </AppleScreen>
@@ -3585,13 +3621,13 @@ function ViewMonth({p,month,onBack}){
 // ─── Shared Components ────────────────────────────────────────────────────────
 function AppleScreen({p,title,onBack,children}){
   return(
-    <div style={{minHeight:"100vh",background:"#F2F2F7",paddingBottom:60}}>
-      <div style={{background:"#F2F2F7",padding:"56px 20px 0",paddingBottom:12}}>
+    <div style={{minHeight:"100vh",background:"#e7e7e7",paddingBottom:60}}>
+      <div style={{background:"#e7e7e7",padding:"56px 20px 0",paddingBottom:12}}>
         <button onClick={onBack} style={{background:"none",border:"none",color:p.accent,fontSize:17,cursor:"pointer",padding:"0 0 10px",display:"flex",alignItems:"center",gap:5,fontFamily:"inherit",fontWeight:400,letterSpacing:"-0.2px"}}>
-          <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1 8.5L9 16" stroke={p.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1 8.5L9 16" stroke={p.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           {p.label}
         </button>
-        <div style={{fontSize:34,fontWeight:700,color:"#000",letterSpacing:"-0.5px",lineHeight:1.1,marginBottom:16}}>{title}</div>
+        <div style={{fontSize:34,fontWeight:700,color:"#0c203c",letterSpacing:"-0.5px",lineHeight:1.1,marginBottom:16}}>{title}</div>
       </div>
       <div>{children}</div>
     </div>
@@ -3599,7 +3635,7 @@ function AppleScreen({p,title,onBack,children}){
 }
 
 function SectionLabel({children,inline}){
-  return <div style={{fontSize:13,fontWeight:400,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:inline?0:8,padding:"0 4px"}}>{children}</div>;
+  return <div style={{fontSize:13,fontWeight:400,color:"#416cb3",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:inline?0:8,padding:"0 4px"}}>{children}</div>;
 }
 
 function Chip({children,color,bg}){
@@ -3616,33 +3652,33 @@ function AppleButton({children,accent,onClick}){
 }
 
 function AppleFormGroup({children}){
-  return <div style={{background:"#fff",borderRadius:12,overflow:"hidden",marginBottom:20,marginLeft:16,marginRight:16}}>{children}</div>;
+  return <div style={{background:"#ffffff",borderRadius:12,overflow:"hidden",marginBottom:20,marginLeft:16,marginRight:16}}>{children}</div>;
 }
 
 function AppleRow({label,children,last}){
   return(
-    <div className="ios-row" style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"13px 16px",borderBottom:last?"none":"0.5px solid rgba(60,60,67,0.18)"}}>
-      <span style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>{label}</span>
+    <div className="ios-row" style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"13px 16px",borderBottom:last?"none":"0.5px solid rgba(0,0,0,0.08)"}}>
+      <span style={{fontSize:17,color:"#0c203c",letterSpacing:"-0.2px"}}>{label}</span>
       <div style={{flex:1,textAlign:"right"}}>{children}</div>
     </div>
   );
 }
 
-const sel={width:"100%",background:"#F2F2F7",border:"none",borderRadius:10,padding:"11px 14px",fontSize:17,color:"#000",fontFamily:"inherit",outline:"none",appearance:"none",WebkitAppearance:"none"};
-const inp={width:"100%",background:"#F2F2F7",border:"none",borderRadius:10,padding:"11px 14px",fontSize:17,color:"#000",fontFamily:"inherit",outline:"none",boxSizing:"border-box"};
+const sel={width:"100%",background:"#e7e7e7",border:"none",borderRadius:10,padding:"11px 14px",fontSize:17,color:"#0c203c",fontFamily:"inherit",outline:"none",appearance:"none",WebkitAppearance:"none"};
+const inp={width:"100%",background:"#e7e7e7",border:"none",borderRadius:10,padding:"11px 14px",fontSize:17,color:"#0c203c",fontFamily:"inherit",outline:"none",boxSizing:"border-box"};
 
 const CSS=`
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;margin:0;background:#F2F2F7;}
+  html,body{height:100%;margin:0;background:#e7e7e7;}
   #root{height:100%;}
   input,select,textarea{font-family:inherit;}
-  input::placeholder,textarea::placeholder{color:#C7C7CC;}
+  input::placeholder,textarea::placeholder{color:rgba(0,0,0,0.25);}input,select,textarea{color:#0c203c;background:transparent;}
   input:focus,select:focus,textarea:focus{outline:none;}
   input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
   select{-webkit-appearance:none;appearance:none;}
   .ios-row{transition:background 0.08s;cursor:pointer;}
-  .ios-row:active{background:rgba(60,60,67,0.08)!important;}
+  .ios-row:active{background:rgba(0,0,0,0.06)!important;}
   .ios-btn{transition:opacity 0.1s;}
   .ios-btn:active{opacity:0.6;}
   .action-card:active{opacity:0.7;}
