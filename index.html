@@ -217,6 +217,7 @@ function rowsToMonths(monthRows, billRows) {
       id: b.id, vendorId: b.vendor_id, vendorName: b.vendor_name,
       amount: b.amount, status: b.status, account: b.account,
       dueDate: b.due_date, note: b.note || "",
+      paidAmount: b.paid_amount || null, flagged: b.flagged || false,
       paidAt: b.paid_at ? new Date(b.paid_at).getTime() : null
     }))
   }));
@@ -232,6 +233,7 @@ function billToRow(b, monthId) {
   return { id:b.id, month_id:monthId, vendor_id:b.vendorId, vendor_name:b.vendorName,
            amount:b.amount||0, status:b.status, account:b.account||"",
            due_date:b.dueDate||"", note:b.note||"",
+           paid_amount:b.paidAmount||null, flagged:b.flagged||false,
            paid_at: b.paidAt ? new Date(b.paidAt).toISOString() : null };
 }
 
@@ -299,11 +301,27 @@ function useSupabaseData(propKey, seedVendors, seedMonths) {
   }, [propKey]);
 
   // Save a month + all its bills to Supabase
+  // Two-attempt strategy: try with paid_amount/flagged, fall back without if columns missing
   async function saveMonth(month) {
     try {
       await sb.upsert("months", monthToRow(month, propKey));
       if (month.bills && month.bills.length > 0) {
-        await sb.upsert("bills", month.bills.map(b => billToRow(b, month.id)));
+        try {
+          await sb.upsert("bills", month.bills.map(b => billToRow(b, month.id)));
+        } catch(e) {
+          // Columns may not exist yet — retry without paid_amount/flagged
+          if (e.message && (e.message.includes("paid_amount") || e.message.includes("flagged") || e.message.includes("column"))) {
+            await sb.upsert("bills", month.bills.map(b => ({
+              id: b.id, month_id: month.id, vendor_id: b.vendorId,
+              vendor_name: b.vendorName, amount: b.amount||0,
+              status: b.status, account: b.account||"",
+              due_date: b.dueDate||"", note: b.note||"",
+              paid_at: b.paidAt ? new Date(b.paidAt).toISOString() : null
+            })));
+          } else {
+            throw e;
+          }
+        }
       }
     } catch(e) { console.error("Save month error:", e); }
   }
@@ -972,11 +990,40 @@ function MobileDashboard({onSelect, user, onSignOut, onMenu}){
   );
 }
 
+// ─── Auto-migrate bills table — add paid_amount + flagged if missing ──────────
+async function ensureBillColumns(){
+  try {
+    // Try selecting the new columns — if this fails the columns don't exist
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/bills?select=paid_amount,flagged&limit=1`,
+      { headers:{ apikey:SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` } }
+    );
+    if(!r.ok){
+      // Columns missing — tell the user to add them manually
+      console.warn("⚠ bills table missing paid_amount or flagged columns. Go to Supabase → Table Editor → bills → Add columns: paid_amount (numeric) and flagged (boolean default false)");
+    }
+    // If ok, columns exist — nothing to do
+  } catch(e){ /* non-critical */ }
+}
+
 // ─── Desktop Shell ────────────────────────────────────────────────────────────
+function useProfilePicture(){
+  const [pic, setPic] = useStorage("bp_profile_pic", null);
+  function upload(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = e => setPic(e.target.result);
+    reader.readAsDataURL(file);
+  }
+  function clear(){ setPic(null); }
+  return { pic, upload, clear };
+}
 function DesktopShell({user, onSignOut}){
   const [panel,     setPanel]     = useNavState("bp_nav_desktop_panel", "dashboard");
   const [collapsed, setCollapsed] = useNavState("bp_nav_desktop_collapsed", false);
   const { swMonths: swM, snMonths: snM } = useLiveMonths();
+  const { pic, upload } = useProfilePicture();
+  const picInputRef = useRef(null);
   const swPending = swM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
   const snPending = snM.filter(m=>m.status!=="closed").reduce((s,m)=>s+m.bills.filter(b=>b.status==="pending").length,0);
 
@@ -1151,10 +1198,18 @@ function DesktopShell({user, onSignOut}){
 
         {/* User row */}
         <div style={{padding:collapsed?"10px 0 24px":"12px 12px 24px",borderTop:"1px solid rgba(0,0,0,0.07)",display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:collapsed?0:10,flexShrink:0,flexDirection:collapsed?"column":"row"}}>
-          {user?.picture
-            ? <img src={user.picture} style={{width:30,height:30,borderRadius:15,flexShrink:0}} alt=""/>
-            : <div style={{width:30,height:30,borderRadius:15,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:12,fontWeight:700,flexShrink:0}}>{user?.name?.[0]||"?"}</div>
-          }
+          {/* Avatar — click to upload family photo */}
+          <input ref={picInputRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>upload(e.target.files[0])}/>
+          <button onClick={()=>picInputRef.current?.click()} title="Upload family photo"
+            style={{background:"none",border:"none",padding:0,cursor:"pointer",flexShrink:0,position:"relative"}}>
+            {(pic||user?.picture)
+              ? <img src={pic||user.picture} style={{width:30,height:30,borderRadius:15,objectFit:"cover",display:"block"}} alt=""/>
+              : <div style={{width:30,height:30,borderRadius:15,background:"#7F58AF",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:12,fontWeight:700}}>{user?.name?.[0]||"?"}</div>
+            }
+            <div style={{position:"absolute",bottom:-1,right:-1,width:12,height:12,borderRadius:6,background:"#34C759",border:"2px solid #F5F5F7",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <svg width="6" height="6" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="2" x2="5" y2="8"/><line x1="2" y1="5" x2="8" y2="5"/></svg>
+            </div>
+          </button>
           {!collapsed && (
             <>
               <div style={{flex:1,minWidth:0}}>
@@ -1407,7 +1462,7 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
             {active.map(m=>{
               const paid=m.bills.filter(b=>b.status==="paid");
               const pct=m.bills.length?Math.round(paid.length/m.bills.length*100):0;
-              const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+              const paidAmt=paid.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
               const pending=m.bills.filter(b=>b.status==="pending");
               return(
                 <div key={m.id} style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
@@ -1452,7 +1507,7 @@ function PropHomeDesktop({p,active,closed,onOpen,onNew,onManage,onHistory,onDele
           <div style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,0,0,0.07)"}}>
             {[...closed].sort((a,b)=>(b.closedAt||0)-(a.closedAt||0)).slice(0,4).map((m,i,arr)=>{
               const paid=m.bills.filter(b=>b.status==="paid");
-              const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+              const paidAmt=paid.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
               return(
                 <div key={m.id} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.05)":"none"}}>
                   <div style={{flex:1}}><div style={{fontSize:14,fontWeight:500,color:"#1C1C1E"}}>{m.label}</div><div style={{fontSize:12,color:"rgba(0,0,0,0.38)",marginTop:1}}>{paid.length} bills · {fmt(paidAmt)} paid</div></div>
@@ -2021,7 +2076,7 @@ function PropHome({p,active,closed,onBack,onOpen,onNew,onManage,onHistory,onDele
               {active.map((m,idx)=>{
                 const paid=m.bills.filter(b=>b.status==="paid");
                 const pct=m.bills.length?Math.round(paid.length/m.bills.length*100):0;
-                const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+                const paidAmt=paid.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
                 return(
                   <div key={m.id} style={{paddingTop:idx>0?16:0,marginTop:idx>0?16:0,borderTop:idx>0?"1px solid rgba(255,255,255,0.15)":"none"}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
@@ -2591,7 +2646,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
             </div>
             {Object.entries(catGroups).map(([cat,items])=>{
               const pi=items.filter(b=>b.status==="paid");if(!pi.length)return null;
-              const tot=pi.reduce((s,b)=>s+b.amount,0);
+              const tot=pi.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
               return(
                 <div key={cat} style={{marginBottom:20}}>
                   <div style={{fontSize:13,color:"#6C6C70",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8,paddingLeft:4,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -2602,7 +2657,7 @@ function Bills({p,month,vendors,onUpdate,onClose,onBack}){
                     {pi.map((b,i)=>(
                       <div key={b.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px",borderBottom:i<pi.length-1?"0.5px solid rgba(60,60,67,0.18)":"none"}}>
                         <span style={{fontSize:17,color:"#000",letterSpacing:"-0.2px"}}>{b.vendorName}</span>
-                        <span style={{fontSize:17,color:"#8E8E93",letterSpacing:"-0.3px"}}>{fmt(b.amount)}</span>
+                        <span style={{fontSize:17,color:"#8E8E93",letterSpacing:"-0.3px"}}>{fmt(b.paidAmount||b.amount||0)}</span>
                       </div>
                     ))}
                   </div>
@@ -2645,7 +2700,8 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
 
   function add(){
     if(!form.name.trim()) return;
-    setVendors(pv=>[...pv,{...form,id:uid(),defaultAmount:0}]);
+    const newVendor = {...form, id:uid(), defaultAmount:0};
+    setVendors([...vendors, newVendor]);
     setForm({name:"",category:p.cats[0],account:"",defaultAmount:"",dueDate:"",notes:"",url:"",phone:""});
     setAdding(false);
   }
@@ -2775,7 +2831,7 @@ function ManageVendors({p, vendors, setVendors, onBack, allMonths, updateMonth})
                       style={{background:"rgba(127,88,175,0.08)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"#7F58AF",cursor:"pointer",fontFamily:"inherit",fontWeight:600}}>
                       Edit
                     </button>
-                    <button onClick={e=>{e.stopPropagation();setVendors(pv=>pv.filter(x=>x.id!==v.id));}}
+                    <button onClick={e=>{e.stopPropagation(); setVendors(vendors.filter(x=>x.id!==v.id));}}
                       style={{background:"rgba(232,77,138,0.1)",border:"none",borderRadius:8,padding:"5px 10px",fontSize:12,color:"#E84D8A",cursor:"pointer",fontFamily:"inherit"}}>
                       Remove
                     </button>
@@ -3495,7 +3551,7 @@ function History({p,months,onView,onBack,onDelete}){
 
 function ViewMonth({p,month,onBack}){
   const paid=month.bills.filter(b=>b.status==="paid");
-  const paidAmt=paid.reduce((s,b)=>s+b.amount,0);
+  const paidAmt=paid.reduce((s,b)=>s+(b.paidAmount||b.amount||0),0);
   return(
     <AppleScreen p={p} title={month.label} onBack={onBack}>
       <div style={{padding:"0 16px"}}>
